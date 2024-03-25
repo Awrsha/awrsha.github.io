@@ -32,6 +32,9 @@
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
+      <!-- <h1 class="logo"><a href="index.html">Amir Mohammad</a></h1> -->
+      <!-- Uncomment below if you prefer to use an image logo -->
+      <!-- <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a> -->
 
       <nav class="nav-menu d-none d-lg-block">
         <ul>
@@ -92,6 +95,20 @@
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <script>
+    function changeText() {
+      const textElement = document.querySelector('h2');
+      const texts = ["Computer Vision", "Robotic", "Machine Learning", "Artificial Intelligence"];
+      let currentIndex = 0;
+  
+      setInterval(() => {
+        textElement.textContent = `I'm a ${texts[currentIndex]} Developer from Iran`;
+        currentIndex = (currentIndex + 1) % texts.length;
+      }, 2000);
+    }
+    changeText();
+  </script>
 
 </body>
 
