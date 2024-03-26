@@ -63,6 +63,10 @@
       <h1>Amir M. Parvizi</h1>
       <h2>I'm a Machine Learning Developer from Iran</h2>
       <a href="about.html" class="btn-about">About Me</a>
+      <a href="resume.html" class="btn-about">My Resume</a>
+      <a href="services.html" class="btn-about">Services</a>
+      <a href="portfolio.html" class="btn-about">My Portfolio</a>
+      <a href="contact.html" class="btn-about">Contact Me</a>
     </div>
   </section><!-- End Hero -->
 
@@ -103,7 +107,7 @@
       let currentIndex = 0;
   
       setInterval(() => {
-        textElement.textContent = `I'm a ${texts[currentIndex]} Developer from Iran`;
+        textElement.textContent = `I'm a ${texts[currentIndex]} Developer`;
         currentIndex = (currentIndex + 1) % texts.length;
       }, 2000);
     }
