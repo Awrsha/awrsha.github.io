@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
   <title>Portfolio Details - Amir M. Parvizi</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
@@ -26,56 +24,75 @@
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
+
+  <style>
+    .portfolio-details { display: none; } /* پنهان کردن تمام جزئیات در ابتدا */
+    .portfolio-details.active { display: block; } /* نمایش جزئیات فعال */
+  </style>
 </head>
 
 <body>
 
-  <main id="main">
-
-    <!-- ======= Portfolio Details Section ======= -->
-    <section id="portfolio-details" class="portfolio-details">
+  <main role="main" id="main">
+    <section id="portfolio-details-container">
       <div class="container">
-        <div class="row">
-          <div class="col-lg-8">
-            <h2 class="portfolio-title">Project Title</h2>
-            <div class="owl-carousel portfolio-details-carousel">
-              <img src="assets/img/portfolio/portfolio-details-1.jpg" class="img-fluid" alt="">
+        <div id="portfolio-details"></div>
+      </div>
+    </section>
+  </main>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const portfolioLinks = document.querySelectorAll('.portfolio-links a');
+      portfolioLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          const projectId = this.getAttribute('data-project');
+          loadProjectDetails(projectId);
+        });
+      });
+  
+      function loadProjectDetails(projectId) {
+        const details = {
+          details1: `
+            <div class="portfolio-details-content">
+              <h2>Intelligent Skin Disease Prediction System</h2>
+              <div class="owl-carousel portfolio-details-carousel">
+                <img src="assets/img/portfolio/portfolio-details-skin.jpg" class="img-fluid" alt="">
+              </div>
+              <h3>Project Information</h3>
+              <ul>
+                <li><strong>Category</strong>: AI, Machine Learning</li>
+                <li><strong>Client</strong>: HealthTech Innovators</li>
+                <li><strong>Project date</strong>: 15 May, 2023</li>
+                <li><strong>Project URL</strong>: <a href="#">www.healthtechinnovators.com</a></li>
+              </ul>
+              <p>This project involved developing an AI-powered system capable of predicting skin diseases from images. The system uses convolutional neural networks (CNNs) to analyze skin images and classify them into various disease categories. This tool helps dermatologists make quicker and more accurate diagnoses.</p>
             </div>
-          </div>
-
-          <div class="col-lg-4 portfolio-info">
-            <h3>Project Information</h3>
-            <ul>
-              <li><strong>Category</strong>: Machine Learning, AI</li>
-              <li><strong>Client</strong>: Example Client</li>
-              <li><strong>Project date</strong>: 01 March, 2023</li>
-              <li><strong>Project URL</strong>: <a href="#">www.example.com</a></li>
-            </ul>
-
-            <p>
-              Detailed description of the project goes here. You can explain the project goals, technologies used, the impact it made, and any other relevant information.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section><!-- End Portfolio Details Section -->
-
-  </main><!-- End #main -->
-
-  <!-- ======= Footer ======= -->
-  <footer id="footer">
-    <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>Amir M. Parvizi</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-        Designed by <a href="#">Amir M. Parvizi</a>
-      </div>
-    </div>
-  </footer><!-- End  Footer -->
-
-  <div id="preloader"></div>
-  <a href="#" class="back-to-top"><i class="bx bx-up-arrow-alt"></i></a>
+          `,
+          details2: `
+            <div class="portfolio-details-content">
+              <h2>Bank Transaction Processing</h2>
+              <div class="owl-carousel portfolio-details-carousel">
+                <img src="assets/img/portfolio/portfolio-details-bank.jpg" class="img-fluid" alt="">
+              </div>
+              <h3>Project Information</h3>
+              <ul>
+                <li><strong>Category</strong>: Banking, Security</li>
+                <li><strong>Client</strong>: Global Bank Inc.</li>
+                <li><strong>Project date</strong>: 20 June, 2023</li>
+                <li><strong>Project URL</strong>: <a href="#">www.globalbank.com</a></li>
+              </ul>
+              <p>This project focused on developing a secure and efficient transaction processing system for a major bank. The system was designed to handle high volumes of transactions with enhanced security features to protect against fraud and ensure compliance with financial regulations.</p>
+            </div>
+          `
+        };
+  
+        document.getElementById('portfolio-details').innerHTML = details[projectId];
+        window.history.pushState({}, '', `portfolio-details.html#${projectId}`);
+      }
+    });
+  </script>
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/jquery/jquery.min.js"></script>
@@ -92,6 +109,19 @@
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
 
-</body>
+  <!-- Custom JS to Switch Between Portfolio Details -->
+  <script>
+    // Sample logic to switch between project details
+    function showProjectDetails(projectId) {
+      document.querySelectorAll('.portfolio-details').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      document.getElementById(projectId).classList.add('active');
+    }
 
+    // Example: Display the first project by default
+    showProjectDetails('portfolio-details1');
+  </script>
+
+</body>
 </html>
