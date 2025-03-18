@@ -399,24 +399,31 @@
 
                             <div class="bg-light-card dark:bg-dark-card p-6 rounded-lg">
                                 <p class="text-lg">
-                                    Enter your email, meeting date, and time to schedule a meeting. I'll receive a confirmation email shortly.
+                                    I'm also available for virtual meetings via Zoom, Google Meet, or other platforms. Feel free to suggest a time that works for you.
                                 </p>
-                                <form id="meetingForm">
-                                    <label for="email">Your Email:</label>
-                                    <input type="email" id="email" name="email" required class="p-2 border rounded mb-4 w-full">
-
-                                    <label for="date">Meeting Date:</label>
-                                    <input type="date" id="date" name="date" required class="p-2 border rounded mb-4 w-full">
-
-                                    <label for="time">Meeting Time:</label>
-                                    <input type="time" id="time" name="time" required class="p-2 border rounded mb-4 w-full">
-
-                                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80">
-                                        Schedule Meeting
+                                <div class="flex justify-center mt-4">
+                                    <button id="scheduleMeeting" class="px-6 py-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">
+                                        <i class="fas fa-video mr-2"></i> Schedule a Meeting
                                     </button>
-                                </form>
-                            </div>
+                                </div>
+                                <!-- Modal for scheduling -->
+                                <div id="meetingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+                                    <div class="bg-white dark:bg-dark-card p-6 rounded-lg shadow-xl">
+                                        <h2 class="text-lg mb-4">Select a Meeting Time</h2>
+                                        <form id="meetingForm">
+                                            <label for="meetingDate" class="block mb-2">Date:</label>
+                                            <input type="date" id="meetingDate" name="meetingDate" class="p-2 border rounded w-full mb-4" required>
 
+                                            <label for="meetingTime" class="block mb-2">Time:</label>
+                                            <input type="time" id="meetingTime" name="meetingTime" class="p-2 border rounded w-full mb-4" required>
+
+                                            <div class="flex justify-end">
+                                                <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80">Submit</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -489,35 +496,26 @@
             </div>
         </footer>
     </div>
-    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-    <script>
-        emailjs.init("hyMCXq5mQ2ZvimUCJ");
-    </script>
 
     <script>
-        document.getElementById("meetingForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+        // Select elements
+        const scheduleBtn = document.getElementById('scheduleMeeting');
+        const meetingModal = document.getElementById('meetingModal');
+        const meetingForm = document.getElementById('meetingForm');
 
-            // Collect user input
-            const userEmail = document.getElementById("email").value;
-            const meetingDate = document.getElementById("date").value;
-            const meetingTime = document.getElementById("time").value;
+        // Show modal on button click
+        scheduleBtn.addEventListener('click', () => {
+            meetingModal.classList.remove('hidden');
+        });
 
-            // Send email using EmailJS
-            emailjs.send("service_t7tif9r", "template_5ukpt6b", {
-                email: userEmail,
-                date: meetingDate,
-                time: meetingTime,
-            }).then(
-                function(response) {
-                    console.log("Email sent successfully", response); // Debugging
-                    alert("Meeting scheduled successfully!");
-                },
-                function(error) {
-                    console.error("Failed to send email:", error); // Debugging
-                    alert("Failed to send email. Please try again.");
-                }
-            );
+        // Handle form submission
+        meetingForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+            const meetingDate = document.getElementById('meetingDate').value;
+            const meetingTime = document.getElementById('meetingTime').value;
+
+            alert(`Meeting scheduled on ${meetingDate} at ${meetingTime}!`);
+            meetingModal.classList.add('hidden'); // Hide modal after scheduling
         });
 
         // Theme Toggle
