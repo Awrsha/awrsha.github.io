@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitions - Amir M. Parvizi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FF6B6B',
+                        tertiary: '#4ECDC4',
+                        accent1: '#FFD166',
+                        accent2: '#06D6A0',
+                        dark: {
+                            bg: '#181818',
+                            card: '#232323',
+                            text: '#E0E0E0'
+                        },
+                        light: {
+                            bg: '#FFFFFF',
+                            card: '#F5F5F7',
+                            text: '#1D1D1F'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'oneui': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .parallax-bg {
+            transform: translateZ(-1px) scale(2);
+            z-index: -1;
+        }
+        
+        .parallax-wrapper {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 2px;
+        }
+        
+        .parallax-content {
+            transform: translateZ(0);
+        }
+        
+        .section-transition {
+            position: relative;
+            transition: all 0.4s ease-out;
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        /* Ensure text is visible in dark mode */
+        
+        .dark .text-light-text {
+            color: theme('colors.dark.text');
+        }
+        
+        .dark .bg-light-card {
+            background-color: theme('colors.dark.card');
+        }
+        /* Apple-inspired blur effects */
+        
+        .apple-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: rgba(93, 92, 222, 0.5);
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: rgba(93, 92, 222, 0.8);
+        }
+        /* Magic cursor effect */
+        
+        .magic-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #5D5CDE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            opacity: 0;
+        }
+        
+        @media (pointer: fine) {
+            .magic-cursor {
+                opacity: 1;
+            }
+        }
+        /* Competition filter transitions */
+        
+        .competition-item {
+            transition: all 0.5s ease;
+        }
+        
+        .competition-item.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--active-color, #5D5CDE);
+            color: white;
+        }
+        /* Medal styles */
+        
+        .medal {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+        }
+        
+        .medal-gold {
+            background: linear-gradient(135deg, #FFD700, #FFC000);
+            color: #5A4C00;
+        }
+        
+        .medal-silver {
+            background: linear-gradient(135deg, #E0E0E0, #C0C0C0);
+            color: #505050;
+        }
+        
+        .medal-bronze {
+            background: linear-gradient(135deg, #CD7F32, #A05A2C);
+            color: #3D2213;
+        }
+        
+        .dark .medal {
+            border-color: #232323;
+        }
+        /* Timeline styles for competition history */
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #5D5CDE 0%, #FF6B6B 50%, #4ECDC4 100%);
+            border-radius: 2px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -14px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .timeline-marker-inner {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--marker-color, #5D5CDE);
+        }
+        
+        .dark .timeline-marker {
+            background-color: #232323;
+        }
+    </style>
+</head>
+
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text font-sans overflow-x-hidden relative">
+    <!-- Magic cursor -->
+    <div class="magic-cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 apple-blur bg-white/80 dark:bg-dark-bg/80 transition-all duration-300">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-primary">Amir M. Parvizi</a>
+
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link font-medium hover:text-primary transition-colors">Home</a>
+                <a href="Certificates.html" class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
+                <a href="Teaching.html" class="nav-link font-medium hover:text-primary transition-colors">Teaching</a>
+                <a href="Articles.html" class="nav-link font-medium hover:text-primary transition-colors">Articles</a>
+                <a href="Competitions.html" class="nav-link font-medium text-primary transition-colors">Competitions</a>
+                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="nav-link font-medium hover:text-primary transition-colors">Contracts</a>
+                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in Touch</a>
+                <button id="theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-full bg-light-card dark:bg-dark-card">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg apple-blur absolute w-full">
+            <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+                <a href="index.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
+                <a href="Certificates.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
+                <a href="Teaching.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
+                <a href="Articles.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
+                <a href="Competitions.html" class="font-medium p-2 rounded-oneui bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
+                <a href="Network.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="font-medium p-2 rounded-oneui hvoer:bg-primary text-white">Current Status</a>
+                <a href="Contact.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get in Touch</a>
+                <div class="flex justify-between items-center p-2">
+                    <span>Theme</span>
+                    <button id="mobile-theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="parallax-wrapper">
+        <!-- Competition Header Section -->
+        <section class="pt-32 pb-16 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0 bg-gradient-to-br from-accent2/10 to-secondary/10"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-accent1/20 rounded-full blur-3xl"></div>
+                <div class="absolute top-24 -left-24 w-80 h-80 bg-primary/20 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold">Hackathons &amp; <span class="text-primary">Competitions</span></h1>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <p class="text-xl text-center max-w-3xl mx-auto mb-12">
+                    From international AI competitions to local hackathons, I've had the opportunity to challenge myself and collaborate with talented teams to create innovative solutions under pressure.
+                </p>
+            </div>
+        </section>
+
+        <!-- Competition Filters -->
+        <section class="py-8 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
+                        All Competitions
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="kaggle" style="--active-color: #FF6B6B">
+                        Kaggle
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="hackathon" style="--active-color: #4ECDC4">
+                        Hackathons
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="research" style="--active-color: #FFD166">
+                        Research
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="open" style="--active-color: #06D6A0">
+                        Open Challenges
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competition Timeline -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="timeline">
+                        <!-- Competition 1 -->
+                        <div class="mb-16 relative competition-item" data-category="kaggle">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #FFD700;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="medal medal-gold">1st</div>
+                                <div class="h-12 bg-gradient-to-r from-primary to-secondary flex items-center px-6">
+                                    <span class="text-white font-bold">April 2023</span>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <img src="https://i.imgur.com/MTZS7TO.png" alt="Kaggle Logo" class="w-8 h-8">
+                                        <h3 class="text-2xl font-bold">Kaggle: Image Classification Challenge</h3>
+                                    </div>
+                                    <p class="mb-6">An international competition focused on developing high-accuracy image classification models for medical diagnostics, with over 5,000 teams participating globally.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Building an accurate classification model for identifying 10 different types of skin lesions from dermoscopic images, with limited labeled data.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>Ensemble of EfficientNet models with custom augmentation pipeline and semi-supervised learning approach to leverage unlabeled data.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
+                                        <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Healthcare</span>
+                                        <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Transfer Learning</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-bold">Final Accuracy:</span>
+                                            <span>97.8%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                            <div class="bg-primary h-2.5 rounded-full" style="width: 97.8%"></div>
+                                        </div>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-trophy mr-2"></i> View Competition Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competition 2 -->
+                        <div class="mb-16 relative competition-item" data-category="hackathon">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #C0C0C0;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="medal medal-silver">2nd</div>
+                                <div class="h-12 bg-gradient-to-r from-tertiary to-accent1 flex items-center px-6">
+                                    <span class="text-white font-bold">November 2022</span>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-2xl font-bold mb-3">TechCrunch Disrupt Hackathon</h3>
+                                    <p class="mb-6">A 48-hour hackathon challenging teams to build innovative solutions addressing climate change and environmental sustainability.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Creating a working prototype of a solution that uses AI to address a significant environmental challenge, with emphasis on real-world applicability.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>"EcoSense" - An AI-powered platform that uses satellite imagery and sensor data to detect and predict deforestation patterns in real-time.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Satellite Imagery</span>
+                                        <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Environmental</span>
+                                        <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Time Series</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <p class="italic">
+                                            "The team demonstrated exceptional technical skills and creative problem-solving under tight time constraints. Their solution shows genuine potential for real-world impact."
+                                        </p>
+                                        <p class="text-right mt-2">— Judges' Feedback</p>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-code mr-2"></i> Project Repository
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competition 3 -->
+                        <div class="mb-16 relative competition-item" data-category="research open">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #CD7F32;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="medal medal-bronze">3rd</div>
+                                <div class="h-12 bg-gradient-to-r from-accent2 to-primary flex items-center px-6">
+                                    <span class="text-white font-bold">August 2022</span>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-2xl font-bold mb-3">NeurIPS Reinforcement Learning Challenge</h3>
+                                    <p class="mb-6">A research competition focused on developing sample-efficient reinforcement learning algorithms for complex control tasks.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Training an RL agent to solve a robotic manipulation task with sparse rewards and minimum training samples, evaluated on unseen test environments.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>Hybrid approach combining model-based planning with off-policy learning, featuring a novel exploration strategy based on uncertainty estimation.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Reinforcement Learning</span>
+                                        <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Robotics</span>
+                                        <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Sample Efficiency</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <div class="mb-4">
+                                            <span class="font-bold">Key Achievements:</span>
+                                        </div>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>80% reduction in required training samples compared to baseline</li>
+                                            <li>93% success rate on test environments</li>
+                                            <li>Algorithm published as workshop paper at NeurIPS</li>
+                                        </ul>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-file-alt mr-2"></i> View Research Paper
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competition 4 -->
+                        <div class="mb-16 relative competition-item" data-category="kaggle">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #5D5CDE;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="h-12 bg-gradient-to-r from-primary to-tertiary flex items-center px-6">
+                                    <span class="text-white font-bold">March 2022</span>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <img src="https://i.imgur.com/MTZS7TO.png" alt="Kaggle Logo" class="w-8 h-8">
+                                        <h3 class="text-2xl font-bold">Kaggle: Time Series Forecasting</h3>
+                                    </div>
+                                    <p class="mb-6">A competition focused on accurate long-term forecasting of multiple time series variables for energy consumption prediction.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Predicting hourly energy consumption across multiple regions up to 7 days in advance, accounting for weather conditions and seasonal trends.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>Ensemble of Temporal Fusion Transformers and N-BEATS models with custom feature engineering for external variables and multi-horizon forecasting.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Time Series</span>
+                                        <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Energy</span>
+                                        <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Forecasting</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-bold">Final Ranking:</span>
+                                            <span>5th out of 3,457 teams</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                            <div class="bg-tertiary h-2.5 rounded-full" style="width: 99.85%"></div>
+                                        </div>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-chart-line mr-2"></i> View Solution Approach
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competition 5 -->
+                        <div class="mb-16 relative competition-item" data-category="hackathon open">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #FFD700;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="medal medal-gold">1st</div>
+                                <div class="h-12 bg-gradient-to-r from-accent1 to-accent2 flex items-center px-6">
+                                    <span class="text-white font-bold">October 2021</span>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-2xl font-bold mb-3">Microsoft AI Hackathon</h3>
+                                    <p class="mb-6">A global hackathon challenging participants to create innovative AI solutions for healthcare using Microsoft Azure technologies.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Developing an AI solution addressing accessibility challenges in healthcare, with emphasis on user-centered design and real-world impact.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>"MediTranslate" - A real-time medical conversation translator using NLP to facilitate patient-doctor communication across language barriers.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">NLP</span>
+                                        <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Healthcare</span>
+                                        <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Accessibility</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <p class="italic">
+                                            "MediTranslate demonstrates exceptional innovation by addressing a critical healthcare need with a technically sophisticated yet intuitive solution. The team's consideration of ethical implications and attention to cultural nuances sets this project apart."
+                                        </p>
+                                        <p class="text-right mt-2">— Microsoft Judges</p>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-award mr-2"></i> View Project Demo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Competition 6 -->
+                        <div class="mb-16 relative competition-item" data-category="research">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #C0C0C0;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                                <div class="medal medal-silver">2nd</div>
+                                <div class="h-12 bg-gradient-to-r from-secondary to-primary flex items-center px-6">
+                                    <span class="text-white font-bold">June 2021</span>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-2xl font-bold mb-3">ICLR Workshop Challenge: Robust ML</h3>
+                                    <p class="mb-6">A research competition focused on developing machine learning models resistant to adversarial attacks and distribution shifts.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">The Challenge:</h4>
+                                            <p>Building classification models that maintain high accuracy when faced with adversarial examples and out-of-distribution inputs.</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-2">Our Solution:</h4>
+                                            <p>Novel defensive distillation technique combined with adversarial training and ensemble diversity to create robust models with theoretical guarantees.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Adversarial ML</span>
+                                        <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Robustness</span>
+                                        <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Security</span>
+                                    </div>
+
+                                    <div class="bg-light-card dark:bg-dark-card p-4 rounded-lg mb-6">
+                                        <div class="mb-4">
+                                            <span class="font-bold">Key Results:</span>
+                                        </div>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>92% accuracy maintained against strong adversarial attacks</li>
+                                            <li>85% accuracy on out-of-distribution samples</li>
+                                            <li>Selected for spotlight presentation at the workshop</li>
+                                        </ul>
+                                    </div>
+
+                                    <a href="#" class="inline-flex items-center text-primary hover:underline">
+                                        <i class="fas fa-shield-alt mr-2"></i> Read Research Paper
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competition Stats -->
+        <section class="py-16 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="section-title mb-12 text-center">
+                        <h2 class="text-3xl font-bold">Competition <span class="text-primary">Achievements</span></h2>
+                        <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="flex justify-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <i class="fas fa-trophy text-primary text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-bold text-primary mb-2">15+</div>
+                            <p class="text-lg">Competitions</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="flex justify-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center">
+                                    <i class="fas fa-medal text-secondary text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-bold text-secondary mb-2">8</div>
+                            <p class="text-lg">Podium Finishes</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="flex justify-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center">
+                                    <i class="fas fa-users text-tertiary text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-bold text-tertiary mb-2">12+</div>
+                            <p class="text-lg">Team Projects</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="flex justify-center mb-4">
+                                <div class="w-12 h-12 rounded-full bg-accent1/20 flex items-center justify-center">
+                                    <i class="fas fa-globe text-accent1 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-bold text-accent1 mb-2">10+</div>
+                            <p class="text-lg">Countries</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold mb-6 text-center">My Competition Philosophy</h3>
+
+                        <p class="text-lg mb-6">
+                            I approach competitions not just as challenges to win, but as opportunities for rapid growth, innovation under constraints, and collaborative learning. Each competition presents a unique opportunity to:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-light-card dark:bg-dark-card p-6 rounded-oneui">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-lightbulb text-primary"></i>
+                                    </div>
+                                    <h4 class="text-lg font-bold">Rapid Innovation</h4>
+                                </div>
+                                <p>Competitions force creative thinking and rapid iteration, leading to novel approaches that might not emerge in traditional development environments.</p>
+                            </div>
+
+                            <div class="bg-light-card dark:bg-dark-card p-6 rounded-oneui">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-users text-secondary"></i>
+                                    </div>
+                                    <h4 class="text-lg font-bold">Collaborative Learning</h4>
+                                </div>
+                                <p>Working with diverse teams exposes me to different perspectives, techniques, and approaches that enrich my own understanding and skillset.</p>
+                            </div>
+
+                            <div class="bg-light-card dark:bg-dark-card p-6 rounded-oneui">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-chart-line text-tertiary"></i>
+                                    </div>
+                                    <h4 class="text-lg font-bold">Real-world Impact</h4>
+                                </div>
+                                <p>Many competitions address meaningful challenges, creating opportunities to develop solutions with potential for significant positive impact.</p>
+                            </div>
+
+                            <div class="bg-light-card dark:bg-dark-card p-6 rounded-oneui">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-accent1/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-code-branch text-accent1"></i>
+                                    </div>
+                                    <h4 class="text-lg font-bold">Technical Growth</h4>
+                                </div>
+                                <p>Each competition pushes me to master new tools, techniques, and domains, continuously expanding my expertise and capabilities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
+            <div class="container mx-auto px-6">
+                <p class="mb-4">© Copyright <span class="text-primary">Amir M. Parvizi</span>. All Rights Reserved</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function setupTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+
+            document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Mobile Menu
+        function setupMobileMenu() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        // Competition filtering
+        function setupCompetitionFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const competitionItems = document.querySelectorAll('.competition-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('bg-primary');
+                        btn.classList.add('bg-white', 'dark:bg-dark-bg');
+                        btn.classList.remove('text-white');
+                    });
+
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-white', 'dark:bg-dark-bg');
+                    btn.classList.add('text-white');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    // Filter competition items
+                    competitionItems.forEach(item => {
+                        const categories = item.getAttribute('data-category').split(' ');
+
+                        if (filter === 'all' || categories.includes(filter)) {
+                            item.classList.remove('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'block';
+                            }, 300);
+                        } else {
+                            item.classList.add('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Section Animations
+        function setupAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.section-transition').forEach(section => {
+                section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        }
+
+        // Magic cursor effect
+        function setupMagicCursor() {
+            const cursor = document.querySelector('.magic-cursor');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+
+            // Hover effect on clickable elements
+            const clickables = document.querySelectorAll('a, button, input, textarea');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 0.4)';
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 1)';
+                });
+            });
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupMobileMenu();
+            setupCompetitionFilters();
+            setupAnimations();
+            setupMagicCursor();
+        });
+    </script>
+
+
+</body>
+
+</html>

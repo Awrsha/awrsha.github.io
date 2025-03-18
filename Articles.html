@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Articles - Amir M. Parvizi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FF6B6B',
+                        tertiary: '#4ECDC4',
+                        accent1: '#FFD166',
+                        accent2: '#06D6A0',
+                        dark: {
+                            bg: '#181818',
+                            card: '#232323',
+                            text: '#E0E0E0'
+                        },
+                        light: {
+                            bg: '#FFFFFF',
+                            card: '#F5F5F7',
+                            text: '#1D1D1F'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'oneui': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .parallax-bg {
+            transform: translateZ(-1px) scale(2);
+            z-index: -1;
+        }
+        
+        .parallax-wrapper {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 2px;
+        }
+        
+        .parallax-content {
+            transform: translateZ(0);
+        }
+        
+        .section-transition {
+            position: relative;
+            transition: all 0.4s ease-out;
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        /* Ensure text is visible in dark mode */
+        
+        .dark .text-light-text {
+            color: theme('colors.dark.text');
+        }
+        
+        .dark .bg-light-card {
+            background-color: theme('colors.dark.card');
+        }
+        /* Apple-inspired blur effects */
+        
+        .apple-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: rgba(93, 92, 222, 0.5);
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: rgba(93, 92, 222, 0.8);
+        }
+        /* Magic cursor effect */
+        
+        .magic-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #5D5CDE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            opacity: 0;
+        }
+        
+        @media (pointer: fine) {
+            .magic-cursor {
+                opacity: 1;
+            }
+        }
+        /* Article filter transitions */
+        
+        .article-item {
+            transition: all 0.5s ease;
+        }
+        
+        .article-item.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--active-color, #5D5CDE);
+            color: white;
+        }
+        /* Journal badge */
+        
+        .journal-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        /* Citation count pill */
+        
+        .citation-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text font-sans overflow-x-hidden relative">
+    <!-- Magic cursor -->
+    <div class="magic-cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 apple-blur bg-white/80 dark:bg-dark-bg/80 transition-all duration-300">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-primary">Amir M. Parvizi</a>
+
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link font-medium hover:text-primary transition-colors">Home</a>
+                <a href="Certificates.html" class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
+                <a href="Teaching.html" class="nav-link font-medium hover:text-primary transition-colors">Teaching</a>
+                <a href="Articles.html" class="nav-link font-medium text-primary transition-colors">Articles</a>
+                <a href="Competitions.html" class="nav-link font-medium hover:text-primary transition-colors">Competitions</a>
+                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="nav-link font-medium hover:text-primary transition-colors">Contracts</a>
+                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in Touch</a>
+                <button id="theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-full bg-light-card dark:bg-dark-card">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg apple-blur absolute w-full">
+            <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+                <a href="index.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
+                <a href="Certificates.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
+                <a href="Teaching.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
+                <a href="Articles.html" class="font-medium p-2 rounded-oneui bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
+                <a href="Competitions.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
+                <a href="Network.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="font-medium p-2 rounded-oneui hover:bg-primary text-white">Current Status</a>
+                <a href="Contact.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get in Touch</a>
+                <div class="flex justify-between items-center p-2">
+                    <span>Theme</span>
+                    <button id="mobile-theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="parallax-wrapper">
+        <!-- Articles Header Section -->
+        <section class="pt-32 pb-16 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0 bg-gradient-to-br from-accent1/10 to-primary/10"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+                <div class="absolute top-24 -left-24 w-80 h-80 bg-accent1/20 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold">Research <span class="text-primary">Articles</span></h1>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <p class="text-xl text-center max-w-3xl mx-auto mb-12">
+                    My published research in machine learning, artificial intelligence, and related fields, contributing to the scientific community and advancing technological innovation.
+                </p>
+            </div>
+        </section>
+
+        <!-- Articles Filters -->
+        <section class="py-8 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
+                        All Publications
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml" style="--active-color: #FF6B6B">
+                        Machine Learning
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="cv" style="--active-color: #4ECDC4">
+                        Computer Vision
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="nlp" style="--active-color: #FFD166">
+                        NLP
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai" style="--active-color: #06D6A0">
+                        AI Ethics
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Articles List -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+                    <!-- Article 1 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ml cv">
+                        <span class="journal-badge bg-primary/10 text-primary">Nature</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Adaptive Neural Architectures for Resource-Constrained Environments</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published June 2023</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Deep Learning</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Model Optimization</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Edge Computing</span>
+                                <span class="citation-pill bg-accent1/10 text-accent1">
+                                    <i class="fas fa-quote-left mr-1"></i> 42 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">This paper presents a novel approach to neural network architecture adaptation for deployment in resource-constrained environments. We introduce a dynamic pruning methodology that automatically adjusts model complexity based
+                                on available computational resources while maintaining high accuracy.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 2 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="nlp ml">
+                        <span class="journal-badge bg-secondary/10 text-secondary">ACL</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Cross-Lingual Transfer Learning for Low-Resource Languages Using Transformer Architectures</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published May 2023</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">NLP</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Transformers</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Transfer Learning</span>
+                                <span class="citation-pill bg-tertiary/10 text-tertiary">
+                                    <i class="fas fa-quote-left mr-1"></i> 28 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">We propose a novel approach to cross-lingual transfer learning that significantly improves natural language understanding for low-resource languages. By leveraging shared linguistic features across related languages, our method
+                                achieves state-of-the-art performance on several benchmark tasks.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 3 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="cv ml">
+                        <span class="journal-badge bg-tertiary/10 text-tertiary">CVPR</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Self-Supervised Visual Representation Learning Through Geometric Transformations</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published December 2022</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Self-Supervised Learning</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Representation Learning</span>
+                                <span class="citation-pill bg-accent2/10 text-accent2">
+                                    <i class="fas fa-quote-left mr-1"></i> 35 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">This paper introduces a novel approach to self-supervised visual representation learning by exploiting geometric transformations. Our method enables models to learn robust visual features without labeled data, achieving comparable
+                                performance to supervised approaches on various downstream tasks.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 4 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ai">
+                        <span class="journal-badge bg-accent1/10 text-accent1">Elsevier</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Fairness and Accountability Frameworks for Deployed AI Systems: A Practical Approach</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published October 2022</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">AI Ethics</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Algorithmic Fairness</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Policy</span>
+                                <span class="citation-pill bg-secondary/10 text-secondary">
+                                    <i class="fas fa-quote-left mr-1"></i> 19 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">This research proposes practical frameworks for ensuring fairness, accountability, and transparency in deployed AI systems. We present a comprehensive methodology for auditing algorithms and mitigating bias, along with case
+                                studies demonstrating successful implementation in high-stakes domains.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 5 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ml">
+                        <span class="journal-badge bg-accent2/10 text-accent2">NeurIPS</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Probabilistic Graph Neural Networks for Uncertainty Quantification in Molecular Property Prediction</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published December 2022</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Graph Neural Networks</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Bayesian Methods</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Drug Discovery</span>
+                                <span class="citation-pill bg-accent1/10 text-accent1">
+                                    <i class="fas fa-quote-left mr-1"></i> 23 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">We introduce a probabilistic extension to graph neural networks that enables accurate uncertainty quantification in molecular property prediction. Our approach provides reliable confidence estimates alongside predictions, crucial
+                                for high-stakes applications like drug discovery and materials science.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 6 -->
+                    <div class="article-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="nlp ai">
+                        <span class="journal-badge bg-primary/10 text-primary">EMNLP</span>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Detecting and Mitigating Language Model Biases: A Comparative Analysis of Debiasing Techniques</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Published November 2021</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">NLP</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">AI Ethics</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Bias Mitigation</span>
+                                <span class="citation-pill bg-secondary/10 text-secondary">
+                                    <i class="fas fa-quote-left mr-1"></i> 31 citations
+                                </span>
+                            </div>
+
+                            <p class="mb-6">This study presents a comprehensive analysis of bias detection and mitigation techniques for large language models. We evaluate various debiasing approaches across different bias types and propose an ensemble method that outperforms
+                                existing techniques while maintaining model utility.</p>
+
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-file-pdf mr-2"></i> View Paper
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-code mr-2"></i> GitHub Repository
+                                </a>
+                                <a href="#" class="flex items-center text-primary hover:underline">
+                                    <i class="fas fa-quote-right mr-2"></i> Cite
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Publication Stats -->
+        <section class="py-16 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="section-title mb-12 text-center">
+                        <h2 class="text-3xl font-bold">Publication <span class="text-primary">Impact</span></h2>
+                        <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="text-5xl font-bold text-primary mb-2">15+</div>
+                            <p class="text-xl">Research Papers</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="text-5xl font-bold text-secondary mb-2">250+</div>
+                            <p class="text-xl">Citations</p>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 text-center shadow-lg hover-lift">
+                            <div class="text-5xl font-bold text-tertiary mb-2">8</div>
+                            <p class="text-xl">Top Conferences</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold mb-6 text-center">Research Collaborations</h3>
+
+                        <div class="flex flex-wrap justify-center gap-6">
+                            <div class="flex items-center gap-2 p-3 bg-light-card dark:bg-dark-card rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <i class="fas fa-university text-primary"></i>
+                                </div>
+                                <span>Stanford University</span>
+                            </div>
+
+                            <div class="flex items-center gap-2 p-3 bg-light-card dark:bg-dark-card rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                                    <i class="fas fa-university text-secondary"></i>
+                                </div>
+                                <span>MIT</span>
+                            </div>
+
+                            <div class="flex items-center gap-2 p-3 bg-light-card dark:bg-dark-card rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center">
+                                    <i class="fas fa-university text-tertiary"></i>
+                                </div>
+                                <span>University of Toronto</span>
+                            </div>
+
+                            <div class="flex items-center gap-2 p-3 bg-light-card dark:bg-dark-card rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-accent1/20 flex items-center justify-center">
+                                    <i class="fas fa-building text-accent1"></i>
+                                </div>
+                                <span>Google Research</span>
+                            </div>
+
+                            <div class="flex items-center gap-2 p-3 bg-light-card dark:bg-dark-card rounded-lg">
+                                <div class="w-10 h-10 rounded-full bg-accent2/20 flex items-center justify-center">
+                                    <i class="fas fa-building text-accent2"></i>
+                                </div>
+                                <span>DeepMind</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
+            <div class="container mx-auto px-6">
+                <p class="mb-4">© Copyright <span class="text-primary">Amir M. Parvizi</span>. All Rights Reserved</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function setupTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+
+            document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Mobile Menu
+        function setupMobileMenu() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        // Article filtering
+        function setupArticleFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const articleItems = document.querySelectorAll('.article-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('bg-primary');
+                        btn.classList.add('bg-white', 'dark:bg-dark-bg');
+                        btn.classList.remove('text-white');
+                    });
+
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-white', 'dark:bg-dark-bg');
+                    btn.classList.add('text-white');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    // Filter article items
+                    articleItems.forEach(item => {
+                        const categories = item.getAttribute('data-category').split(' ');
+
+                        if (filter === 'all' || categories.includes(filter)) {
+                            item.classList.remove('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'block';
+                            }, 300);
+                        } else {
+                            item.classList.add('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Section Animations
+        function setupAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.section-transition').forEach(section => {
+                section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        }
+
+        // Magic cursor effect
+        function setupMagicCursor() {
+            const cursor = document.querySelector('.magic-cursor');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+
+            // Hover effect on clickable elements
+            const clickables = document.querySelectorAll('a, button, input, textarea');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 0.4)';
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 1)';
+                });
+            });
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupMobileMenu();
+            setupArticleFilters();
+            setupAnimations();
+            setupMagicCursor();
+        });
+    </script>
+
+
+</body>
+
+</html>

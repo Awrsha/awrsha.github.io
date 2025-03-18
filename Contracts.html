@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Projects - Amir M. Parvizi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FF6B6B',
+                        tertiary: '#4ECDC4',
+                        accent1: '#FFD166',
+                        accent2: '#06D6A0',
+                        dark: {
+                            bg: '#181818',
+                            card: '#232323',
+                            text: '#E0E0E0'
+                        },
+                        light: {
+                            bg: '#FFFFFF',
+                            card: '#F5F5F7',
+                            text: '#1D1D1F'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'oneui': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .parallax-bg {
+            transform: translateZ(-1px) scale(2);
+            z-index: -1;
+        }
+        
+        .parallax-wrapper {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 2px;
+        }
+        
+        .parallax-content {
+            transform: translateZ(0);
+        }
+        
+        .section-transition {
+            position: relative;
+            transition: all 0.4s ease-out;
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        /* Ensure text is visible in dark mode */
+        
+        .dark .text-light-text {
+            color: theme('colors.dark.text');
+        }
+        
+        .dark .bg-light-card {
+            background-color: theme('colors.dark.card');
+        }
+        /* Apple-inspired blur effects */
+        
+        .apple-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: rgba(93, 92, 222, 0.5);
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: rgba(93, 92, 222, 0.8);
+        }
+        /* Magic cursor effect */
+        
+        .magic-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #5D5CDE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            opacity: 0;
+        }
+        
+        @media (pointer: fine) {
+            .magic-cursor {
+                opacity: 1;
+            }
+        }
+        /* Project filter transitions */
+        
+        .project-item {
+            transition: all 0.5s ease;
+        }
+        
+        .project-item.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--active-color, #5D5CDE);
+            color: white;
+        }
+        /* Project status badges */
+        
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+        
+        .status-completed {
+            background-color: rgba(6, 214, 160, 0.15);
+            color: #06D6A0;
+        }
+        
+        .status-ongoing {
+            background-color: rgba(255, 209, 102, 0.15);
+            color: #FFD166;
+        }
+        
+        .status-upcoming {
+            background-color: rgba(93, 92, 222, 0.15);
+            color: #5D5CDE;
+        }
+        /* Project card progress bar */
+        
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #E0E0E0;
+            overflow: hidden;
+        }
+        
+        .dark .progress-bar {
+            background-color: #333333;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        /* Technology tags */
+        
+        .tech-tag {
+            transition: all 0.3s ease;
+        }
+        
+        .tech-tag:hover {
+            transform: translateY(-2px);
+        }
+        /* Timeline styles */
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #5D5CDE 0%, #FF6B6B 50%, #4ECDC4 100%);
+            border-radius: 2px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -14px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .timeline-marker-inner {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--marker-color, #5D5CDE);
+        }
+        
+        .dark .timeline-marker {
+            background-color: #232323;
+        }
+        /* Case study card */
+        
+        .case-study-card {
+            overflow: hidden;
+        }
+        
+        .case-study-overlay {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .case-study-card:hover .case-study-overlay {
+            opacity: 1;
+        }
+        
+        .case-study-card:hover .case-study-image {
+            transform: scale(1.05);
+        }
+        
+        .case-study-image {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text font-sans overflow-x-hidden relative">
+    <!-- Magic cursor -->
+    <div class="magic-cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 apple-blur bg-white/80 dark:bg-dark-bg/80 transition-all duration-300">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-primary">Amir M. Parvizi</a>
+
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link font-medium hover:text-primary transition-colors">Home</a>
+                <a href="Certificates.html" class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
+                <a href="Teaching.html" class="nav-link font-medium hover:text-primary transition-colors">Teaching</a>
+                <a href="Articles.html" class="nav-link font-medium hover:text-primary transition-colors">Articles</a>
+                <a href="Competitions.html" class="nav-link font-medium hover:text-primary transition-colors">Competitions</a>
+                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="nav-link font-medium text-primary transition-colors">Contracts</a>
+                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in Touch</a>
+                <button id="theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-full bg-light-card dark:bg-dark-card">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg apple-blur absolute w-full">
+            <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+                <a href="index.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
+                <a href="Certificates.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
+                <a href="Teaching.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
+                <a href="Articles.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
+                <a href="Competitions.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
+                <a href="Network.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="font-medium p-2 rounded-oneui bg-primary text-white">Current Status</a>
+                <a href="Contact.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get in Touch</a>
+                <div class="flex justify-between items-center p-2">
+                    <span>Theme</span>
+                    <button id="mobile-theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="parallax-wrapper">
+        <!-- Contract Projects Header Section -->
+        <section class="pt-32 pb-16 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-accent2/20 rounded-full blur-3xl"></div>
+                <div class="absolute top-24 -left-24 w-80 h-80 bg-primary/20 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold">Contract <span class="text-primary">Projects</span></h1>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <p class="text-xl text-center max-w-3xl mx-auto mb-12">
+                    I've had the privilege of working on diverse consulting and contract projects, helping organizations leverage machine learning and AI to solve complex problems and drive innovation.
+                </p>
+            </div>
+        </section>
+
+        <!-- Project Filters -->
+        <section class="py-8 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
+                        All Projects
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai" style="--active-color: #FF6B6B">
+                        AI Solutions
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml" style="--active-color: #4ECDC4">
+                        Machine Learning
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="data" style="--active-color: #FFD166">
+                        Data Analytics
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="consulting" style="--active-color: #06D6A0">
+                        Consulting
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contract Projects Grid -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Project 1 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ai ml">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Healthcare Image Analysis System</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">MedTech Solutions Inc.</p>
+
+                            <p class="mb-6">Developed an AI-powered medical imaging analysis system for automated diagnosis of respiratory conditions using X-ray images, improving diagnostic accuracy by 35%.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
+                                <span class="tech-tag px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">CNNs</span>
+                                <span class="tech-tag px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">TensorFlow</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2022 - 2023</span>
+                                <a href="#" class="text-primary hover:underline">View Case Study</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ml data">
+                        <span class="status-badge status-ongoing">Ongoing</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Predictive Maintenance Platform</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Global Manufacturing Corp.</p>
+
+                            <p class="mb-6">Building a predictive maintenance system using IoT sensor data to forecast equipment failures before they occur, reducing downtime and maintenance costs.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Time Series</span>
+                                <span class="tech-tag px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">IoT</span>
+                                <span class="tech-tag px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">PyTorch</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Progress</span>
+                                    <span class="text-sm">75%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-accent1" style="width: 75%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2023 - Present</span>
+                                <a href="#" class="text-primary hover:underline">Project Details</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ai consulting">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">AI Strategy &amp; Implementation</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">FinTech Innovations Ltd.</p>
+
+                            <p class="mb-6">Strategic consulting engagement to develop and implement an AI roadmap for a financial services company, including fraud detection and personalized recommendations.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Strategy</span>
+                                <span class="tech-tag px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">FinTech</span>
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">AI Roadmap</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2022</span>
+                                <a href="#" class="text-primary hover:underline">View Results</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 4 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="data ml">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Customer Churn Prediction</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">TeleCom Services</p>
+
+                            <p class="mb-6">Developed a machine learning system to predict customer churn with 92% accuracy, allowing for targeted retention strategies that reduced churn rate by 24%.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Predictive Analytics</span>
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">XGBoost</span>
+                                <span class="tech-tag px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Feature Engineering</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2021 - 2022</span>
+                                <a href="#" class="text-primary hover:underline">Case Study</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 5 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ai ml">
+                        <span class="status-badge status-ongoing">Ongoing</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Conversational AI Assistant</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">RetailX Enterprises</p>
+
+                            <p class="mb-6">Building an advanced conversational AI system for customer support automation with natural language understanding and contextual responses.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">NLP</span>
+                                <span class="tech-tag px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Transformers</span>
+                                <span class="tech-tag px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Dialogue Systems</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Progress</span>
+                                    <span class="text-sm">60%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-primary" style="width: 60%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2023 - Present</span>
+                                <a href="#" class="text-primary hover:underline">Project Updates</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 6 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="consulting data">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Supply Chain Optimization</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Global Logistics Inc.</p>
+
+                            <p class="mb-6">Developed a data-driven supply chain optimization system using advanced analytics and machine learning, resulting in 18% cost reduction and improved delivery times.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Operations Research</span>
+                                <span class="tech-tag px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Optimization</span>
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Decision Science</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2021</span>
+                                <a href="#" class="text-primary hover:underline">View Results</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 7 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="ai consulting">
+                        <span class="status-badge status-upcoming">Upcoming</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Computer Vision for Quality Control</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Precision Manufacturing</p>
+
+                            <p class="mb-6">Upcoming project to develop an advanced computer vision system for automated quality control in manufacturing, detecting defects with high precision.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
+                                <span class="tech-tag px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Anomaly Detection</span>
+                                <span class="tech-tag px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Real-time Processing</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm">Starting Soon</span>
+                                    <span class="text-sm">Q2 2024</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-primary" style="width: 5%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2024 (Planned)</span>
+                                <a href="#" class="text-primary hover:underline">Project Scope</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 8 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="data ml">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Personalized Recommendation Engine</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">E-Commerce Platform</p>
+
+                            <p class="mb-6">Built a sophisticated recommendation system using collaborative filtering and deep learning, increasing conversion rates by 32% and average order value by 15%.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Recommender Systems</span>
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Matrix Factorization</span>
+                                <span class="tech-tag px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Neural Collaborative Filtering</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2022</span>
+                                <a href="#" class="text-primary hover:underline">View Case Study</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 9 -->
+                    <div class="project-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative" data-category="consulting ai">
+                        <span class="status-badge status-completed">Completed</span>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">AI Ethics &amp; Governance Framework</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Enterprise Solutions Group</p>
+
+                            <p class="mb-6">Developed a comprehensive AI ethics and governance framework for a large enterprise, ensuring responsible AI deployment across the organization.</p>
+
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="tech-tag px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">AI Ethics</span>
+                                <span class="tech-tag px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Governance</span>
+                                <span class="tech-tag px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Risk Management</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">2021 - 2022</span>
+                                <a href="#" class="text-primary hover:underline">Framework Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Case Studies -->
+        <section class="py-16 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl font-bold">Featured <span class="text-primary">Case Studies</span></h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- Case Study 1 -->
+                    <div class="case-study-card bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                        <div class="relative h-64 overflow-hidden">
+                            <!-- Using a gradient background instead of image -->
+                            <div class="case-study-image w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 absolute top-0 left-0"></div>
+                            <div class="case-study-overlay absolute inset-0 flex items-end">
+                                <div class="p-6">
+                                    <a href="#" class="text-white hover:underline inline-flex items-center">
+                                        <i class="fas fa-arrow-right mr-2"></i> Read Full Case Study
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 left-4 z-10">
+                                <span class="px-3 py-1 bg-white/90 dark:bg-dark-bg/90 text-primary text-sm rounded-full">Healthcare AI</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Medical Imaging Analysis: Transforming Diagnostics</h3>
+                            <p class="mb-4">How our AI system improved diagnostic accuracy and reduced interpretation time for radiologists.</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-hospital text-primary"></i>
+                                    </div>
+                                    <span>MedTech Solutions Inc.</span>
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-400">2023</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Study 2 -->
+                    <div class="case-study-card bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition relative">
+                        <div class="relative h-64 overflow-hidden">
+                            <!-- Using a gradient background instead of image -->
+                            <div class="case-study-image w-full h-full bg-gradient-to-br from-tertiary/30 to-accent1/30 absolute top-0 left-0"></div>
+                            <div class="case-study-overlay absolute inset-0 flex items-end">
+                                <div class="p-6">
+                                    <a href="#" class="text-white hover:underline inline-flex items-center">
+                                        <i class="fas fa-arrow-right mr-2"></i> Read Full Case Study
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 left-4 z-10">
+                                <span class="px-3 py-1 bg-white/90 dark:bg-dark-bg/90 text-tertiary text-sm rounded-full">E-Commerce</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">AI-Powered Recommendation Engine: Boosting Revenue</h3>
+                            <p class="mb-4">How our machine learning recommendation system transformed customer experience and increased sales.</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center mr-3">
+                                        <i class="fas fa-shopping-cart text-tertiary"></i>
+                                    </div>
+                                    <span>E-Commerce Platform</span>
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-400">2022</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Timeline -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="section-title mb-12 text-center">
+                        <h2 class="text-3xl font-bold">Project <span class="text-primary">Timeline</span></h2>
+                        <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                    </div>
+
+                    <div class="timeline">
+                        <!-- Timeline Item 1 -->
+                        <div class="mb-12 relative">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #5D5CDE;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition">
+                                <div class="p-6">
+                                    <div class="flex flex-wrap justify-between items-center mb-4">
+                                        <h3 class="text-xl font-bold">Q1 2024</h3>
+                                        <span class="text-primary">Upcoming Projects</span>
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-circle-check text-accent2 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Computer Vision for Quality Control</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Precision Manufacturing</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-circle-check text-accent2 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Ongoing Predictive Maintenance Project</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Global Manufacturing Corp.</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-circle-check text-accent2 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Conversational AI Assistant (Phase 2)</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">RetailX Enterprises</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 2 -->
+                        <div class="mb-12 relative">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #FF6B6B;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition">
+                                <div class="p-6">
+                                    <div class="flex flex-wrap justify-between items-center mb-4">
+                                        <h3 class="text-xl font-bold">2023</h3>
+                                        <span class="text-secondary">Recent Projects</span>
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-secondary mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Healthcare Image Analysis System</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Successfully delivered with 35% accuracy improvement</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-spinner text-accent1 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Predictive Maintenance Platform</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Ongoing project (75% complete)</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-spinner text-accent1 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Conversational AI Assistant</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Ongoing project (60% complete)</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 3 -->
+                        <div class="mb-12 relative">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #4ECDC4;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition">
+                                <div class="p-6">
+                                    <div class="flex flex-wrap justify-between items-center mb-4">
+                                        <h3 class="text-xl font-bold">2022</h3>
+                                        <span class="text-tertiary">Past Projects</span>
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-tertiary mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">AI Strategy &amp; Implementation</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">FinTech Innovations Ltd.</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-tertiary mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Customer Churn Prediction</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Reduced churn by 24%</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-tertiary mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Personalized Recommendation Engine</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Increased conversion rates by 32%</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 4 -->
+                        <div class="mb-12 relative">
+                            <div class="timeline-marker" style="top: 2rem;">
+                                <div class="timeline-marker-inner" style="--marker-color: #FFD166;"></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition">
+                                <div class="p-6">
+                                    <div class="flex flex-wrap justify-between items-center mb-4">
+                                        <h3 class="text-xl font-bold">2021</h3>
+                                        <span class="text-accent1">Past Projects</span>
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-accent1 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">Supply Chain Optimization</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">18% cost reduction achieved</p>
+                                            </div>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-accent1 mt-1 mr-3"></i>
+                                            <div>
+                                                <p class="font-medium">AI Ethics &amp; Governance Framework</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Enterprise-wide implementation</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Client Testimonials -->
+        <section class="py-16 bg-light-card dark:bg-dark-card relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="section-title mb-12 text-center">
+                        <h2 class="text-3xl font-bold">Client <span class="text-primary">Testimonials</span></h2>
+                        <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg hover-lift relative">
+                            <div class="text-5xl text-primary/20 absolute top-4 left-4">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <p class="italic mb-6 text-lg">
+                                    "Amir's work on our medical imaging analysis system exceeded our expectations. His expertise in computer vision and deep learning was evident throughout the project, and the results have had a significant impact on our diagnostic capabilities. We saw
+                                    a 35% improvement in detection accuracy and have since expanded the system to additional medical facilities."
+                                </p>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">Dr. Sarah Thompson</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">CTO, MedTech Solutions Inc.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg hover-lift relative">
+                            <div class="text-5xl text-secondary/20 absolute top-4 left-4">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <p class="italic mb-6 text-lg">
+                                    "The recommendation engine Amir developed for our e-commerce platform transformed our business. Within three months of implementation, we saw a 32% increase in conversion rates and a 15% increase in average order value. His ability to translate complex
+                                    technical concepts into business value made the entire process smooth and productive."
+                                </p>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                        <i class="fas fa-user text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">Michael Chen</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">VP of Digital, E-Commerce Platform</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg hover-lift relative">
+                            <div class="text-5xl text-tertiary/20 absolute top-4 left-4">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <p class="italic mb-6 text-lg">
+                                    "Working with Amir on our AI strategy was a game-changer for our financial services company. His deep understanding of both AI technology and our industry allowed him to develop a roadmap that was ambitious yet practical. The fraud detection system he
+                                    helped implement has already prevented millions in potential losses."
+                                </p>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center mr-4">
+                                        <i class="fas fa-user text-tertiary"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">Rebecca Johnson</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Chief Innovation Officer, FinTech Innovations Ltd.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact for Projects -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto bg-gradient-to-r from-primary/90 to-secondary/90 rounded-oneui p-8 md:p-12 text-white shadow-xl section-transition">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-4">Interested in Working Together?</h2>
+                        <p class="text-white/80 max-w-2xl mx-auto">I'm always looking for challenging new projects that push the boundaries of AI and machine learning. Let's discuss how we can create innovative solutions for your business.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/10 rounded-oneui p-6 backdrop-blur-sm">
+                            <h3 class="text-xl font-bold mb-4">My Services</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle mr-3 mt-1"></i>
+                                    <span>Custom Machine Learning Solutions</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle mr-3 mt-1"></i>
+                                    <span>AI Strategy Consulting</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle mr-3 mt-1"></i>
+                                    <span>Data Science &amp; Analytics</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle mr-3 mt-1"></i>
+                                    <span>Computer Vision &amp; NLP Applications</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/10 rounded-oneui p-6 backdrop-blur-sm">
+                            <h3 class="text-xl font-bold mb-4">Project Process</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm mr-3 mt-1">1</div>
+                                    <span>Initial Consultation &amp; Requirements</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm mr-3 mt-1">2</div>
+                                    <span>Solution Design &amp; Proposal</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm mr-3 mt-1">3</div>
+                                    <span>Development &amp; Regular Updates</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm mr-3 mt-1">4</div>
+                                    <span>Deployment &amp; Ongoing Support</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <a href="contact.html" class="px-8 py-4 bg-white text-primary rounded-oneui hover:bg-white/90 transition-colors font-bold inline-block">
+                            Let's Start a Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
+            <div class="container mx-auto px-6">
+                <p class="mb-4">© Copyright <span class="text-primary">Amir M. Parvizi</span>. All Rights Reserved</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function setupTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+
+            document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Mobile Menu
+        function setupMobileMenu() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        // Project filtering
+        function setupProjectFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const projectItems = document.querySelectorAll('.project-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('bg-primary');
+                        btn.classList.add('bg-white', 'dark:bg-dark-bg');
+                        btn.classList.remove('text-white');
+                    });
+
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-white', 'dark:bg-dark-bg');
+                    btn.classList.add('text-white');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    // Filter project items
+                    projectItems.forEach(item => {
+                        const categories = item.getAttribute('data-category').split(' ');
+
+                        if (filter === 'all' || categories.includes(filter)) {
+                            item.classList.remove('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'block';
+                            }, 300);
+                        } else {
+                            item.classList.add('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Section Animations
+        function setupAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.section-transition').forEach(section => {
+                section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        }
+
+        // Magic cursor effect
+        function setupMagicCursor() {
+            const cursor = document.querySelector('.magic-cursor');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+
+            // Hover effect on clickable elements
+            const clickables = document.querySelectorAll('a, button, input, textarea');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 0.4)';
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 1)';
+                });
+            });
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupMobileMenu();
+            setupProjectFilters();
+            setupAnimations();
+            setupMagicCursor();
+        });
+    </script>
+
+
+</body>
+
+</html>

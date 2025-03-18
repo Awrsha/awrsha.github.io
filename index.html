@@ -1,157 +1,1017 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amir M. Parvizi</title>
-  <meta name="description" content="Machine Learning Developer from Iran">
-  <meta name="keywords" content="machine learning, developer, Iran">
-
-  <!-- Favicons -->
-  <link rel="icon" href="assets/img/favicon.png">
-  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/icofont/icofont.min.css" rel="stylesheet">
-  <link href="assets/vendor/owl.carousel/assets/owl.carousel.min.css" rel="stylesheet">
-  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <link href="assets/vendor/venobox/venobox.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-
-  <!-- Template Main CSS File -->
-  <link href="assets/css/style.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amir Mohammad Parvizi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FF6B6B',
+                        tertiary: '#4ECDC4',
+                        accent1: '#FFD166',
+                        accent2: '#06D6A0',
+                        dark: {
+                            bg: '#181818',
+                            card: '#232323',
+                            text: '#E0E0E0'
+                        },
+                        light: {
+                            bg: '#FFFFFF',
+                            card: '#F5F5F7',
+                            text: '#1D1D1F'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['SF Pro Display', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'oneui': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .parallax-bg {
+            transform: translateZ(-1px) scale(2);
+            z-index: -1;
+        }
+        
+        .parallax-wrapper {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 2px;
+        }
+        
+        .parallax-content {
+            transform: translateZ(0);
+        }
+        
+        .section-transition {
+            position: relative;
+            transition: all 0.4s ease-out;
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        /* Ensure text is visible in dark mode */
+        
+        .dark .text-light-text {
+            color: theme('colors.dark.text');
+        }
+        
+        .dark .bg-light-card {
+            background-color: theme('colors.dark.card');
+        }
+        /* Apple-inspired blur effects */
+        
+        .apple-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: rgba(93, 92, 222, 0.5);
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: rgba(93, 92, 222, 0.8);
+        }
+        /* Magic cursor effect */
+        
+        .magic-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #5D5CDE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            opacity: 0;
+        }
+        
+        @media (pointer: fine) {
+            .magic-cursor {
+                opacity: 1;
+            }
+        }
+        /* Portfolio filter transitions */
+        
+        .portfolio-item {
+            transition: all 0.5s ease;
+        }
+        
+        .portfolio-item.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--active-color, #5D5CDE);
+            color: white;
+        }
+    </style>
 </head>
 
-<body>
-	<div id="particles-js" class="position-fixed top-0 start-0 w-100 h-100"></div>
-	
-  <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <!-- <h1 class="logo"><a href="index.html">Amir Mohammad</a></h1> -->
-      <!-- Uncomment below if you prefer to use an image logo -->
-      <!-- <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a> -->
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text font-sans overflow-x-hidden relative">
+    <!-- Magic cursor -->
+    <div class="magic-cursor"></div>
 
-      <nav class="nav-menu d-none d-lg-block">
-        <ul>
-          <li class="active"><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="resume.html">Resume</a></li>
-          <li><a href="services.html">Services</a></li>
-          <li><a href="portfolio.html">Portfolio</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav><!-- .nav-menu -->
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 apple-blur bg-white/80 dark:bg-dark-bg/80 transition-all duration-300">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-primary">Amir M. Parvizi</a>
 
-      <div class="header-social-links">
-        <a href="#" class="telegram"><i class="icofont-paper-plane"></i></a>
-        <a href="#" class="whatsapp"><i class="icofont-whatsapp"></i></a>
-        <a href="#" class="linkedin"><i class="icofont-linkedin"></i></a>
-        <a href="#" class="instagram"><i class="icofont-instagram"></i></a>
-      </div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link font-medium text-primary transition-colors">Home</a>
+                <a href="Certificates.html" class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
+                <a href="Teaching.html" class="nav-link font-medium hover:text-primary transition-colors">Teaching</a>
+                <a href="Articles.html" class="nav-link font-medium hover:text-primary transition-colors">Articles</a>
+                <a href="Competitions.html" class="nav-link font-medium hover:text-primary transition-colors">Competitions</a>
+                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="nav-link font-medium hover:text-primary transition-colors">Contracts</a>
+                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in Touch</a>
+                <button id="theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
 
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-full bg-light-card dark:bg-dark-card">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg apple-blur absolute w-full">
+            <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
+                <a href="index.html" class="font-medium p-2 rounded-oneui bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
+                <a href="Certificates.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
+                <a href="Teaching.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
+                <a href="Articles.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
+                <a href="Competitions.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
+                <a href="Network.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global Network</a>
+                <a href="Colleagues.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Colleagues</a>
+                <a href="Contracts.html" class="font-medium p-2 rounded-oneui hover:bg-primary text-white">Current Status</a>
+                <a href="Contact.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get in Touch</a>
+                <div class="flex justify-between items-center p-2">
+                    <span>Theme</span>
+                    <button id="mobile-theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="parallax-wrapper">
+        <!-- Hero Section -->
+        <section id="home" class="h-screen flex items-center relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
+                <div class="absolute top-24 -left-24 w-80 h-80 bg-secondary/20 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="md:w-2/3 space-y-6">
+                    <h1 class="text-4xl md:text-6xl font-bold">
+                        <span class="block">Amir M. Parvizi</span>
+                        <span class="text-primary">Research And Development Specialist</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl">Building intelligent solutions for tomorrow's challenges</p>
+                    <div class="pt-6 flex space-x-4">
+                        <a href="#about" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
+                            About Me
+                        </a>
+                        <a href="Contact.html" class="px-6 py-3 bg-light-card dark:bg-dark-card rounded-oneui hover:bg-light-bg dark:hover:bg-dark-bg transition-colors shadow-lg">
+                            Contact Me
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <a href="#about" class="text-primary">
+                    <i class="fas fa-chevron-down text-2xl"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-24 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold">About Me</span>
+                    </h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-12 items-center">
+                    <div class="md:w-1/2 section-transition">
+                        <div class="rounded-oneui overflow-hidden bg-light-card dark:bg-dark-card p-2 shadow-xl">
+                            <div class="aspect-square rounded-oneui overflow-hidden bg-gradient-to-br from-primary/40 to-secondary/40">
+                                <!-- Profile Image -->
+                                <img src="assets/img/about.jpg" alt="Profile Image">
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="md:w-1/2 section-transition">
+                        <h3 class="text-2xl font-bold mb-4">AI & Machine Learning Researcher | Computer Vision & Deep Learning Specialist | AI System Architect | Full-Stack Developer (Django, Flask, FastAPI)</h3>
+                        <p class="mb-6 text-lg">
+                            I am holding a Bachelor's degree in Software Engineering from QIAU. My professional journey includes developing AI-driven solutions for healthcare, manufacturing, and autonomous systems while collaborating with international companies like BeeHouse Foundation
+                            (Canada) and Software Motion (china). I contributed to creating Iran's first AI-powered prescription recognition system. With expertise spanning web development, ML/DL and Computer Vision, I am passionate about advancing biomedical
+                            AI and intelligent automation. My goal is to pursue higher education with a scholarship at a top university to develop cutting-edge solutions in healthcare, autonomous vehicles, and robotics.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <p><strong>Name:</strong> Amir Mohammad /ˈæmɪər məˈhæməd/ (Arsha /ˈɑːrʃə/ (for foreigners))</p>
+                            </div>
+                            <div>
+                                <p><strong>Experience:</strong> 5+ Years</p>
+                            </div>
+                            <div>
+                                <p><strong>Speciality:</strong> R&D Specialist</p>
+                            </div>
+                            <div>
+                                <p><strong>Available:</strong> Remote Jobs with Sponsorship Visa</p>
+                            </div>
+                        </div>
+                        <a href="Contact.html" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg inline-block">
+                            Contact Me
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resume Section -->
+        <section id="resume" class="py-24 bg-light-card dark:bg-dark-card relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold">My Resume</span>
+                    </h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Education -->
+                    <div class="section-transition">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <i class="fas fa-graduation-cap text-tertiary mr-3"></i> Education
+                        </h3>
+
+                        <div class="space-y-6">
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">High School Diploma, Mathematics & Physics</h4>
+                                <p class="text-tertiary mb-2">Oct 2016 - Jul 2020</p>
+                                <p>Aqmashe State Model High School. In Iran, government exemplary schools are prestigious educational institutions that have been awarded a "model" license by the Ministry of Education, signifying their commitment to providing
+                                    superior education. These schools are public institutions that admit students through highly competitive entrance exams. The teachers at these schools are dedicated to academic excellence, creating an environment of
+                                    healthy competition among both faculty and students. Students at exemplary schools benefit from extended class hours, contributing to a rigorous academic environment. While tuition fees remain reasonable, the quality
+                                    of education provided is exceptional. Admission to these schools is determined through entrance exams, typically held at the end of each academic year, with students entering from the ninth to tenth grade based on their
+                                    exam performance. Those who do not pass the entrance exam may be placed on a waiting list for potential admission.</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Bachelor's degree, Computer Software Engineering</h4>
+                                <p class="text-tertiary mb-2">Oct 2020 - Jan 2024</p>
+                                <p>Qazvin Azad University(QIAU) follows an industry-oriented mission of which education, research ,and training are the main components. QIAU was established with the aim of producing and developing knowledge in society as
+                                    well as educating the experts and specialists dedicated to Islamic, ethical virtues. Striving to educate the professional experts as well as taking advantage of country’s prominent professors, QIAU has made enormous
+                                    progress. This has opened many opportunities for alumni recruitment in scientific institutions and industrial companies, serving as senior managers and experts. Obviously, encouraging students to undertake higher levels
+                                    of education to meet academic, executive, and educational needs counts as an indicator of improved educational process. To this end, many students of QIAU have been admitted at graduate programs and accredited international
+                                    universities, such as Canada, England, Sweden, and U.S.A.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="section-transition">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <i class="fas fa-briefcase text-accent1 mr-3"></i> Experience
+                        </h3>
+
+                        <div class="space-y-6">
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Research And Development Specialist</h4>
+                                <p class="text-accent1 mb-2">Mar 2025 - Present | Suzhou, Jiangsu, China · Remote</p>
+                                <p>Software Motion Engineering Services Co.,Ltd</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Deep Learning & Computer Vision Specialist</h4>
+                                <p class="text-accent1 mb-2">Jan 2025 - Present | Tehran Province, Iran · Remote</p>
+                                <p>Hoopad Sanaat Karmania Company</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Research And Development Specialist</h4>
+                                <p class="text-accent1 mb-2">Jun 2024 - Feb 2025 | Karaj, Alborz Province, Iran · Remote</p>
+                                <p>Mammut World Group</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Deep Learning Enthusiast | Computer Vision Specialist</h4>
+                                <p class="text-accent1 mb-2">Jan 2022 - Dec 2024 | Qazvin Province, Iran · Remote</p>
+                                <p>MRL (Mechatronics Research Laboratory) Humanoid</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Deep Learning Enthusiast | Computer Vision Specialist</h4>
+                                <p class="text-accent1 mb-2">Jan 2021 - Dec 2024 | Qazvin Province, Iran · Remote</p>
+                                <p>SYNTECH Technology and Innovation Center</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Full Stack Developer</h4>
+                                <p class="text-accent1 mb-2">Jun 2023 - Jan 2024 | Qazvin Province, Iran · Remote</p>
+                                <p>Telecommunication Company of Iran - TCI</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">Junior Software Engineer</h4>
+                                <p class="text-accent1 mb-2">Jan 2021 - Dec 2021 | Vancouver, British Columbia, Canada · Remote</p>
+                                <p>BeeHouse Foundation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="md:col-span-2 mt-12 section-transition">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <i class="fas fa-code text-accent2 mr-3"></i> Skills
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">ML, DL, NLP(NLTK), LLM(LangChain, CrewAI, llamaIndex, ...), Speech Recognition</span>
+                                        <span>70%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-primary h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">TensorFlow, PyTorch, Keras, CUDA C, Triton, GPU Programming, Parallel Computing</span>
+                                        <span>75%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-secondary h-2.5 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">Computer Vision, Image Processing (OpenCV&OpenGL), YOLO(3,5,8,9,10,11,12,NAS)</span>
+                                        <span>80%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-tertiary h-2.5 rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">Python, R, C, C++, VHDL & Verilog, SQL, JavaScript, Java, AJAX, FastAPI</span>
+                                        <span>70%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-accent1 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">Flask, Django , Redis, Celery, Kubernetes, Docker, Ansible, NginX, RabbitMQ, GraphQL</span>
+                                        <span>70%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-accent2 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium">HTML5, CSS3, BootStrap, tailwind CSS, QT&PYQT, JQuery, FlexBox, Responsive Design</span>
+                                        <span>80%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-primary h-2.5 rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-24 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0"></div>
+                <div class="absolute top-24 right-24 w-80 h-80 bg-accent2/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold">My Services</span>
+                    </h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-brain text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Machine Learning Development</h3>
+                        <p>Custom machine learning solutions tailored to your specific business needs and challenges.</p>
+                    </div>
+
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-chart-line text-2xl text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Data Analysis &amp; Visualization</h3>
+                        <p>Transform raw data into actionable insights with comprehensive analysis and visualization.</p>
+                    </div>
+
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-tertiary/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-robot text-2xl text-tertiary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">AI Consulting</h3>
+                        <p>Strategic guidance on implementing AI solutions to enhance your business operations.</p>
+                    </div>
+
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-accent1/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-code text-2xl text-accent1"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Algorithm Development</h3>
+                        <p>Custom algorithm design and implementation for complex computational challenges.</p>
+                    </div>
+
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-accent2/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-image text-2xl text-accent2"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Computer Vision Systems</h3>
+                        <p>Advanced image and video analysis solutions for object detection and recognition.</p>
+                    </div>
+
+                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-comments text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">NLP Solutions</h3>
+                        <p>Natural Language Processing applications including chatbots, sentiment analysis, and text classification.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section id="portfolio" class="py-24 bg-light-card dark:bg-dark-card relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold">My Portfolio</span>
+                    </h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <!-- Portfolio Filters -->
+                <div class="flex flex-wrap justify-center gap-4 mb-12">
+                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
+                        All
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="computer-vision" style="--active-color: #FF6B6B">
+                        Computer Vision
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai" style="--active-color: #4ECDC4">
+                        AI
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml" style="--active-color: #FFD166">
+                        Machine Learning
+                    </button>
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="full-stack" style="--active-color: #06D6A0">
+                        Full Stack
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 portfolio-grid">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                        <div class="h-48 bg-gradient-to-br from-secondary/30 to-primary/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-robot text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Autonomous Drone Navigation</h3>
+                            <p class="mb-4">Machine learning system for drone navigation in complex environments</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CNN</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai ml">
+                        <div class="h-48 bg-gradient-to-br from-tertiary/30 to-accent1/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-comments text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Multilingual NLP Platform</h3>
+                            <p class="mb-4">Natural language processing system supporting 50+ languages</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">NLP</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Transformers</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ml full-stack">
+                        <div class="h-48 bg-gradient-to-br from-accent1/30 to-accent2/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Predictive Analytics Dashboard</h3>
+                            <p class="mb-4">Real-time analytics platform with predictive capabilities</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Science</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time Series</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ml ai">
+                        <div class="h-48 bg-gradient-to-br from-primary/30 to-tertiary/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-microchip text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Edge AI Framework</h3>
+                            <p class="mb-4">Lightweight AI models optimized for edge devices</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Edge Computing</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Model Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai ml">
+                        <div class="h-48 bg-gradient-to-br from-accent2/30 to-accent1/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-brain text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Reinforcement Learning System</h3>
+                            <p class="mb-4">RL-based solution for complex decision-making problems</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">RL</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Deep Q-Learning</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ml">
+                        <div class="h-48 bg-gradient-to-br from-secondary/30 to-accent2/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-heartbeat text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Medical Imaging Analysis</h3>
+                            <p class="mb-4">AI-powered diagnostic system for medical image analysis</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Healthcare</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CNN</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack ai">
+                        <div class="h-48 bg-gradient-to-br from-primary/30 to-secondary/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-globe text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">AI-Powered E-commerce Platform</h3>
+                            <p class="mb-4">Full-stack solution with personalized recommendation engine</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full Stack</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Recommendation Systems</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ml">
+                        <div class="h-48 bg-gradient-to-br from-tertiary/30 to-primary/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-camera text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">Advanced Facial Recognition</h3>
+                            <p class="mb-4">High-accuracy facial recognition and emotion analysis system</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer Vision</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep Learning</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack ml">
+                        <div class="h-48 bg-gradient-to-br from-accent2/30 to-secondary/30 relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-code-branch text-5xl text-white/70"></i>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">MLOps Pipeline System</h3>
+                            <p class="mb-4">End-to-end ML operations platform for model deployment and monitoring</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">MLOps</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-24 relative">
+            <div class="absolute inset-0 overflow-hidden z-0">
+                <div class="parallax-bg absolute inset-0"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-tertiary/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="container mx-auto px-6 z-10 parallax-content">
+                <div class="section-title mb-12 text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold">Contact Me</span>
+                    </h2>
+                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div class="space-y-8 section-transition">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Location</h3>
+                                <p>Qazvin, Iran</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-envelope text-secondary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Email</h3>
+                                <p>official.parvizi@gmail.com</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-phone text-tertiary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Phone</h3>
+                                <p>+98 901 132 5118</p>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-4 pt-4">
+                            <a href="#" target="_blank" class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" target="_blank" class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" target="_blank" class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center hover:bg-tertiary hover:text-white transition-colors">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" target="_blank" class="w-12 h-12 rounded-full bg-accent1/20 flex items-center justify-center hover:bg-accent1 hover:text-white transition-colors">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="section-transition">
+                        <form class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block mb-2 font-medium">Your Name</label>
+                                    <input type="text" id="name" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                                </div>
+                                <div>
+                                    <label for="email" class="block mb-2 font-medium">Your Email</label>
+                                    <input type="email" id="email" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="subject" class="block mb-2 font-medium">Subject</label>
+                                <input type="text" id="subject" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                            </div>
+                            <div>
+                                <label for="message" class="block mb-2 font-medium">Message</label>
+                                <textarea id="message" rows="5" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"></textarea>
+                            </div>
+                            <button type="submit" class="px-8 py-4 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
+            <div class="container mx-auto px-6">
+                <p class="mb-4">© Copyright <span class="text-primary">Amir M. Parvizi</span>. All Rights Reserved</p>
+            </div>
+        </footer>
     </div>
-  </header><!-- End Header -->
 
-  <!-- ======= Hero Section ======= -->
-  <section id="hero" class="d-flex align-items-center">
-    <div class="container d-flex flex-column align-items-center" data-aos="zoom-in" data-aos-delay="100">
-      <h1>Amir M. Parvizi</h1>
-      <h2>I'm a Machine Learning Developer</h2>
-      <a href="about.html" class="btn-about">About</a>
-      <a href="resume.html" class="btn-about">Resume</a>
-      <a href="services.html" class="btn-about">Services</a>
-      <a href="portfolio.html" class="btn-about">Portfolio</a>
-      <a href="contact.html" class="btn-about">Contact Me</a>
-    </div>
-  </section><!-- End Hero -->
-
-  <!-- ======= Footer ======= -->
-  <footer id="footer">
-    <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>Amir M. Parvizi</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-        Designed by <a href="">Amir M. Parvizi</a>
-      </div>
-    </div>
-  </footer><!-- End  Footer -->
-
-  <div id="preloader"></div>
-  <a href="#" class="back-to-top"><i class="bx bx-up-arrow-alt"></i></a>
-
-  <!-- Vendor JS Files -->
-  <script src="assets/vendor/jquery/jquery.min.js"></script>
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/jquery.easing/jquery.easing.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-  <script src="assets/vendor/waypoints/jquery.waypoints.min.js"></script>
-  <script src="assets/vendor/counterup/counterup.min.js"></script>
-  <script src="assets/vendor/owl.carousel/owl.carousel.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/venobox/venobox.min.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-
-  <!-- Template Main JS File -->
-  <script src="assets/js/main.js"></script>
-  <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- AOS (Animate On Scroll) -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-    <!-- Typed.js -->
-    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.33/moment-timezone-with-data.min.js"></script>
     <script>
-        particlesJS("particles-js", {
-            "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#3366cc" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": false },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#3366cc", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 6 }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": { "enable": true, "mode": "repulse" },
-                    "onclick": { "enable": true, "mode": "push" },
-                    "resize": true
-                }
-            },
-            "retina_detect": true
-        });
-	</script>
+        // Theme Toggle
+        function setupTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
 
-  <script>
-    function changeText() {
-      const textElement = document.querySelector('h2');
-      const texts = ["Computer Vision", "Robotic", "Machine Learning", "Artificial Intelligence"];
-      let currentIndex = 0;
-  
-      setInterval(() => {
-        textElement.textContent = `I'm a ${texts[currentIndex]} Developer`;
-        currentIndex = (currentIndex + 1) % texts.length;
-      }, 2000);
-    }
-    changeText();
-  </script>
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+
+            document.getElementById('mobile-theme-toggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Mobile Menu
+        function setupMobileMenu() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        // Navbar Scroll Effect
+        function setupScrollEffects() {
+            const navbar = document.querySelector('nav');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('shadow-md');
+                } else {
+                    navbar.classList.remove('shadow-md');
+                }
+            });
+
+            // Add active class to nav links on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+
+                    if (window.scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('text-primary');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('text-primary');
+                    }
+                });
+            });
+        }
+
+        // Section Animations
+        function setupAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.section-transition').forEach(section => {
+                section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        }
+
+        // Magic cursor effect
+        function setupMagicCursor() {
+            const cursor = document.querySelector('.magic-cursor');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+
+            // Hover effect on clickable elements
+            const clickables = document.querySelectorAll('a, button, input, textarea');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 0.4)';
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                    cursor.style.borderColor = 'rgba(93, 92, 222, 1)';
+                });
+            });
+        }
+
+        // Portfolio filtering
+        function setupPortfolioFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('bg-primary');
+                        btn.classList.add('bg-white', 'dark:bg-dark-bg');
+                        btn.classList.remove('text-white');
+                    });
+
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    btn.classList.remove('bg-white', 'dark:bg-dark-bg');
+                    btn.classList.add('text-white');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    // Filter portfolio items
+                    portfolioItems.forEach(item => {
+                        const categories = item.getAttribute('data-category').split(' ');
+
+                        if (filter === 'all' || categories.includes(filter)) {
+                            item.classList.remove('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'block';
+                            }, 300);
+                        } else {
+                            item.classList.add('hidden');
+                            setTimeout(() => {
+                                item.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupMobileMenu();
+            setupScrollEffects();
+            setupAnimations();
+            setupMagicCursor();
+            setupPortfolioFilters();
+
+            // Fix navigation links to work properly with smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+
+                        // Scroll to target section
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
 
 </body>
 
