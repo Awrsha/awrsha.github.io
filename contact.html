@@ -367,21 +367,21 @@
 
                     <!-- Map and Social Media -->
                     <div class="section-transition">
-                        <div class="map-container mb-8">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d207371.97290202825!2d51.21036974813878!3d35.697431554931005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8e00491ff3dcd9%3A0xf0b3697c567024bc!2sTehran%2C%20Tehran%20Province%2C%20Iran!5e0!3m2!1sen!2s!4v1654356988124!5m2!1sen!2s"
-                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div>
+                            <iframe style="border:0; width: 100%; height: 270px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3437.055546695753!2d50.01318231498448!3d36.27071468007054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3fbc4d31d1b1b79f%3A0x465f63a9f34af111!2sQazvin%2C%20Qazvin%20Province%2C%20Iran!5e0!3m2!1sen!2s!4v1647003756651!5m2!1sen!2s"
+                                frameborder="0" allowfullscreen></iframe>
                         </div>
 
                         <div class="bg-white dark:bg-dark-bg rounded-oneui p-8 shadow-lg">
                             <h3 class="text-2xl font-bold mb-6">Connect With Me</h3>
 
                             <div class="social-icons grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                                <a href="#" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
+                                <a href="https://www.linkedin.com/in/awrsha" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
                                     <i class="fab fa-linkedin-in text-3xl text-primary mb-2"></i>
                                     <span>LinkedIn</span>
                                 </a>
 
-                                <a href="#" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
+                                <a href="https://github.com/awrsha" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
                                     <i class="fab fa-github text-3xl text-secondary mb-2"></i>
                                     <span>GitHub</span>
                                 </a>
@@ -391,7 +391,7 @@
                                     <span>Twitter</span>
                                 </a>
 
-                                <a href="#" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
+                                <a href="https://www.instagram.com/arsha._.pa" target="_blank" class="flex flex-col items-center p-4 bg-light-card dark:bg-dark-card rounded-lg hover:shadow-md">
                                     <i class="fab fa-instagram text-3xl text-accent1 mb-2"></i>
                                     <span>Instagram</span>
                                 </a>
@@ -399,14 +399,24 @@
 
                             <div class="bg-light-card dark:bg-dark-card p-6 rounded-lg">
                                 <p class="text-lg">
-                                    I'm also available for virtual meetings via Zoom, Google Meet, or other platforms. Feel free to suggest a time that works for you.
+                                    Enter your email, meeting date, and time to schedule a meeting. I'll receive a confirmation email shortly.
                                 </p>
-                                <div class="flex justify-center mt-4">
-                                    <a href="#" class="px-6 py-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">
-                                        <i class="fas fa-video mr-2"></i> Schedule a Meeting
-                                    </a>
-                                </div>
+                                <form id="meetingForm">
+                                    <label for="email">Your Email:</label>
+                                    <input type="email" id="email" name="email" required class="p-2 border rounded mb-4 w-full">
+
+                                    <label for="date">Meeting Date:</label>
+                                    <input type="date" id="date" name="date" required class="p-2 border rounded mb-4 w-full">
+
+                                    <label for="time">Meeting Time:</label>
+                                    <input type="time" id="time" name="time" required class="p-2 border rounded mb-4 w-full">
+
+                                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80">
+                                        Schedule Meeting
+                                    </button>
+                                </form>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -479,8 +489,37 @@
             </div>
         </footer>
     </div>
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        emailjs.init("hyMCXq5mQ2ZvimUCJ");
+    </script>
 
     <script>
+        document.getElementById("meetingForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            // Collect user input
+            const userEmail = document.getElementById("email").value;
+            const meetingDate = document.getElementById("date").value;
+            const meetingTime = document.getElementById("time").value;
+
+            // Send email using EmailJS
+            emailjs.send("service_t7tif9r", "template_5ukpt6b", {
+                email: userEmail,
+                date: meetingDate,
+                time: meetingTime,
+            }).then(
+                function(response) {
+                    console.log("Email sent successfully", response); // Debugging
+                    alert("Meeting scheduled successfully!");
+                },
+                function(error) {
+                    console.error("Failed to send email:", error); // Debugging
+                    alert("Failed to send email. Please try again.");
+                }
+            );
+        });
+
         // Theme Toggle
         function setupTheme() {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
