@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم تشخیص پلاک خودرو</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @font-face {
+            font-family: 'Vazir';
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            font-family: 'Vazir', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-edit {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-backup {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-reset {
+            background-color: #dc3545;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: right;
+        }
+        th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        tr:hover {
+            background-color: #e2e8f0;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .action-buttons .btn i {
+            margin-left: 0.5rem;
+        }
+        .nav-menu {
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .nav-logo i {
+            margin-left: 0.5rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .nav-link i {
+            margin-left: 0.5rem;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .stat-card {
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(45deg, #3498db, #8e44ad);
+                padding: 1rem;
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .nav-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav class="nav-menu">
+        <div class="container mx-auto nav-container">
+            <a href="#" class="nav-logo"><i class="fas fa-car"></i> سیستم تشخیص پلاک خودرو</a>
+            <button class="nav-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}" class="nav-link active"><i class="fas fa-home"></i> خانه</a>
+                <a href="{{ url_for('backup') }}" class="nav-link"><i class="fas fa-chart-bar"></i> گزارش‌ها</a>
+                <a href="{{ url_for('settings') }}" class="nav-link"><i class="fas fa-cog"></i> تنظیمات</a>
+                <a href="{{ url_for('service') }}" class="nav-link"><i class="fas fa-headset"></i> پشتیبانی</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInLeft">
+                <h2 id="دوربین-زنده" class="text-xl font-semibold mb-4"><i class="fas fa-video"></i> دوربین زنده</h2>
+                <div class="bg-gray-300 h-64 flex items-center justify-center rounded-lg overflow-hidden">
+                    <img src="/api/placeholder/400/320" alt="Live Camera Feed" class="w-full h-full object-cover">
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInRight">
+                <h2 id="آمار-پلاکها" class="text-xl font-semibold mb-4"><i class="fas fa-chart-pie"></i> آمار پلاک‌ها</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="stat-card bg-blue-100">
+                        <i class="fas fa-car-side text-blue-500"></i>
+                        <h3 id="تعداد-کل" class="font-semibold">تعداد کل</h3>
+                        <p class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="stat-card bg-green-100">
+                        <i class="fas fa-sign-in-alt text-green-500"></i>
+                        <h3 id="ورودی-امروز" class="font-semibold">ورودی امروز</h3>
+                        <p class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="stat-card bg-yellow-100">
+                        <i class="fas fa-sign-out-alt text-yellow-500"></i>
+                        <h3 id="خروجی-امروز" class="font-semibold">خروجی امروز</h3>
+                        <p class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="stat-card bg-red-100">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        <h3 id="هشدارها" class="font-semibold">هشدارها</h3>
+                        <p class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+		
+        <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInUp">
+            <h2 id="جدول-پلاکها" class="text-xl font-semibold mb-4"><i class="fas fa-table"></i> جدول پلاک‌ها</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th>ردیف</th>
+                            <th>شماره پلاک</th>
+                            <th>نوع پلاک</th>
+                            <th>استان</th>
+                            <th>تاریخ ورود</th>
+                            <th>ساعت ورود</th>
+                            <th>تاریخ خروج</th>
+                            <th>ساعت خروج</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plateTableBody">
+                        <!-- Table rows will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="action-buttons animate__animated animate__fadeInUp mt-4">
+            <button class="btn btn-backup" onclick="backupData()">
+                <i class="fas fa-download"></i> پشتیبان‌گیری
+            </button>
+            <button class="btn btn-reset" onclick="resetTable()">
+                <i class="fas fa-trash-alt"></i> بازنشانی جدول
+            </button>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/marked@4.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@heroicons/react@1.0.6/outline/esm/index.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#6c757d',
+                        success: '#28a745',
+                        danger: '#dc3545',
+                        warning: '#ffc107',
+                        info: '#17a2b8',
+                        light: '#f8f9fa',
+                        dark: '#181818',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .loader {
+            border-top-color: #5D5CDE;
+            animation: spinner 0.6s linear infinite;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .dark .dark\:bg-dark {
+            background-color: #181818;
+        }
+        
+        .dark .dark\:text-white {
+            color: #ffffff;
+        }
+        
+        .blur-effect {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .shadow-custom {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark .shadow-custom {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 dark:bg-dark text-gray-900 dark:text-gray-100 transition-all">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                    <h1 class="text-xl md:text-2xl font-bold">GitHub Manager</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block dark:hidden">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow overflow-x-hidden">
+            <div id="auth-screen" class="flex flex-col items-center justify-center min-h-[90vh] px-4">
+                <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-custom p-8 glass-effect">
+                    <div class="text-center mb-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-primary mb-4">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">GitHub Manager</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Authenticate to access your GitHub repositories</p>
+                    </div>
+                    <form id="auth-form" class="space-y-6">
+                        <div class="space-y-2">
+                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">GitHub Username</label>
+                            <input type="text" id="username" name="username" required class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-transparent dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base" placeholder="Your GitHub username">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="token" class="block text-sm font-medium text-gray-700 dark:text-gray-300">GitHub Personal Access Token</label>
+                            <input type="password" id="token" name="token" required class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-transparent dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base" placeholder="Your GitHub token">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">You can create a token in your GitHub Developer Settings</p>
+                        </div>
+                        <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition-all flex justify-center items-center">
+                            <span>Connect to GitHub</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="dashboard" class="hidden">
+                <div class="container mx-auto px-4 py-8">
+                    <!-- Dashboard Header -->
+                    <div class="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold">Welcome, <span id="user-name">User</span></h2>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">Manage your GitHub repositories easily with advanced controls</p>
+                        </div>
+                        <div class="mt-4 lg:mt-0 flex flex-wrap gap-3">
+                            <button id="refresh-btn" class="flex items-center bg-primary/10 text-primary hover:bg-primary/20 font-medium py-2 px-4 rounded-lg transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"></path>
+                                </svg>
+                                <span>Refresh Data</span>
+                            </button>
+                            <button id="create-repo-btn" class="flex items-center bg-primary text-white hover:bg-primary/90 font-medium py-2 px-4 rounded-lg transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                    <path d="M3 3v18h18"></path>
+                                    <path d="M18.4 8.59L13.4 3.59C13.3 3.5 13.05 3.4 12.94 3.39L5 3.4v12.2h13.4"></path>
+                                    <path d="M14 3v5h5"></path>
+                                    <circle cx="15.5" cy="15.5" r="3.5"></circle>
+                                    <path d="M15.5 12v3.5h3.5"></path>
+                                </svg>
+                                <span>New Repository</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 transition-all hover:shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Repos</p>
+                                    <p id="total-repos" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div class="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                                        <path d="M3 3v18h18"></path>
+                                        <path d="M18.4 8.59L13.4 3.59C13.3 3.5 13.05 3.4 12.94 3.39L5 3.4v12.2h13.4"></path>
+                                        <path d="M14 3v5h5"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 transition-all hover:shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Public Repos</p>
+                                    <p id="public-repos" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div class="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
+                                        <path d="M17 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7Z"></path>
+                                        <path d="M12 13V7"></path>
+                                        <path d="M9 10h6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 transition-all hover:shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Private Repos</p>
+                                    <p id="private-repos" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div class="h-12 w-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500">
+                                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 transition-all hover:shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Stars</p>
+                                    <p id="total-stars" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div class="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repository & Operations Tabs -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mb-8">
+                        <div class="flex border-b border-gray-200 dark:border-gray-700">
+                            <button id="tab-repos" class="tab-btn px-6 py-4 text-sm font-medium border-b-2 border-primary text-primary bg-primary/5 dark:bg-primary/10 flex-1 md:flex-none">
+                                Repositories
+                            </button>
+                            <button id="tab-operations" class="tab-btn px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-700 flex-1 md:flex-none">
+                                Operations
+                            </button>
+                        </div>
+
+                        <!-- Repositories Tab Content -->
+                        <div id="content-repos" class="tab-content p-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                                <div class="mb-4 md:mb-0">
+                                    <h3 class="text-lg font-semibold">Your Repositories</h3>
+                                    <p class="text-gray-500 dark:text-gray-400 text-sm">Manage and interact with your repositories</p>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <div class="relative">
+                                        <input id="repo-search" type="text" placeholder="Search repositories..." class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <path d="m21 21-4.3-4.3"></path>
+                                        </svg>
+                                    </div>
+                                    <select id="repo-filter" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base">
+                                        <option value="all">All Repositories</option>
+                                        <option value="public">Public Only</option>
+                                        <option value="private">Private Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="repo-loading" class="flex justify-center items-center py-12">
+                                <div class="loader w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+                            </div>
+
+                            <div id="repo-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                            
+                            <div id="repo-empty" class="hidden text-center py-12">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400 mb-4">
+                                    <path d="M15.5 2H12a4.5 4.5 0 0 0 0 9h3.5V2Z"/>
+                                    <path d="M20 2h-4.5v9H20V2Z"/>
+                                    <path d="M20 16.5A2.5 2.5 0 0 1 17.5 19h-11A4.5 4.5 0 0 1 2 14.5V6a4 4 0 0 1 4-4"/>
+                                    <path d="M13.5 19v3"/>
+                                    <path d="M8.5 22h10"/>
+                                </svg>
+                                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300">No repositories found</h3>
+                                <p class="text-gray-500 dark:text-gray-400 mt-2">Try adjusting your search or create a new repository</p>
+                            </div>
+                        </div>
+
+                        <!-- Operations Tab Content -->
+                        <div id="content-operations" class="tab-content hidden p-6">
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold">Bulk Operations</h3>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Perform operations on multiple repositories at once</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+                                    <h4 class="text-base font-semibold mb-4">Change Repository Visibility</h4>
+                                    <form id="bulk-visibility-form" class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Repositories</label>
+                                            <select id="bulk-repo-select" multiple class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm" style="min-height: 100px">
+                                                <option disabled>Loading repositories...</option>
+                                            </select>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl/Cmd to select multiple repositories</p>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Visibility</label>
+                                            <div class="flex gap-4">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="visibility" value="false" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                    <span class="ml-2 text-sm">Public</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="visibility" value="true" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                    <span class="ml-2 text-sm">Private</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center">
+                                            <span>Change Visibility</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+                                    <h4 class="text-base font-semibold mb-4">Create Issue in Multiple Repositories</h4>
+                                    <form id="bulk-issue-form" class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Repositories</label>
+                                            <select id="bulk-issue-repo-select" multiple class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm" style="min-height: 100px">
+                                                <option disabled>Loading repositories...</option>
+                                            </select>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl/Cmd to select multiple repositories</p>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issue Title</label>
+                                            <input type="text" id="issue-title" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Issue Body</label>
+                                            <textarea id="issue-body" rows="3" class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"></textarea>
+                                        </div>
+                                        <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center">
+                                            <span>Create Issues</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repository Details Modal -->
+                    <div id="repo-details-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                        <div class="min-h-screen px-4 text-center flex items-center justify-center">
+                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+                            <div class="relative bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full mx-auto shadow-xl transform transition-all p-6 text-left">
+                                <button id="close-repo-details" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                                
+                                <div id="repo-details-content" class="mt-3">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                                                <path d="M3 3v18h18"></path>
+                                                <path d="M18.4 8.59L13.4 3.59C13.3 3.5 13.05 3.4 12.94 3.39L5 3.4v12.2h13.4"></path>
+                                                <path d="M14 3v5h5"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 id="repo-details-name" class="text-xl font-bold text-gray-900 dark:text-white">Repository Name</h3>
+                                            <p id="repo-details-desc" class="text-gray-600 dark:text-gray-400">Repository description</p>
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                <span id="repo-details-visibility" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                    Public
+                                                </span>
+                                                <span id="repo-details-updated" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                    Updated recently
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                                        <div class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                            <span class="text-lg font-semibold" id="repo-details-stars">0</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Stars</span>
+                                        </div>
+                                        <div class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                            <span class="text-lg font-semibold" id="repo-details-forks">0</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Forks</span>
+                                        </div>
+                                        <div class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                            <span class="text-lg font-semibold" id="repo-details-issues">0</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Issues</span>
+                                        </div>
+                                        <div class="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                            <span class="text-lg font-semibold" id="repo-details-watchers">0</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Watchers</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <div class="border-b border-gray-200 dark:border-gray-700">
+                                            <nav class="flex space-x-8">
+                                                <button id="repo-tab-overview" class="repo-tab-btn border-b-2 border-primary px-1 py-4 text-sm font-medium text-primary">
+                                                    Overview
+                                                </button>
+                                                <button id="repo-tab-branches" class="repo-tab-btn border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700">
+                                                    Branches
+                                                </button>
+                                                <button id="repo-tab-issues" class="repo-tab-btn border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700">
+                                                    Issues
+                                                </button>
+                                                <button id="repo-tab-settings" class="repo-tab-btn border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700">
+                                                    Settings
+                                                </button>
+                                            </nav>
+                                        </div>
+                                        
+                                        <div id="repo-content-overview" class="repo-tab-content pt-6">
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Repository URL</h4>
+                                                    <div class="mt-1 flex">
+                                                        <input id="repo-details-url" type="text" readonly class="flex-grow px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none text-sm">
+                                                        <button id="copy-repo-url" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-3 py-2 rounded-r-lg border-t border-r border-b border-gray-300 dark:border-gray-600">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                                                                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Default Branch</h4>
+                                                    <p id="repo-details-branch" class="mt-1 text-sm">main</p>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Language</h4>
+                                                    <p id="repo-details-language" class="mt-1 text-sm">JavaScript</p>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Visibility</h4>
+                                                    <div class="mt-1">
+                                                        <button id="repo-toggle-visibility" class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                                                            Make Private
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Quick Actions</h4>
+                                                    <div class="mt-2 flex flex-wrap gap-2">
+                                                        <a id="repo-view-github" href="#" target="_blank" class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                                <polyline points="15 3 21 3 21 9"></polyline>
+                                                                <line x1="10" x1="14" y1="14" y2="10"></line>
+                                                            </svg>
+                                                            View on GitHub
+                                                        </a>
+                                                        <button id="repo-create-issue" class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                                                <circle cx="12" cy="12" r="10"></circle>
+                                                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                                            </svg>
+                                                            Create Issue
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="repo-content-branches" class="repo-tab-content hidden pt-6">
+                                            <div id="branches-loading" class="flex justify-center items-center py-12">
+                                                <div class="loader w-8 h-8 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+                                            </div>
+                                            
+                                            <div id="branches-content" class="hidden">
+                                                <div class="overflow-x-auto">
+                                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="px-4 py-3 bg-gray-50 dark:bg-gray-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                                                <th class="px-4 py-3 bg-gray-50 dark:bg-gray-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Default</th>
+                                                                <th class="px-4 py-3 bg-gray-50 dark:bg-gray-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Protected</th>
+                                                                <th class="px-4 py-3 bg-gray-50 dark:bg-gray-900 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="branches-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                            <!-- Branch data goes here -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="branches-empty" class="hidden text-center py-8">
+                                                <p class="text-gray-500 dark:text-gray-400">No branches found for this repository</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="repo-content-issues" class="repo-tab-content hidden pt-6">
+                                            <div class="mb-4 flex justify-between items-center">
+                                                <h4 class="font-medium">Repository Issues</h4>
+                                                <button id="create-new-issue" class="bg-primary text-white text-sm py-1 px-3 rounded-md hover:bg-primary/90 transition-all">
+                                                    New Issue
+                                                </button>
+                                            </div>
+                                            
+                                            <div id="issues-loading" class="flex justify-center items-center py-12">
+                                                <div class="loader w-8 h-8 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+                                            </div>
+                                            
+                                            <div id="issues-content" class="hidden space-y-3">
+                                                <!-- Issues go here -->
+                                            </div>
+                                            
+                                            <div id="issues-empty" class="hidden text-center py-8">
+                                                <p class="text-gray-500 dark:text-gray-400">No issues found for this repository</p>
+                                                <button id="create-first-issue" class="mt-3 bg-primary text-white text-sm py-1 px-3 rounded-md hover:bg-primary/90 transition-all">
+                                                    Create First Issue
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="repo-content-settings" class="repo-tab-content hidden pt-6">
+                                            <div class="space-y-6">
+                                                <div>
+                                                    <h4 class="text-sm font-medium">Repository Name</h4>
+                                                    <div class="mt-1 flex">
+                                                        <input id="settings-repo-name" type="text" class="flex-grow px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div>
+                                                    <h4 class="text-sm font-medium">Visibility</h4>
+                                                    <div class="mt-2">
+                                                        <div class="flex items-center space-x-4">
+                                                            <label class="inline-flex items-center">
+                                                                <input type="radio" name="settings-visibility" value="false" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                                <span class="ml-2 text-sm">Public</span>
+                                                            </label>
+                                                            <label class="inline-flex items-center">
+                                                                <input type="radio" name="settings-visibility" value="true" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                                <span class="ml-2 text-sm">Private</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-red-500">Danger Zone</h4>
+                                                    <div class="mt-2 border border-red-300 dark:border-red-700 rounded-md p-4">
+                                                        <p class="text-sm text-gray-600 dark:text-gray-400">Delete this repository</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Once you delete a repository, there is no going back.</p>
+                                                        <button id="delete-repo-btn" class="mt-3 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded-md transition-all">
+                                                            Delete Repository
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="flex justify-end pt-4">
+                                                    <button id="save-settings-btn" class="bg-primary hover:bg-primary/90 text-white text-sm py-2 px-4 rounded-md transition-all">
+                                                        Save Changes
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Repository Modal -->
+                    <div id="create-repo-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                        <div class="min-h-screen px-4 text-center flex items-center justify-center">
+                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+                            <div class="relative bg-white dark:bg-gray-800 rounded-xl max-w-md w-full mx-auto shadow-xl transform transition-all p-6 text-left">
+                                <button id="close-create-repo" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                                
+                                <div class="mt-3">
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Create New Repository</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">Fill in the details to create a new GitHub repository</p>
+                                    
+                                    <form id="create-repo-form" class="mt-6 space-y-4">
+                                        <div>
+                                            <label for="new-repo-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Repository Name *</label>
+                                            <input type="text" id="new-repo-name" required class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="new-repo-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                            <textarea id="new-repo-description" rows="3" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"></textarea>
+                                        </div>
+                                        
+                                        <div>
+                                            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Visibility</span>
+                                            <div class="mt-2 flex items-center space-x-4">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="new-repo-visibility" value="false" checked class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                    <span class="ml-2 text-sm">Public</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" name="new-repo-visibility" value="true" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                    <span class="ml-2 text-sm">Private</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="new-repo-readme" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 dark:border-gray-600">
+                                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Initialize this repository with a README</span>
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="pt-4">
+                                            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center">
+                                                <span>Create Repository</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Issue Modal -->
+                    <div id="create-issue-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                        <div class="min-h-screen px-4 text-center flex items-center justify-center">
+                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+                            <div class="relative bg-white dark:bg-gray-800 rounded-xl max-w-md w-full mx-auto shadow-xl transform transition-all p-6 text-left">
+                                <button id="close-create-issue" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                                
+                                <div class="mt-3">
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Create New Issue</h3>
+                                    <p id="issue-modal-repo-name" class="text-gray-600 dark:text-gray-400 text-sm mt-1">Repository: Unknown</p>
+                                    
+                                    <form id="create-issue-form" class="mt-6 space-y-4">
+                                        <div>
+                                            <label for="issue-modal-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title *</label>
+                                            <input type="text" id="issue-modal-title" required class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="issue-modal-body" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                            <textarea id="issue-modal-body" rows="5" class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"></textarea>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Supports Markdown formatting</p>
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="issue-modal-labels" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Labels</label>
+                                            <select id="issue-modal-labels" multiple class="mt-1 w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm" style="min-height: 80px">
+                                                <option value="bug">bug</option>
+                                                <option value="enhancement">enhancement</option>
+                                                <option value="documentation">documentation</option>
+                                                <option value="help wanted">help wanted</option>
+                                            </select>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl/Cmd to select multiple labels</p>
+                                        </div>
+                                        
+                                        <div class="pt-4">
+                                            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all flex justify-center items-center">
+                                                <span>Submit Issue</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- Notifications -->
+        <div id="notification-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 w-72 md:w-80"></div>
+    </div>
+
+    <script>
+        // Dark Mode Detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        // Dark Mode Toggle
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // GitHub API Manager
+        class GitHubManager {
+            constructor() {
+                this.username = '';
+                this.token = '';
+                this.headers = {};
+                this.currentRepo = null;
+                this.allRepos = [];
+                this.publicRepos = [];
+                this.privateRepos = [];
+            }
+            
+            // Authentication
+            authenticate(username, token) {
+                this.username = username;
+                this.token = token;
+                this.headers = {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                };
+                return this.getUserData();
+            }
+            
+            // API Request Helper
+            async apiRequest(url, method = 'GET', data = null) {
+                try {
+                    const options = {
+                        method,
+                        headers: this.headers
+                    };
+                    
+                    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+                        options.body = JSON.stringify(data);
+                    }
+                    
+                    const response = await fetch(url, options);
+                    
+                    // For successful delete operations
+                    if (method === 'DELETE' && response.status === 204) {
+                        return { success: true };
+                    }
+                    
+                    if (response.status === 401) {
+                        throw new Error('Authentication failed. Please check your token.');
+                    }
+                    
+                    if (response.status === 403) {
+                        throw new Error('API rate limit exceeded or insufficient permissions.');
+                    }
+                    
+                    if (response.status === 404) {
+                        throw new Error('Resource not found. Please check the URL.');
+                    }
+                    
+                    if (response.status >= 400) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Error: ${response.status}`);
+                    }
+                    
+                    // For no-content responses
+                    if (response.status === 204) {
+                        return { success: true };
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Request Error:', error);
+                    throw error;
+                }
+            }
+            
+            // User Data
+            async getUserData() {
+                try {
+                    return await this.apiRequest('https://api.github.com/user');
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // Repositories
+            async getUserRepositories(type = 'all') {
+                try {
+                    const repos = await this.apiRequest(`https://api.github.com/user/repos?type=${type}&per_page=100`);
+                    if (type === 'all') {
+                        this.allRepos = repos;
+                        this.publicRepos = repos.filter(repo => !repo.private);
+                        this.privateRepos = repos.filter(repo => repo.private);
+                    } else if (type === 'public') {
+                        this.publicRepos = repos;
+                    } else if (type === 'private') {
+                        this.privateRepos = repos;
+                    }
+                    return repos;
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // Repository Operations
+            async getRepository(repoName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}`);
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async createRepository(name, description = '', isPrivate = false, autoInit = false) {
+                try {
+                    return await this.apiRequest('https://api.github.com/user/repos', 'POST', {
+                        name,
+                        description,
+                        private: isPrivate,
+                        auto_init: autoInit
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async updateRepository(repoName, data) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}`, 'PATCH', data);
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async deleteRepository(repoName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}`, 'DELETE');
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async changeVisibility(repoName, makePrivate) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}`, 'PATCH', {
+                        private: makePrivate
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // Branches
+            async getBranches(repoName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/branches`);
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async protectBranch(repoName, branchName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/branches/${branchName}/protection`, 'PUT', {
+                        required_status_checks: null,
+                        enforce_admins: true,
+                        required_pull_request_reviews: {
+                            dismissal_restrictions: {},
+                            dismiss_stale_reviews: true,
+                            require_code_owner_reviews: true
+                        },
+                        restrictions: null
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async unprotectBranch(repoName, branchName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/branches/${branchName}/protection`, 'DELETE');
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // Issues
+            async getIssues(repoName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/issues`);
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async createIssue(repoName, title, body = '', labels = []) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/issues`, 'POST', {
+                        title,
+                        body,
+                        labels
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            // Labels
+            async getLabels(repoName) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/labels`);
+                } catch (error) {
+                    throw error;
+                }
+            }
+            
+            async createLabel(repoName, name, color) {
+                try {
+                    return await this.apiRequest(`https://api.github.com/repos/${this.username}/${repoName}/labels`, 'POST', {
+                        name,
+                        color
+                    });
+                } catch (error) {
+                    throw error;
+                }
+            }
+        }
+        
+        // UI Manager
+        class UIManager {
+            constructor(githubManager) {
+                this.github = githubManager;
+                this.initEventListeners();
+            }
+            
+            initEventListeners() {
+                // Auth form
+                document.getElementById('auth-form').addEventListener('submit', this.handleAuth.bind(this));
+                
+                // Tab navigation
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', this.handleTabChange.bind(this));
+                });
+                
+                // Repository filtering and search
+                document.getElementById('repo-filter').addEventListener('change', this.filterRepositories.bind(this));
+                document.getElementById('repo-search').addEventListener('input', this.searchRepositories.bind(this));
+                
+                // Modal controls
+                document.getElementById('create-repo-btn').addEventListener('click', this.showCreateRepoModal.bind(this));
+                document.getElementById('close-create-repo').addEventListener('click', this.hideCreateRepoModal.bind(this));
+                document.getElementById('create-repo-form').addEventListener('submit', this.handleCreateRepo.bind(this));
+                
+                document.getElementById('close-repo-details').addEventListener('click', this.hideRepoDetailsModal.bind(this));
+                document.querySelectorAll('.repo-tab-btn').forEach(btn => {
+                    btn.addEventListener('click', this.handleRepoTabChange.bind(this));
+                });
+                
+                document.getElementById('close-create-issue').addEventListener('click', this.hideCreateIssueModal.bind(this));
+                document.getElementById('create-issue-form').addEventListener('submit', this.handleCreateIssue.bind(this));
+                
+                // Repository actions
+                document.getElementById('repo-toggle-visibility').addEventListener('click', this.toggleRepoVisibility.bind(this));
+                document.getElementById('repo-create-issue').addEventListener('click', this.showCreateIssueModal.bind(this));
+                document.getElementById('create-new-issue').addEventListener('click', this.showCreateIssueModal.bind(this));
+                document.getElementById('create-first-issue').addEventListener('click', this.showCreateIssueModal.bind(this));
+                
+                // Settings actions
+                document.getElementById('save-settings-btn').addEventListener('click', this.saveRepoSettings.bind(this));
+                document.getElementById('delete-repo-btn').addEventListener('click', this.handleDeleteRepo.bind(this));
+                
+                // Bulk operation forms
+                document.getElementById('bulk-visibility-form').addEventListener('submit', this.handleBulkVisibility.bind(this));
+                document.getElementById('bulk-issue-form').addEventListener('submit', this.handleBulkIssue.bind(this));
+                
+                // Refresh data
+                document.getElementById('refresh-btn').addEventListener('click', this.refreshData.bind(this));
+                
+                // Copy URL
+                document.getElementById('copy-repo-url').addEventListener('click', this.copyRepoUrl.bind(this));
+            }
+            
+            async handleAuth(event) {
+                event.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const token = document.getElementById('token').value.trim();
+                
+                if (!username || !token) {
+                    this.showNotification('Please enter your GitHub username and token', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification('Authenticating...', 'info');
+                    const userData = await this.github.authenticate(username, token);
+                    
+                    // Show dashboard
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    
+                    // Update user info
+                    document.getElementById('user-name').textContent = userData.name || userData.login;
+                    
+                    // Load repositories
+                    this.loadRepositories();
+                    
+                    this.showNotification('Authentication successful!', 'success');
+                } catch (error) {
+                    this.showNotification(`Authentication failed: ${error.message}`, 'error');
+                }
+            }
+            
+            async loadRepositories() {
+                try {
+                    document.getElementById('repo-loading').classList.remove('hidden');
+                    document.getElementById('repo-list').classList.add('hidden');
+                    document.getElementById('repo-empty').classList.add('hidden');
+                    
+                    const repos = await this.github.getUserRepositories('all');
+                    
+                    document.getElementById('total-repos').textContent = repos.length;
+                    document.getElementById('public-repos').textContent = this.github.publicRepos.length;
+                    document.getElementById('private-repos').textContent = this.github.privateRepos.length;
+                    
+                    let totalStars = 0;
+                    repos.forEach(repo => {
+                        totalStars += repo.stargazers_count;
+                    });
+                    document.getElementById('total-stars').textContent = totalStars;
+                    
+                    this.renderRepositories(repos);
+                    this.populateBulkSelects(repos);
+                    
+                    document.getElementById('repo-loading').classList.add('hidden');
+                    
+                    if (repos.length > 0) {
+                        document.getElementById('repo-list').classList.remove('hidden');
+                    } else {
+                        document.getElementById('repo-empty').classList.remove('hidden');
+                    }
+                } catch (error) {
+                    document.getElementById('repo-loading').classList.add('hidden');
+                    this.showNotification(`Failed to load repositories: ${error.message}`, 'error');
+                }
+            }
+            
+            renderRepositories(repos) {
+                const repoList = document.getElementById('repo-list');
+                repoList.innerHTML = '';
+                
+                if (repos.length === 0) {
+                    document.getElementById('repo-empty').classList.remove('hidden');
+                    return;
+                }
+                
+                repos.forEach(repo => {
+                    const repoCard = document.createElement('div');
+                    repoCard.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all cursor-pointer';
+                    repoCard.dataset.repoName = repo.name;
+                    
+                    const updatedAt = new Date(repo.updated_at);
+                    const timeSince = this.getTimeSince(updatedAt);
+                    
+                    repoCard.innerHTML = `
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center">
+                                        ${repo.name}
+                                        ${repo.private ? 
+                                            `<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">Private</span>` : 
+                                            `<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Public</span>`
+                                        }
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${repo.description || 'No description'}</p>
+                                </div>
+                                <div class="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                                        <path d="M3 3v18h18"></path>
+                                        <path d="M18.4 8.59L13.4 3.59C13.3 3.5 13.05 3.4 12.94 3.39L5 3.4v12.2h13.4"></path>
+                                        <path d="M14 3v5h5"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400 mr-1">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                        </svg>
+                                        <span class="text-gray-600 dark:text-gray-400">${repo.stargazers_count}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400 mr-1">
+                                            <path d="M9 21V19.5C9 18.837 9.26339 18.2011 9.73223 17.7322C10.2011 17.2634 10.837 17 11.5 17H15.5C16.163 17 16.7989 17.2634 17.2678 17.7322C17.7366 18.2011 18 18.837 18 19.5V21"></path>
+                                            <path d="M13.5 13.5C14.8807 13.5 16 12.3807 16 11C16 9.61929 14.8807 8.5 13.5 8.5C12.1193 8.5 11 9.61929 11 11C11 12.3807 12.1193 13.5 13.5 13.5Z"></path>
+                                            <path d="M9 21V19.5C9 18.837 9.26339 18.2011 9.73223 17.7322C10.2011 17.2634 10.837 17 11.5 17H15.5C16.163 17 16.7989 17.2634 17.2678 17.7322C17.7366 18.2011 18 18.837 18 19.5V21"></path>
+                                            <path d="M13.5 13.5C14.8807 13.5 16 12.3807 16 11C16 9.61929 14.8807 8.5 13.5 8.5C12.1193 8.5 11 9.61929 11 11C11 12.3807 12.1193 13.5 13.5 13.5Z"></path>
+                                            <path d="M6.5 10H5C4.46957 10 3.96086 10.2107 3.58579 10.5858C3.21071 10.9609 3 11.4696 3 12V21"></path>
+                                            <path d="M6 10V8C6 6.4087 6.63214 4.88258 7.75736 3.75736C8.88258 2.63214 10.4087 2 12 2C13.5913 2 15.1174 2.63214 16.2426 3.75736C17.3679 4.88258 18 6.4087 18 8V10"></path>
+                                        </svg>
+                                        <span class="text-gray-600 dark:text-gray-400">${repo.forks_count}</span>
+                                    </div>
+                                </div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">Updated ${timeSince}</span>
+                            </div>
+                            <div class="mt-4 flex gap-2">
+                                <button class="view-repo-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    View Details
+                                </button>
+                                <button class="toggle-visibility-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                        ${repo.private ? 
+                                            `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>` : 
+                                            `<rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>`
+                                        }
+                                    </svg>
+                                    Make ${repo.private ? 'Public' : 'Private'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    repoList.appendChild(repoCard);
+                    
+                    // Add event listeners
+                    const viewBtn = repoCard.querySelector('.view-repo-btn');
+                    viewBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showRepoDetails(repo);
+                    });
+                    
+                    const toggleBtn = repoCard.querySelector('.toggle-visibility-btn');
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleVisibility(repo);
+                    });
+                    
+                    repoCard.addEventListener('click', () => {
+                        this.showRepoDetails(repo);
+                    });
+                });
+            }
+            
+            async showRepoDetails(repo) {
+                this.github.currentRepo = repo;
+                
+                // Populate repository details
+                document.getElementById('repo-details-name').textContent = repo.name;
+                document.getElementById('repo-details-desc').textContent = repo.description || 'No description';
+                
+                const visibilityBadge = document.getElementById('repo-details-visibility');
+                visibilityBadge.textContent = repo.private ? 'Private' : 'Public';
+                
+                if (repo.private) {
+                    visibilityBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+                    document.getElementById('repo-toggle-visibility').textContent = 'Make Public';
+                } else {
+                    visibilityBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+                    document.getElementById('repo-toggle-visibility').textContent = 'Make Private';
+                }
+                
+                const updatedAt = new Date(repo.updated_at);
+                document.getElementById('repo-details-updated').textContent = `Updated ${this.getTimeSince(updatedAt)}`;
+                
+                document.getElementById('repo-details-stars').textContent = repo.stargazers_count;
+                document.getElementById('repo-details-forks').textContent = repo.forks_count;
+                document.getElementById('repo-details-issues').textContent = repo.open_issues_count;
+                document.getElementById('repo-details-watchers').textContent = repo.watchers_count;
+                
+                document.getElementById('repo-details-url').value = repo.html_url;
+                document.getElementById('repo-view-github').href = repo.html_url;
+                document.getElementById('repo-details-branch').textContent = repo.default_branch;
+                document.getElementById('repo-details-language').textContent = repo.language || 'Not specified';
+                
+                // Settings tab
+                document.getElementById('settings-repo-name').value = repo.name;
+                document.querySelector(`input[name="settings-visibility"][value="${repo.private}"]`).checked = true;
+                
+                // Show the modal
+                document.getElementById('repo-details-modal').classList.remove('hidden');
+                
+                // Set the active tab to Overview
+                this.setActiveRepoTab('repo-tab-overview');
+            }
+            
+            hideRepoDetailsModal() {
+                document.getElementById('repo-details-modal').classList.add('hidden');
+            }
+            
+            setActiveRepoTab(tabId) {
+                document.querySelectorAll('.repo-tab-btn').forEach(tab => {
+                    tab.classList.remove('border-primary', 'text-primary');
+                    tab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                });
+                
+                document.getElementById(tabId).classList.add('border-primary', 'text-primary');
+                document.getElementById(tabId).classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                
+                document.querySelectorAll('.repo-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                const contentId = tabId.replace('tab', 'content');
+                document.getElementById(contentId).classList.remove('hidden');
+                
+                // Load tab-specific data
+                if (tabId === 'repo-tab-branches') {
+                    this.loadBranches();
+                } else if (tabId === 'repo-tab-issues') {
+                    this.loadIssues();
+                }
+            }
+            
+            handleRepoTabChange(event) {
+                this.setActiveRepoTab(event.currentTarget.id);
+            }
+            
+            async loadBranches() {
+                if (!this.github.currentRepo) return;
+                
+                document.getElementById('branches-loading').classList.remove('hidden');
+                document.getElementById('branches-content').classList.add('hidden');
+                document.getElementById('branches-empty').classList.add('hidden');
+                
+                try {
+                    const branches = await this.github.getBranches(this.github.currentRepo.name);
+                    
+                    if (branches.length === 0) {
+                        document.getElementById('branches-loading').classList.add('hidden');
+                        document.getElementById('branches-empty').classList.remove('hidden');
+                        return;
+                    }
+                    
+                    const branchesTable = document.getElementById('branches-table');
+                    branchesTable.innerHTML = '';
+                    
+                    branches.forEach(branch => {
+                        const row = document.createElement('tr');
+                        
+                        const isDefault = branch.name === this.github.currentRepo.default_branch;
+                        
+                        row.innerHTML = `
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400 mr-2">
+                                        <path d="M6 3v12"></path>
+                                        <circle cx="18" cy="6" r="3"></circle>
+                                        <circle cx="6" cy="18" r="3"></circle>
+                                        <path d="M18 9a9 9 0 0 1-9 9"></path>
+                                    </svg>
+                                    <span>${branch.name}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                ${isDefault ? 
+                                    `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Default</span>` : 
+                                    `<span>-</span>`
+                                }
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                ${branch.protected ? 
+                                    `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">Protected</span>` : 
+                                    `<span>-</span>`
+                                }
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex gap-2">
+                                    ${!branch.protected ? 
+                                        `<button class="protect-branch-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-all" data-branch="${branch.name}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                            </svg>
+                                            Protect
+                                        </button>` : 
+                                        `<button class="unprotect-branch-btn inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all" data-branch="${branch.name}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                                                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                                <line x1="6" y1="1" x2="6" y2="4"></line>
+                                                <line x1="10" y1="1" x2="10" y2="4"></line>
+                                                <line x1="14" y1="1" x2="14" y2="4"></line>
+                                            </svg>
+                                            Unprotect
+                                        </button>`
+                                    }
+                                </div>
+                            </td>
+                        `;
+                        
+                        branchesTable.appendChild(row);
+                        
+                        // Add event listeners for branch protection/unprotection
+                        if (!branch.protected) {
+                            const protectBtn = row.querySelector('.protect-branch-btn');
+                            protectBtn.addEventListener('click', () => this.protectBranch(branch.name));
+                        } else {
+                            const unprotectBtn = row.querySelector('.unprotect-branch-btn');
+                            unprotectBtn.addEventListener('click', () => this.unprotectBranch(branch.name));
+                        }
+                    });
+                    
+                    document.getElementById('branches-loading').classList.add('hidden');
+                    document.getElementById('branches-content').classList.remove('hidden');
+                } catch (error) {
+                    document.getElementById('branches-loading').classList.add('hidden');
+                    this.showNotification(`Failed to load branches: ${error.message}`, 'error');
+                }
+            }
+            
+            async protectBranch(branchName) {
+                if (!this.github.currentRepo) return;
+                
+                try {
+                    this.showNotification(`Protecting branch ${branchName}...`, 'info');
+                    await this.github.protectBranch(this.github.currentRepo.name, branchName);
+                    this.showNotification(`Branch ${branchName} protected successfully`, 'success');
+                    this.loadBranches();
+                } catch (error) {
+                    this.showNotification(`Failed to protect branch: ${error.message}`, 'error');
+                }
+            }
+            
+            async unprotectBranch(branchName) {
+                if (!this.github.currentRepo) return;
+                
+                try {
+                    this.showNotification(`Removing protection from branch ${branchName}...`, 'info');
+                    await this.github.unprotectBranch(this.github.currentRepo.name, branchName);
+                    this.showNotification(`Branch protection removed from ${branchName}`, 'success');
+                    this.loadBranches();
+                } catch (error) {
+                    this.showNotification(`Failed to remove branch protection: ${error.message}`, 'error');
+                }
+            }
+            
+            async loadIssues() {
+                if (!this.github.currentRepo) return;
+                
+                document.getElementById('issues-loading').classList.remove('hidden');
+                document.getElementById('issues-content').classList.add('hidden');
+                document.getElementById('issues-empty').classList.add('hidden');
+                
+                try {
+                    const issues = await this.github.getIssues(this.github.currentRepo.name);
+                    
+                    if (issues.length === 0) {
+                        document.getElementById('issues-loading').classList.add('hidden');
+                        document.getElementById('issues-empty').classList.remove('hidden');
+                        return;
+                    }
+                    
+                    const issuesContent = document.getElementById('issues-content');
+                    issuesContent.innerHTML = '';
+                    
+                    issues.forEach(issue => {
+                        // Skip pull requests (they also appear in the issues endpoint)
+                        if (issue.pull_request) return;
+                        
+                        const issueCard = document.createElement('div');
+                        issueCard.className = 'bg-white dark:bg-gray-900 rounded-lg p-4 hover:shadow-md transition-all';
+                        
+                        const createdAt = new Date(issue.created_at);
+                        const timeSince = this.getTimeSince(createdAt);
+                        
+                        issueCard.innerHTML = `
+                            <div class="flex items-start space-x-3">
+                                <div class="text-green-500 mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                                        <h4 class="font-medium text-gray-900 dark:text-white">${issue.title}</h4>
+                                        <span class="text-gray-500 dark:text-gray-400 text-xs">#${issue.number} opened ${timeSince}</span>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1 line-clamp-2">${issue.body || 'No description'}</p>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        ${issue.labels.map(label => `
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background-color: #${label.color}25; color: #${label.color};">
+                                                ${label.name}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        issuesContent.appendChild(issueCard);
+                    });
+                    
+                    document.getElementById('issues-loading').classList.add('hidden');
+                    document.getElementById('issues-content').classList.remove('hidden');
+                } catch (error) {
+                    document.getElementById('issues-loading').classList.add('hidden');
+                    this.showNotification(`Failed to load issues: ${error.message}`, 'error');
+                }
+            }
+            
+            async toggleRepoVisibility() {
+                if (!this.github.currentRepo) return;
+                
+                const makePrivate = !this.github.currentRepo.private;
+                const repoName = this.github.currentRepo.name;
+                
+                try {
+                    this.showNotification(`Changing repository visibility...`, 'info');
+                    const updatedRepo = await this.github.changeVisibility(repoName, makePrivate);
+                    
+                    // Update current repo
+                    this.github.currentRepo = updatedRepo;
+                    
+                    // Update UI
+                    const visibilityBadge = document.getElementById('repo-details-visibility');
+                    visibilityBadge.textContent = updatedRepo.private ? 'Private' : 'Public';
+                    
+                    if (updatedRepo.private) {
+                        visibilityBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+                        document.getElementById('repo-toggle-visibility').textContent = 'Make Public';
+                    } else {
+                        visibilityBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+                        document.getElementById('repo-toggle-visibility').textContent = 'Make Private';
+                    }
+                    
+                    document.querySelector(`input[name="settings-visibility"][value="${updatedRepo.private}"]`).checked = true;
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    this.showNotification(`Repository is now ${updatedRepo.private ? 'private' : 'public'}`, 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to change visibility: ${error.message}`, 'error');
+                }
+            }
+            
+            async toggleVisibility(repo) {
+                const makePrivate = !repo.private;
+                const repoName = repo.name;
+                
+                try {
+                    this.showNotification(`Changing repository visibility...`, 'info');
+                    await this.github.changeVisibility(repoName, makePrivate);
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    this.showNotification(`Repository "${repoName}" is now ${makePrivate ? 'private' : 'public'}`, 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to change visibility: ${error.message}`, 'error');
+                }
+            }
+            
+            showCreateRepoModal() {
+                document.getElementById('create-repo-modal').classList.remove('hidden');
+            }
+            
+            hideCreateRepoModal() {
+                document.getElementById('create-repo-modal').classList.add('hidden');
+                document.getElementById('create-repo-form').reset();
+            }
+            
+            async handleCreateRepo(event) {
+                event.preventDefault();
+                
+                const name = document.getElementById('new-repo-name').value.trim();
+                const description = document.getElementById('new-repo-description').value.trim();
+                const isPrivate = document.querySelector('input[name="new-repo-visibility"]:checked').value === 'true';
+                const initReadme = document.getElementById('new-repo-readme').checked;
+                
+                if (!name) {
+                    this.showNotification('Repository name is required', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification('Creating repository...', 'info');
+                    const newRepo = await this.github.createRepository(name, description, isPrivate, initReadme);
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    this.hideCreateRepoModal();
+                    this.showNotification(`Repository "${name}" created successfully`, 'success');
+                    
+                    // Show the new repository details
+                    this.showRepoDetails(newRepo);
+                } catch (error) {
+                    this.showNotification(`Failed to create repository: ${error.message}`, 'error');
+                }
+            }
+            
+            showCreateIssueModal() {
+                if (!this.github.currentRepo) return;
+                
+                document.getElementById('issue-modal-repo-name').textContent = `Repository: ${this.github.currentRepo.name}`;
+                document.getElementById('create-issue-modal').classList.remove('hidden');
+            }
+            
+            hideCreateIssueModal() {
+                document.getElementById('create-issue-modal').classList.add('hidden');
+                document.getElementById('create-issue-form').reset();
+            }
+            
+            async handleCreateIssue(event) {
+                event.preventDefault();
+                
+                if (!this.github.currentRepo) return;
+                
+                const title = document.getElementById('issue-modal-title').value.trim();
+                const body = document.getElementById('issue-modal-body').value.trim();
+                
+                const labelsSelect = document.getElementById('issue-modal-labels');
+                const selectedLabels = Array.from(labelsSelect.selectedOptions).map(option => option.value);
+                
+                if (!title) {
+                    this.showNotification('Issue title is required', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification('Creating issue...', 'info');
+                    await this.github.createIssue(this.github.currentRepo.name, title, body, selectedLabels);
+                    
+                    this.hideCreateIssueModal();
+                    this.showNotification('Issue created successfully', 'success');
+                    
+                    // Refresh issues if on that tab
+                    if (!document.getElementById('repo-content-issues').classList.contains('hidden')) {
+                        this.loadIssues();
+                    }
+                } catch (error) {
+                    this.showNotification(`Failed to create issue: ${error.message}`, 'error');
+                }
+            }
+            
+            async saveRepoSettings() {
+                if (!this.github.currentRepo) return;
+                
+                const newName = document.getElementById('settings-repo-name').value.trim();
+                const isPrivate = document.querySelector('input[name="settings-visibility"]:checked').value === 'true';
+                
+                if (!newName) {
+                    this.showNotification('Repository name is required', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification('Saving repository settings...', 'info');
+                    
+                    const updateData = {
+                        private: isPrivate
+                    };
+                    
+                    // Only include name if it changed
+                    if (newName !== this.github.currentRepo.name) {
+                        updateData.name = newName;
+                    }
+                    
+                    const updatedRepo = await this.github.updateRepository(this.github.currentRepo.name, updateData);
+                    
+                    // Update current repo
+                    this.github.currentRepo = updatedRepo;
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    // Update modal
+                    this.showRepoDetails(updatedRepo);
+                    
+                    this.showNotification('Repository settings saved successfully', 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to save settings: ${error.message}`, 'error');
+                }
+            }
+            
+            async handleDeleteRepo() {
+                if (!this.github.currentRepo) return;
+                
+                // Confirm deletion
+                if (!confirm(`Are you sure you want to delete "${this.github.currentRepo.name}"? This action cannot be undone.`)) {
+                    return;
+                }
+                
+                try {
+                    this.showNotification(`Deleting repository "${this.github.currentRepo.name}"...`, 'info');
+                    await this.github.deleteRepository(this.github.currentRepo.name);
+                    
+                    this.hideRepoDetailsModal();
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    this.showNotification(`Repository "${this.github.currentRepo.name}" deleted successfully`, 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to delete repository: ${error.message}`, 'error');
+                }
+            }
+            
+            populateBulkSelects(repos) {
+                const bulkRepoSelect = document.getElementById('bulk-repo-select');
+                const bulkIssueRepoSelect = document.getElementById('bulk-issue-repo-select');
+                
+                bulkRepoSelect.innerHTML = '';
+                bulkIssueRepoSelect.innerHTML = '';
+                
+                repos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo.name;
+                    option.textContent = repo.name + (repo.private ? ' (Private)' : ' (Public)');
+                    
+                    const option2 = option.cloneNode(true);
+                    
+                    bulkRepoSelect.appendChild(option);
+                    bulkIssueRepoSelect.appendChild(option2);
+                });
+            }
+            
+            async handleBulkVisibility(event) {
+                event.preventDefault();
+                
+                const select = document.getElementById('bulk-repo-select');
+                const selectedRepos = Array.from(select.selectedOptions).map(option => option.value);
+                const makePrivate = document.querySelector('input[name="visibility"]:checked').value === 'true';
+                
+                if (selectedRepos.length === 0) {
+                    this.showNotification('Please select at least one repository', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification(`Changing visibility for ${selectedRepos.length} repositories...`, 'info');
+                    
+                    for (const repo of selectedRepos) {
+                        await this.github.changeVisibility(repo, makePrivate);
+                    }
+                    
+                    // Refresh repository list
+                    await this.loadRepositories();
+                    
+                    this.showNotification(`Successfully changed visibility for ${selectedRepos.length} repositories`, 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to change visibility: ${error.message}`, 'error');
+                }
+            }
+            
+            async handleBulkIssue(event) {
+                event.preventDefault();
+                
+                const select = document.getElementById('bulk-issue-repo-select');
+                const selectedRepos = Array.from(select.selectedOptions).map(option => option.value);
+                const title = document.getElementById('issue-title').value.trim();
+                const body = document.getElementById('issue-body').value.trim();
+                
+                if (selectedRepos.length === 0) {
+                    this.showNotification('Please select at least one repository', 'error');
+                    return;
+                }
+                
+                if (!title) {
+                    this.showNotification('Issue title is required', 'error');
+                    return;
+                }
+                
+                try {
+                    this.showNotification(`Creating issues in ${selectedRepos.length} repositories...`, 'info');
+                    
+                    for (const repo of selectedRepos) {
+                        await this.github.createIssue(repo, title, body);
+                    }
+                    
+                    this.showNotification(`Successfully created issues in ${selectedRepos.length} repositories`, 'success');
+                } catch (error) {
+                    this.showNotification(`Failed to create issues: ${error.message}`, 'error');
+                }
+            }
+            
+            handleTabChange(event) {
+                const tabId = event.currentTarget.id;
+                
+                // Remove active state from all tabs
+                document.querySelectorAll('.tab-btn').forEach(tab => {
+                    tab.classList.remove('border-primary', 'bg-primary/5', 'dark:bg-primary/10', 'text-primary');
+                    tab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                });
+                
+                // Add active state to clicked tab
+                event.currentTarget.classList.add('border-primary', 'bg-primary/5', 'dark:bg-primary/10', 'text-primary');
+                event.currentTarget.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show corresponding tab content
+                const contentId = tabId.replace('tab-', 'content-');
+                document.getElementById(contentId).classList.remove('hidden');
+            }
+            
+            filterRepositories() {
+                const filter = document.getElementById('repo-filter').value;
+                const searchTerm = document.getElementById('repo-search').value.toLowerCase();
+                
+                let filteredRepos = [];
+                
+                if (filter === 'all') {
+                    filteredRepos = this.github.allRepos;
+                } else if (filter === 'public') {
+                    filteredRepos = this.github.publicRepos;
+                } else if (filter === 'private') {
+                    filteredRepos = this.github.privateRepos;
+                }
+                
+                // Apply search if there's a search term
+                if (searchTerm) {
+                    filteredRepos = filteredRepos.filter(repo => 
+                        repo.name.toLowerCase().includes(searchTerm) || 
+                        (repo.description && repo.description.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                this.renderRepositories(filteredRepos);
+            }
+            
+            searchRepositories() {
+                this.filterRepositories();
+            }
+            
+            async refreshData() {
+                this.showNotification('Refreshing repository data...', 'info');
+                await this.loadRepositories();
+                this.showNotification('Repository data refreshed', 'success');
+            }
+            
+            copyRepoUrl() {
+                const urlInput = document.getElementById('repo-details-url');
+                urlInput.select();
+                document.execCommand('copy');
+                
+                this.showNotification('Repository URL copied to clipboard', 'success');
+            }
+            
+            showNotification(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                
+                const notification = document.createElement('div');
+                notification.className = 'flex items-center p-4 rounded-lg shadow-md transition-all transform translate-x-0 animate-in bg-white dark:bg-gray-800 border-l-4';
+                
+                // Set border color based on type
+                if (type === 'success') {
+                    notification.classList.add('border-green-500');
+                } else if (type === 'error') {
+                    notification.classList.add('border-red-500');
+                } else if (type === 'warning') {
+                    notification.classList.add('border-yellow-500');
+                } else {
+                    notification.classList.add('border-primary');
+                }
+                
+                // Icon based on type
+                let icon;
+                if (type === 'success') {
+                    icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+                } else if (type === 'error') {
+                    icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+                } else if (type === 'warning') {
+                    icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+                } else {
+                    icon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+                }
+                
+                notification.innerHTML = `
+                    <div class="mr-3">
+                        ${icon}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800 dark:text-gray-200">${message}</p>
+                    </div>
+                    <button class="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Remove notification after 5 seconds
+                setTimeout(() => {
+                    notification.classList.add('opacity-0', 'translate-x-full');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 5000);
+                
+                // Add click event for close button
+                const closeBtn = notification.querySelector('button');
+                closeBtn.addEventListener('click', () => {
+                    notification.classList.add('opacity-0', 'translate-x-full');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                });
+            }
+            
+            getTimeSince(date) {
+                const seconds = Math.floor((new Date() - date) / 1000);
+                
+                let interval = seconds / 31536000;
+                if (interval > 1) {
+                    return Math.floor(interval) + ' years ago';
+                }
+                
+                interval = seconds / 2592000;
+                if (interval > 1) {
+                    return Math.floor(interval) + ' months ago';
+                }
+                
+                interval = seconds / 86400;
+                if (interval > 1) {
+                    return Math.floor(interval) + ' days ago';
+                }
+                
+                interval = seconds / 3600;
+                if (interval > 1) {
+                    return Math.floor(interval) + ' hours ago';
+                }
+                
+                interval = seconds / 60;
+                if (interval > 1) {
+                    return Math.floor(interval) + ' minutes ago';
+                }
+                
+                return 'just now';
+            }
+        }
+        
+        // Initialize the app
+        const github = new GitHubManager();
+        const ui = new UIManager(github);
+        
+        // Animation for sliding in elements
+        function animate() {
+            const elements = [
+                ...document.querySelectorAll('.animate-in')
+            ];
+            
+            elements.forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight) {
+                    el.classList.add('animate-in-active');
+                }
+            });
+        }
+        
+        // Run animation on load
+        window.addEventListener('DOMContentLoaded', animate);
+        window.addEventListener('scroll', animate);
+    </script>
+</body>
+</html>

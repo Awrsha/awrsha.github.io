@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vacuum Cleaner Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #5D5CDE;
+            --secondary-color: #6c5ce7;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ffffff;
+            --dark-bg: #181818;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .vacuum-grid {
+            display: grid;
+            gap: 2px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+        
+        .vacuum-grid.dark {
+            background-color: #333;
+            border-color: #555;
+        }
+        
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .cell.clean {
+            background-color: var(--light-bg);
+        }
+        
+        .cell.dirty {
+            background-color: #b99b83;
+        }
+        
+        .dark .cell.clean {
+            background-color: #333;
+        }
+        
+        .dark .cell.dirty {
+            background-color: #7a5f40;
+        }
+        
+        .vacuum {
+            position: absolute;
+            inset: 10%;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        .vacuum::before {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            top: 20%;
+            left: 20%;
+        }
+        
+        .vacuum.sucking {
+            animation: suck 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes suck {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+        }
+        
+        .stats-card {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        
+        .dark .stats-card {
+            background-color: rgba(30, 30, 30, 0.7);
+        }
+        
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #d7d7d7;
+            outline: none;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .dark .range-slider {
+            background: #555;
+        }
+        
+        .dark .range-slider::-webkit-slider-thumb,
+        .dark .range-slider::-moz-range-thumb {
+            background: var(--primary-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 transition-colors duration-300">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-10">
+            <div class="container mx-auto px-4 sm:px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">AI Vacuum Cleaner Simulator</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors duration-300">
+                            <!-- Sun icon for dark mode -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 dark:text-yellow-300 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <!-- Moon icon for light mode -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 dark:text-gray-300 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <div class="container mx-auto px-4 sm:px-6 py-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column - Controls and Settings -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Simulation Controls -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <h3 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Simulation Controls
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="gridSize" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Grid Size: <span id="gridSizeValue">5</span>x<span id="gridSizeValue2">5</span></label>
+                                    <input type="range" id="gridSize" class="range-slider" min="3" max="15" step="1" value="5">
+                                </div>
+                                
+                                <div>
+                                    <label for="dirtRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirt Rate: <span id="dirtRateValue">30</span>%</label>
+                                    <input type="range" id="dirtRate" class="range-slider" min="10" max="70" step="5" value="30">
+                                </div>
+                                
+                                <div>
+                                    <label for="simulationSpeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Simulation Speed: <span id="simulationSpeedValue">Normal</span></label>
+                                    <input type="range" id="simulationSpeed" class="range-slider" min="1" max="5" step="1" value="3">
+                                </div>
+                                
+                                <div>
+                                    <label for="learningRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Learning Rate: <span id="learningRateValue">0.001</span></label>
+                                    <input type="range" id="learningRate" class="range-slider" min="1" max="10" step="1" value="1">
+                                </div>
+                                
+                                <div>
+                                    <label for="explorationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exploration Rate: <span id="explorationRateValue">1.0</span></label>
+                                    <input type="range" id="explorationRate" class="range-slider" min="1" max="10" step="1" value="10">
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 flex gap-3">
+                                <button id="startBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Start
+                                </button>
+                                <button id="pauseBtn" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Pause
+                                </button>
+                                <button id="resetBtn" class="flex-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Metrics -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <h3 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Performance Metrics
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-3">
+                                        <p class="text-xs text-indigo-700 dark:text-indigo-300">Episode</p>
+                                        <p class="text-2xl font-bold text-indigo-800 dark:text-indigo-200" id="episodeCounter">0</p>
+                                    </div>
+                                    <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-3">
+                                        <p class="text-xs text-green-700 dark:text-green-300">Total Cleaned</p>
+                                        <p class="text-2xl font-bold text-green-800 dark:text-green-200" id="totalCleanedCounter">0</p>
+                                    </div>
+                                    <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3">
+                                        <p class="text-xs text-blue-700 dark:text-blue-300">Efficiency</p>
+                                        <p class="text-2xl font-bold text-blue-800 dark:text-blue-200" id="efficiencyCounter">0%</p>
+                                    </div>
+                                    <div class="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-3">
+                                        <p class="text-xs text-purple-700 dark:text-purple-300">Current ε</p>
+                                        <p class="text-2xl font-bold text-purple-800 dark:text-purple-200" id="epsilonCounter">1.00</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Action:</p>
+                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                                        <p class="text-lg font-medium text-gray-800 dark:text-gray-200" id="currentAction">Waiting to start...</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Reward:</p>
+                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                                        <p class="text-lg font-medium text-gray-800 dark:text-gray-200" id="currentReward">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Simulation and Charts -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Simulation Grid -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <h3 class="text-xl font-semibold mb-4 dark:text-white flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                </svg>
+                                Simulation Environment
+                            </h3>
+                            
+                            <div class="flex items-center justify-center" id="gridContainer">
+                                <div id="vacuumGrid" class="vacuum-grid w-full max-w-md aspect-square"></div>
+                            </div>
+                            
+                            <div class="mt-4 text-center hidden" id="simulationLoading">
+                                <span class="loader"></span>
+                                <p class="mt-4 text-gray-600 dark:text-gray-400">Initializing simulation...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Charts -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Reward History Chart -->
+                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4 dark:text-white flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                    Reward History
+                                </h3>
+                                <div class="h-60">
+                                    <canvas id="rewardChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Steps Per Episode Chart -->
+                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4 dark:text-white flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Steps Per Episode
+                                </h3>
+                                <div class="h-60">
+                                    <canvas id="stepsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Decision Making -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                            <h3 class="text-lg font-semibold mb-4 dark:text-white flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                Agent Decision Making
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="col-span-1 md:col-span-2">
+                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-full">
+                                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Action Probability</h4>
+                                        <div class="h-40">
+                                            <canvas id="actionProbChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-span-1">
+                                    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 h-full">
+                                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Decision Stats</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">Random Actions</p>
+                                                <p class="text-lg font-semibold text-gray-800 dark:text-gray-200" id="randomActions">0</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">Learned Actions</p>
+                                                <p class="text-lg font-semibold text-gray-800 dark:text-gray-200" id="learnedActions">0</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">Learning Ratio</p>
+                                                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mt-1">
+                                                    <div id="learningRatioBar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-gray-900 shadow-md mt-8">
+            <div class="container mx-auto px-4 py-6">
+                <div class="text-center text-gray-600 dark:text-gray-400 text-sm">
+                    <p>AI Vacuum Cleaner Simulator © 2023</p>
+                    <p class="mt-1">A demonstration of reinforcement learning in action</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme Toggle
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark');
+            const vacuumGrid = document.getElementById('vacuumGrid');
+            if (vacuumGrid) {
+                vacuumGrid.classList.toggle('dark');
+            }
+            
+            // Update charts with new theme
+            updateChartsTheme();
+        });
+        
+        // Check system preference for dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+            const vacuumGrid = document.getElementById('vacuumGrid');
+            if (vacuumGrid) {
+                vacuumGrid.classList.add('dark');
+            }
+        }
+        
+        // Listen for changes in color scheme preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (e.matches) {
+                document.body.classList.add('dark');
+                const vacuumGrid = document.getElementById('vacuumGrid');
+                if (vacuumGrid) {
+                    vacuumGrid.classList.add('dark');
+                }
+            } else {
+                document.body.classList.remove('dark');
+                const vacuumGrid = document.getElementById('vacuumGrid');
+                if (vacuumGrid) {
+                    vacuumGrid.classList.remove('dark');
+                }
+            }
+            
+            // Update charts with new theme
+            updateChartsTheme();
+        });
+
+        // VacuumCleanerEnvironment Class
+        class VacuumCleanerEnvironment {
+            constructor(gridSize = 5, dirtRate = 0.3) {
+                this.gridSize = gridSize;
+                this.dirtRate = dirtRate;
+                this.grid = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+                this.position = [
+                    Math.floor(Math.random() * gridSize),
+                    Math.floor(Math.random() * gridSize)
+                ];
+                this.generateDirt();
+                this.actionSpace = 5; // LEFT, RIGHT, UP, DOWN, SUCK
+                this.dirtyCount = 0;
+                this.cleanedCount = 0;
+                this.steps = 0;
+            }
+            
+            generateDirt() {
+                const numDirtyCells = Math.floor(this.dirtRate * this.gridSize * this.gridSize);
+                this.dirtyCount = 0;
+                
+                for (let i = 0; i < numDirtyCells; i++) {
+                    let x = Math.floor(Math.random() * this.gridSize);
+                    let y = Math.floor(Math.random() * this.gridSize);
+                    
+                    if (this.grid[x][y] === 0) {
+                        this.grid[x][y] = 1;
+                        this.dirtyCount++;
+                    } else {
+                        // If cell is already dirty, try again
+                        i--;
+                    }
+                }
+            }
+            
+            step(action) {
+                let [x, y] = this.position;
+                let reward = 0;
+                let actionName = '';
+                
+                // Move or suck based on action
+                if (action === 0 && y > 0) {  // LEFT
+                    this.position = [x, y - 1];
+                    reward = -0.01; // Small negative reward for moving
+                    actionName = 'Move Left';
+                } else if (action === 1 && y < this.gridSize - 1) {  // RIGHT
+                    this.position = [x, y + 1];
+                    reward = -0.01;
+                    actionName = 'Move Right';
+                } else if (action === 2 && x > 0) {  // UP
+                    this.position = [x - 1, y];
+                    reward = -0.01;
+                    actionName = 'Move Up';
+                } else if (action === 3 && x < this.gridSize - 1) {  // DOWN
+                    this.position = [x + 1, y];
+                    reward = -0.01;
+                    actionName = 'Move Down';
+                } else if (action === 4) {  // SUCK
+                    reward = this.suckDirt();
+                    actionName = 'Suck';
+                } else {
+                    // Invalid move (hit wall)
+                    reward = -0.05; // Larger negative reward for invalid move
+                    actionName = 'Invalid Move';
+                }
+                
+                this.steps++;
+                
+                // Check if done (all dirt cleaned)
+                const done = this.isDone();
+                
+                return {
+                    state: this.getState(),
+                    reward: reward,
+                    done: done,
+                    actionName: actionName
+                };
+            }
+            
+            suckDirt() {
+                const [x, y] = this.position;
+                if (this.grid[x][y] === 1) {
+                    this.grid[x][y] = 0;
+                    this.dirtyCount--;
+                    this.cleanedCount++;
+                    return 1.0; // Reward for cleaning dirt
+                }
+                return -0.1; // Negative reward for unnecessary suck action
+            }
+            
+            isDone() {
+                return this.dirtyCount === 0;
+            }
+            
+            reset() {
+                this.grid = Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(0));
+                this.position = [
+                    Math.floor(Math.random() * this.gridSize),
+                    Math.floor(Math.random() * this.gridSize)
+                ];
+                this.generateDirt();
+                this.steps = 0;
+                return this.getState();
+            }
+            
+            getState() {
+                // Return a flattened copy of the grid and position
+                return {
+                    grid: this.grid.map(row => [...row]),
+                    position: [...this.position]
+                };
+            }
+        }
+
+        // DQNAgent Class
+        class DQNAgent {
+            constructor(stateSize, actionSize) {
+                this.stateSize = stateSize;
+                this.actionSize = actionSize;
+                this.memory = [];
+                this.gamma = 0.95; // discount rate
+                this.epsilon = 1.0; // exploration rate
+                this.epsilonMin = 0.01;
+                this.epsilonDecay = 0.995;
+                this.learningRate = 0.001;
+                
+                // Simple Q-table for demonstration purposes
+                this.qTable = new Map();
+                
+                // Stats
+                this.randomActions = 0;
+                this.learnedActions = 0;
+            }
+            
+            // Get a string key from state for Q-table lookup
+            getStateKey(state) {
+                const [x, y] = state.position;
+                
+                // Simplified state representation - just position and immediate surroundings
+                let key = `${x},${y}`;
+                
+                // Add dirt status of current cell
+                key += `:${state.grid[x][y]}`;
+                
+                // Check adjacent cells for dirt (if they exist)
+                if (x > 0) key += `:${state.grid[x-1][y]}`;
+                if (x < state.grid.length - 1) key += `:${state.grid[x+1][y]}`;
+                if (y > 0) key += `:${state.grid[x][y-1]}`;
+                if (y < state.grid[0].length - 1) key += `:${state.grid[x][y+1]}`;
+                
+                return key;
+            }
+            
+            // Get action values for a state
+            getActionValues(state) {
+                const stateKey = this.getStateKey(state);
+                
+                if (!this.qTable.has(stateKey)) {
+                    // Initialize a new entry with zeros
+                    this.qTable.set(stateKey, Array(this.actionSize).fill(0));
+                }
+                
+                return this.qTable.get(stateKey);
+            }
+            
+            // Choose an action using epsilon-greedy policy
+            act(state) {
+                if (Math.random() < this.epsilon) {
+                    this.randomActions++;
+                    return Math.floor(Math.random() * this.actionSize);
+                }
+                
+                this.learnedActions++;
+                const actionValues = this.getActionValues(state);
+                return actionValues.indexOf(Math.max(...actionValues));
+            }
+            
+            // Get action probabilities (for visualization)
+            getActionProbabilities(state) {
+                const actionValues = this.getActionValues(state);
+                
+                // If all values are the same, return equal probabilities
+                if (actionValues.every(val => val === actionValues[0])) {
+                    return Array(this.actionSize).fill(1 / this.actionSize);
+                }
+                
+                // Convert to positive values
+                const minValue = Math.min(...actionValues);
+                const adjustedValues = actionValues.map(v => v - minValue + 0.1);
+                
+                // Softmax calculation
+                const sum = adjustedValues.reduce((a, b) => a + b, 0);
+                return adjustedValues.map(v => v / sum);
+            }
+            
+            // Remember state, action, reward, next_state, done
+            remember(state, action, reward, nextState, done) {
+                // Simple implementation - update Q-value directly
+                this.learn(state, action, reward, nextState, done);
+            }
+            
+            // Learn from experience
+            learn(state, action, reward, nextState, done) {
+                const stateKey = this.getStateKey(state);
+                
+                if (!this.qTable.has(stateKey)) {
+                    this.qTable.set(stateKey, Array(this.actionSize).fill(0));
+                }
+                
+                const currentQ = this.qTable.get(stateKey)[action];
+                
+                let newQ;
+                if (done) {
+                    newQ = reward;
+                } else {
+                    const nextActionValues = this.getActionValues(nextState);
+                    const maxNextQ = Math.max(...nextActionValues);
+                    newQ = reward + this.gamma * maxNextQ;
+                }
+                
+                // Update Q-value with learning rate
+                const updatedQ = currentQ + this.learningRate * (newQ - currentQ);
+                
+                const actionValues = this.qTable.get(stateKey);
+                actionValues[action] = updatedQ;
+                this.qTable.set(stateKey, actionValues);
+            }
+            
+            // Update epsilon
+            updateEpsilon() {
+                if (this.epsilon > this.epsilonMin) {
+                    this.epsilon *= this.epsilonDecay;
+                }
+            }
+        }
+
+        // Simulation Manager
+        class SimulationManager {
+            constructor() {
+                this.env = null;
+                this.agent = null;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.episode = 0;
+                this.totalCleaned = 0;
+                this.episodeSteps = [];
+                this.episodeRewards = [];
+                this.currentReward = 0;
+                this.simulationSpeed = 300; // ms per step
+                
+                // Charts
+                this.rewardChart = null;
+                this.stepsChart = null;
+                this.actionProbChart = null;
+                
+                // DOM references
+                this.gridElement = document.getElementById('vacuumGrid');
+                this.episodeCounter = document.getElementById('episodeCounter');
+                this.totalCleanedCounter = document.getElementById('totalCleanedCounter');
+                this.efficiencyCounter = document.getElementById('efficiencyCounter');
+                this.epsilonCounter = document.getElementById('epsilonCounter');
+                this.currentAction = document.getElementById('currentAction');
+                this.currentRewardElement = document.getElementById('currentReward');
+                this.randomActionsElement = document.getElementById('randomActions');
+                this.learnedActionsElement = document.getElementById('learnedActions');
+                this.learningRatioBar = document.getElementById('learningRatioBar');
+                
+                // Initialize charts
+                this.initCharts();
+                
+                // Initialize UI event listeners
+                this.initUI();
+            }
+            
+            initUI() {
+                // Sliders
+                const gridSizeSlider = document.getElementById('gridSize');
+                const dirtRateSlider = document.getElementById('dirtRate');
+                const simulationSpeedSlider = document.getElementById('simulationSpeed');
+                const learningRateSlider = document.getElementById('learningRate');
+                const explorationRateSlider = document.getElementById('explorationRate');
+                
+                // Slider value elements
+                const gridSizeValue = document.getElementById('gridSizeValue');
+                const gridSizeValue2 = document.getElementById('gridSizeValue2');
+                const dirtRateValue = document.getElementById('dirtRateValue');
+                const simulationSpeedValue = document.getElementById('simulationSpeedValue');
+                const learningRateValue = document.getElementById('learningRateValue');
+                const explorationRateValue = document.getElementById('explorationRateValue');
+                
+                // Buttons
+                const startBtn = document.getElementById('startBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                
+                // Update slider values
+                gridSizeSlider.addEventListener('input', () => {
+                    gridSizeValue.textContent = gridSizeSlider.value;
+                    gridSizeValue2.textContent = gridSizeSlider.value;
+                });
+                
+                dirtRateSlider.addEventListener('input', () => {
+                    dirtRateValue.textContent = dirtRateSlider.value;
+                });
+                
+                simulationSpeedSlider.addEventListener('input', () => {
+                    const speed = parseInt(simulationSpeedSlider.value);
+                    let speedText = 'Normal';
+                    
+                    switch (speed) {
+                        case 1: speedText = 'Very Slow'; this.simulationSpeed = 600; break;
+                        case 2: speedText = 'Slow'; this.simulationSpeed = 400; break;
+                        case 3: speedText = 'Normal'; this.simulationSpeed = 300; break;
+                        case 4: speedText = 'Fast'; this.simulationSpeed = 150; break;
+                        case 5: speedText = 'Very Fast'; this.simulationSpeed = 50; break;
+                    }
+                    
+                    simulationSpeedValue.textContent = speedText;
+                });
+                
+                learningRateSlider.addEventListener('input', () => {
+                    const rate = parseInt(learningRateSlider.value) / 1000;
+                    learningRateValue.textContent = rate.toFixed(3);
+                    if (this.agent) {
+                        this.agent.learningRate = rate;
+                    }
+                });
+                
+                explorationRateSlider.addEventListener('input', () => {
+                    const rate = parseInt(explorationRateSlider.value) / 10;
+                    explorationRateValue.textContent = rate.toFixed(1);
+                    if (this.agent) {
+                        this.agent.epsilon = rate;
+                        this.updateEpsilonUI();
+                    }
+                });
+                
+                // Button event listeners
+                startBtn.addEventListener('click', () => {
+                    if (!this.isRunning) {
+                        this.startSimulation();
+                    } else if (this.isPaused) {
+                        this.resumeSimulation();
+                    }
+                });
+                
+                pauseBtn.addEventListener('click', () => {
+                    if (this.isRunning && !this.isPaused) {
+                        this.pauseSimulation();
+                    }
+                });
+                
+                resetBtn.addEventListener('click', () => {
+                    this.resetSimulation();
+                });
+            }
+            
+            initCharts() {
+                // Get theme colors based on current theme
+                const isDark = document.body.classList.contains('dark');
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                const textColor = isDark ? '#e2e8f0' : '#4a5568';
+                
+                // Reward Chart
+                const rewardCtx = document.getElementById('rewardChart').getContext('2d');
+                this.rewardChart = new Chart(rewardCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Reward',
+                            data: [],
+                            backgroundColor: 'rgba(93, 92, 222, 0.2)',
+                            borderColor: 'rgba(93, 92, 222, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: textColor
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Episode',
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Reward',
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Steps Chart
+                const stepsCtx = document.getElementById('stepsChart').getContext('2d');
+                this.stepsChart = new Chart(stepsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Steps',
+                            data: [],
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: textColor
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Episode',
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Steps',
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Action Probabilities Chart
+                const actionProbCtx = document.getElementById('actionProbChart').getContext('2d');
+                this.actionProbChart = new Chart(actionProbCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Left', 'Right', 'Up', 'Down', 'Suck'],
+                        datasets: [{
+                            label: 'Probability',
+                            data: [0.2, 0.2, 0.2, 0.2, 0.2],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                max: 1,
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: gridColor
+                                },
+                                ticks: {
+                                    color: textColor
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            updateChartsTheme() {
+                if (!this.rewardChart || !this.stepsChart || !this.actionProbChart) return;
+                
+                const isDark = document.body.classList.contains('dark');
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                const textColor = isDark ? '#e2e8f0' : '#4a5568';
+                
+                // Update reward chart
+                this.rewardChart.options.scales.x.grid.color = gridColor;
+                this.rewardChart.options.scales.y.grid.color = gridColor;
+                this.rewardChart.options.scales.x.ticks.color = textColor;
+                this.rewardChart.options.scales.y.ticks.color = textColor;
+                this.rewardChart.options.scales.x.title.color = textColor;
+                this.rewardChart.options.scales.y.title.color = textColor;
+                this.rewardChart.options.plugins.legend.labels.color = textColor;
+                
+                // Update steps chart
+                this.stepsChart.options.scales.x.grid.color = gridColor;
+                this.stepsChart.options.scales.y.grid.color = gridColor;
+                this.stepsChart.options.scales.x.ticks.color = textColor;
+                this.stepsChart.options.scales.y.ticks.color = textColor;
+                this.stepsChart.options.scales.x.title.color = textColor;
+                this.stepsChart.options.scales.y.title.color = textColor;
+                this.stepsChart.options.plugins.legend.labels.color = textColor;
+                
+                // Update action probability chart
+                this.actionProbChart.options.scales.x.grid.color = gridColor;
+                this.actionProbChart.options.scales.y.grid.color = gridColor;
+                this.actionProbChart.options.scales.x.ticks.color = textColor;
+                this.actionProbChart.options.scales.y.ticks.color = textColor;
+                
+                // Update charts
+                this.rewardChart.update();
+                this.stepsChart.update();
+                this.actionProbChart.update();
+            }
+            
+            renderGrid() {
+                if (!this.env) return;
+                
+                const grid = this.env.grid;
+                const [vacuumX, vacuumY] = this.env.position;
+                
+                // Clear previous grid
+                this.gridElement.innerHTML = '';
+                
+                // Set grid template
+                this.gridElement.style.gridTemplateColumns = `repeat(${this.env.gridSize}, 1fr)`;
+                
+                // Create cells
+                for (let x = 0; x < this.env.gridSize; x++) {
+                    for (let y = 0; y < this.env.gridSize; y++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        
+                        // Add clean/dirty class
+                        if (grid[x][y] === 1) {
+                            cell.classList.add('dirty');
+                        } else {
+                            cell.classList.add('clean');
+                        }
+                        
+                        // Add vacuum if this is its position
+                        if (x === vacuumX && y === vacuumY) {
+                            const vacuum = document.createElement('div');
+                            vacuum.className = 'vacuum';
+                            cell.appendChild(vacuum);
+                        }
+                        
+                        this.gridElement.appendChild(cell);
+                    }
+                }
+            }
+            
+            startSimulation() {
+                if (this.isRunning) return;
+                
+                // Get parameters from UI
+                const gridSize = parseInt(document.getElementById('gridSize').value);
+                const dirtRate = parseInt(document.getElementById('dirtRate').value) / 100;
+                const learningRate = parseFloat(document.getElementById('learningRate').value) / 1000;
+                
+                // Create environment and agent
+                this.env = new VacuumCleanerEnvironment(gridSize, dirtRate);
+                this.agent = new DQNAgent(gridSize * gridSize, 5);
+                this.agent.learningRate = learningRate;
+                
+                // Update UI
+                this.isRunning = true;
+                this.isPaused = false;
+                this.episode = 0;
+                this.totalCleaned = 0;
+                this.episodeSteps = [];
+                this.episodeRewards = [];
+                
+                document.getElementById('startBtn').textContent = 'Resume';
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('pauseBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Clear charts
+                this.rewardChart.data.labels = [];
+                this.rewardChart.data.datasets[0].data = [];
+                this.stepsChart.data.labels = [];
+                this.stepsChart.data.datasets[0].data = [];
+                this.rewardChart.update();
+                this.stepsChart.update();
+                
+                // Render initial state
+                this.renderGrid();
+                
+                // Start the simulation loop
+                this.runEpisode();
+            }
+            
+            pauseSimulation() {
+                this.isPaused = true;
+                document.getElementById('startBtn').textContent = 'Resume';
+            }
+            
+            resumeSimulation() {
+                this.isPaused = false;
+                document.getElementById('startBtn').textContent = 'Pause';
+                this.runEpisode();
+            }
+            
+            resetSimulation() {
+                // Stop current simulation
+                this.isRunning = false;
+                this.isPaused = false;
+                
+                // Reset UI
+                document.getElementById('startBtn').textContent = 'Start';
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                document.getElementById('pauseBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                
+                this.currentAction.textContent = 'Waiting to start...';
+                this.currentRewardElement.textContent = '0';
+                this.episodeCounter.textContent = '0';
+                this.totalCleanedCounter.textContent = '0';
+                this.efficiencyCounter.textContent = '0%';
+                this.epsilonCounter.textContent = '1.00';
+                this.randomActionsElement.textContent = '0';
+                this.learnedActionsElement.textContent = '0';
+                this.learningRatioBar.style.width = '0%';
+                
+                // Clear grid
+                this.gridElement.innerHTML = '';
+                
+                // Reset charts
+                this.rewardChart.data.labels = [];
+                this.rewardChart.data.datasets[0].data = [];
+                this.stepsChart.data.labels = [];
+                this.stepsChart.data.datasets[0].data = [];
+                this.actionProbChart.data.datasets[0].data = [0.2, 0.2, 0.2, 0.2, 0.2];
+                this.rewardChart.update();
+                this.stepsChart.update();
+                this.actionProbChart.update();
+            }
+            
+            async runEpisode() {
+                if (!this.isRunning || this.isPaused) return;
+                
+                this.episode++;
+                let state = this.env.reset();
+                let totalReward = 0;
+                let steps = 0;
+                let done = false;
+                
+                // Render initial state
+                this.renderGrid();
+                this.episodeCounter.textContent = this.episode.toString();
+                
+                // Run steps until done or max steps
+                const maxSteps = Math.max(100, this.env.gridSize * this.env.gridSize * 3);
+                
+                while (!done && steps < maxSteps && this.isRunning && !this.isPaused) {
+                    // Agent chooses action
+                    const action = this.agent.act(state);
+                    
+                    // Update action probabilities chart
+                    const actionProbs = this.agent.getActionProbabilities(state);
+                    this.actionProbChart.data.datasets[0].data = actionProbs;
+                    this.actionProbChart.update();
+                    
+                    // Execute action
+                    const result = this.env.step(action);
+                    const nextState = result.state;
+                    const reward = result.reward;
+                    done = result.done;
+                    
+                    // Update stats
+                    totalReward += reward;
+                    steps++;
+                    
+                    // Update UI
+                    this.currentAction.textContent = result.actionName;
+                    this.currentRewardElement.textContent = reward.toFixed(2);
+                    this.updateDecisionStats();
+                    
+                    // Render new state
+                    this.renderGrid();
+                    
+                    // Add visual cue for sucking action
+                    if (action === 4) {
+                        const [x, y] = this.env.position;
+                        const vacuumElement = this.gridElement.children[x * this.env.gridSize + y].querySelector('.vacuum');
+                        if (vacuumElement) {
+                            vacuumElement.classList.add('sucking');
+                            // Remove the class after animation completes
+                            setTimeout(() => {
+                                vacuumElement.classList.remove('sucking');
+                            }, 300);
+                        }
+                    }
+                    
+                    // Remember experience
+                    this.agent.remember(state, action, reward, nextState, done);
+                    
+                    // Move to next state
+                    state = nextState;
+                    
+                    // Delay for visualization
+                    await new Promise(resolve => setTimeout(resolve, this.simulationSpeed));
+                }
+                
+                // Update episode stats
+                if (done) {
+                    this.totalCleaned += this.env.cleanedCount;
+                }
+                
+                this.episodeSteps.push(steps);
+                this.episodeRewards.push(totalReward);
+                
+                // Update agent's epsilon
+                this.agent.updateEpsilon();
+                this.updateEpsilonUI();
+                
+                // Update charts
+                this.updateCharts();
+                
+                // Update statistics
+                this.totalCleanedCounter.textContent = this.totalCleaned.toString();
+                
+                // Calculate efficiency (steps per dirt cleaned)
+                const totalSteps = this.episodeSteps.reduce((a, b) => a + b, 0);
+                const efficiency = this.totalCleaned > 0 ? 
+                    Math.round((this.totalCleaned / totalSteps) * 100) : 0;
+                this.efficiencyCounter.textContent = `${efficiency}%`;
+                
+                // Start next episode if still running
+                if (this.isRunning && !this.isPaused) {
+                    this.runEpisode();
+                }
+            }
+            
+            updateCharts() {
+                // Only keep last 20 episodes in the charts
+                const maxDataPoints = 20;
+                const start = Math.max(0, this.episode - maxDataPoints);
+                
+                // Generate labels
+                const labels = Array.from({length: Math.min(this.episode, maxDataPoints)}, 
+                    (_, i) => (start + i + 1).toString());
+                
+                // Update reward chart
+                this.rewardChart.data.labels = labels;
+                this.rewardChart.data.datasets[0].data = this.episodeRewards.slice(-maxDataPoints);
+                this.rewardChart.update();
+                
+                // Update steps chart
+                this.stepsChart.data.labels = labels;
+                this.stepsChart.data.datasets[0].data = this.episodeSteps.slice(-maxDataPoints);
+                this.stepsChart.update();
+            }
+            
+            updateEpsilonUI() {
+                if (!this.agent) return;
+                this.epsilonCounter.textContent = this.agent.epsilon.toFixed(2);
+            }
+            
+            updateDecisionStats() {
+                if (!this.agent) return;
+                
+                this.randomActionsElement.textContent = this.agent.randomActions.toString();
+                this.learnedActionsElement.textContent = this.agent.learnedActions.toString();
+                
+                const total = this.agent.randomActions + this.agent.learnedActions;
+                const learningRatio = total > 0 ? 
+                    Math.round((this.agent.learnedActions / total) * 100) : 0;
+                    
+                this.learningRatioBar.style.width = `${learningRatio}%`;
+            }
+        }
+
+        // Initialize simulation when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.simulation = new SimulationManager();
+        });
+        
+        // Helper function to update charts theme
+        function updateChartsTheme() {
+            if (window.simulation) {
+                window.simulation.updateChartsTheme();
+            }
+        }
+    </script>
+</body>
+</html>

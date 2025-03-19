@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceVerify | Advanced Face Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f4ff',
+                            100: '#e0e9ff',
+                            200: '#c7d7fe',
+                            300: '#a5bcfc',
+                            400: '#819af8',
+                            500: '#5D5CDE',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        dark: {
+                            800: '#1e1e20',
+                            900: '#121214',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                },
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .dark .glassmorphism {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #5D5CDE 0%, #4338ca 100%);
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #4338ca 0%, #312e81 100%);
+        }
+        
+        .camera-container {
+            aspect-ratio: 4/3;
+            max-height: 360px;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes scanning {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        
+        .scan-line {
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, #5D5CDE, transparent);
+            animation: scanning 3s linear infinite;
+            top: 0;
+            left: 0;
+        }
+        
+        .face-match-indicator {
+            transition: all 0.5s ease;
+        }
+
+        .results-card {
+            transition: all 0.3s ease;
+        }
+        
+        .results-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .face-square {
+            box-shadow: 0 0 0 2px #5D5CDE, 0 0 0 4px rgba(93, 92, 222, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark-900 text-gray-800 dark:text-white transition-colors duration-300">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg shadow-lg">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white dark:bg-dark-800 rounded-lg shadow-lg flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-white">FaceVerify</h1>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="theme-toggle" class="p-2 rounded-lg text-white hover:bg-white/10 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                    <button class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Help
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-8 lg:py-12">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Left Column: Face Verification -->
+                <div class="w-full lg:w-2/3">
+                    <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6 mb-8">
+                        <h2 class="text-2xl font-bold mb-1">Face Verification</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Upload an image or use your camera to verify identity</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                            <button id="upload-btn" class="flex-1 flex items-center justify-center gap-2 bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/30 text-primary-700 dark:text-primary-300 px-6 py-4 rounded-xl font-medium transition-all duration-200 relative overflow-hidden">
+                                <span class="z-10 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    Upload Image
+                                </span>
+                            </button>
+                            <button id="camera-btn" class="flex-1 flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-4 rounded-xl font-medium transition-all duration-200 relative overflow-hidden">
+                                <span class="z-10 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Use Camera
+                                </span>
+                            </button>
+                            <input type="file" id="file-input" accept="image/*" class="hidden" />
+                        </div>
+                        
+                        <div class="relative rounded-xl overflow-hidden mb-6 border-2 border-gray-200 dark:border-gray-700 camera-container flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                            <!-- Hidden by default, shown when active -->
+                            <video id="video" class="camera-container object-cover w-full hidden"></video>
+                            
+                            <!-- Preview image -->
+                            <img id="preview" class="camera-container object-cover w-full hidden" alt="Preview" />
+                            
+                            <!-- Placeholder when no image/video -->
+                            <div id="placeholder" class="text-center p-6">
+                                <div class="w-20 h-20 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500 dark:text-gray-400">Upload an image or use your camera</p>
+                            </div>
+                            
+                            <!-- Face detection indicator (shown when face is detected) -->
+                            <div id="face-detection" class="absolute inset-0 hidden">
+                                <!-- Scan animation -->
+                                <div class="scan-line"></div>
+                                
+                                <!-- Face square (positioned dynamically via JS) -->
+                                <div id="face-square" class="absolute face-square rounded-lg border-2 border-primary-500 hidden"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="capture-btn" class="hidden flex-1 bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 relative overflow-hidden">
+                                <span class="z-10 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    Capture
+                                </span>
+                            </button>
+                            <button id="verify-btn" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 px-6 py-3 rounded-xl font-medium transition-all duration-200 relative overflow-hidden" disabled>
+                                <span class="z-10 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    Verify Identity
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="results-container" class="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6 hidden">
+                        <div class="flex items-center mb-6">
+                            <h2 class="text-2xl font-bold">Verification Results</h2>
+                            <div class="ml-auto flex items-center px-3 py-1 rounded-full text-sm font-medium text-white" id="result-badge">
+                                <span id="result-icon" class="mr-1"></span>
+                                <span id="result-text"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-1">
+                                <div class="aspect-square rounded-xl overflow-hidden mb-3">
+                                    <img id="result-image" class="w-full h-full object-cover" src="#" alt="Verified face" />
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 text-center">Submitted Image</p>
+                            </div>
+                            
+                            <div class="flex-1 flex items-center justify-center">
+                                <div class="face-match-indicator px-4 py-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                    <div class="w-16 h-16 rounded-full flex items-center justify-center" id="confidence-indicator">
+                                        <span id="confidence-percentage" class="text-lg font-bold">--</span>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="font-medium">Match Confidence</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Similarity score</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end">
+                            <button id="try-again-btn" class="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Info and Recent Verifications -->
+                <div class="w-full lg:w-1/3">
+                    <!-- System Info -->
+                    <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6 mb-8">
+                        <h2 class="text-xl font-bold mb-4">System Information</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Model</p>
+                                    <p class="font-medium">InceptionResnetV1 (MTCNN)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                                    <p class="font-medium">Online & Ready</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
+                                    <p class="font-medium">97.5% on Test Dataset</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6 mb-8">
+                        <h2 class="text-xl font-bold mb-4">Quick Stats</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="rounded-xl p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="text-gray-500 dark:text-gray-400 text-sm">Face Detections</div>
+                                <div class="text-2xl font-bold mt-1">1,249</div>
+                            </div>
+                            <div class="rounded-xl p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="text-gray-500 dark:text-gray-400 text-sm">Verifications</div>
+                                <div class="text-2xl font-bold mt-1">843</div>
+                            </div>
+                            <div class="rounded-xl p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="text-gray-500 dark:text-gray-400 text-sm">Today</div>
+                                <div class="text-2xl font-bold mt-1">24</div>
+                            </div>
+                            <div class="rounded-xl p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="text-gray-500 dark:text-gray-400 text-sm">Accuracy</div>
+                                <div class="text-2xl font-bold mt-1">96.8%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-6">
+                        <h2 class="text-xl font-bold mb-4">Recent Verifications</h2>
+                        <div class="space-y-3">
+                            <div class="results-card flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 transition-all">
+                                <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <p class="font-medium text-sm truncate">ID Verification Successful</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Match confidence: 98.7%</p>
+                                </div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500">1m ago</div>
+                            </div>
+                            
+                            <div class="results-card flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 transition-all">
+                                <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 dark:text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <p class="font-medium text-sm truncate">Verification Failed</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Match confidence: 42.1%</p>
+                                </div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500">15m ago</div>
+                            </div>
+                            
+                            <div class="results-card flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 transition-all">
+                                <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 dark:text-yellow-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <p class="font-medium text-sm truncate">Multiple Faces Detected</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Verification aborted</p>
+                                </div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500">2h ago</div>
+                            </div>
+                            
+                            <div class="results-card flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 transition-all">
+                                <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <p class="font-medium text-sm truncate">ID Verification Successful</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Match confidence: 96.2%</p>
+                                </div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500">5h ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-dark-800 border-t border-gray-200 dark:border-gray-700 py-6">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">© 2024 FaceVerify. All rights reserved.</p>
+                    </div>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition">
+                            <span class="sr-only">Privacy Policy</span>
+                            Privacy Policy
+                        </a>
+                        <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition">
+                            <span class="sr-only">Terms of Service</span>
+                            Terms of Service
+                        </a>
+                        <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition">
+                            <span class="sr-only">Contact</span>
+                            Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const fileInput = document.getElementById('file-input');
+            const uploadBtn = document.getElementById('upload-btn');
+            const cameraBtn = document.getElementById('camera-btn');
+            const captureBtn = document.getElementById('capture-btn');
+            const verifyBtn = document.getElementById('verify-btn');
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            const video = document.getElementById('video');
+            const preview = document.getElementById('preview');
+            const placeholder = document.getElementById('placeholder');
+            const faceDetection = document.getElementById('face-detection');
+            const faceSquare = document.getElementById('face-square');
+            const resultsContainer = document.getElementById('results-container');
+            const resultImage = document.getElementById('result-image');
+            const resultBadge = document.getElementById('result-badge');
+            const resultIcon = document.getElementById('result-icon');
+            const resultText = document.getElementById('result-text');
+            const confidenceIndicator = document.getElementById('confidence-indicator');
+            const confidencePercentage = document.getElementById('confidence-percentage');
+            
+            // Variables
+            let stream = null;
+            let faceDetected = false;
+            const minConfidenceThreshold = 0.7; // 70% confidence threshold
+            
+            // Initialize dark mode based on user preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Theme toggle
+            themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+            
+            // Add ripple effect to buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+                    
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    ripple.style.left = `${e.clientX - rect.left - size/2}px`;
+                    ripple.style.top = `${e.clientY - rect.top - size/2}px`;
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Upload button click handler
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // File input change handler
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = (event) => {
+                        preview.src = event.target.result;
+                        showPreview();
+                        simulateFaceDetection();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Camera button click handler
+            cameraBtn.addEventListener('click', async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.play();
+                    showCamera();
+                    simulateFaceDetection();
+                } catch (err) {
+                    console.error('Error accessing camera:', err);
+                    alert('Error accessing camera. Please make sure you have a camera connected and have granted permission.');
+                }
+            });
+            
+            // Capture button click handler
+            captureBtn.addEventListener('click', () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                preview.src = canvas.toDataURL('image/png');
+                
+                // Stop the camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                
+                showPreview();
+            });
+            
+            // Verify button click handler
+            verifyBtn.addEventListener('click', () => {
+                // Simulate verification process
+                showVerificationResults();
+            });
+            
+            // Try again button click handler
+            tryAgainBtn.addEventListener('click', () => {
+                resetUI();
+            });
+            
+            // Helper functions
+            function showCamera() {
+                video.classList.remove('hidden');
+                preview.classList.add('hidden');
+                placeholder.classList.add('hidden');
+                captureBtn.classList.remove('hidden');
+                verifyBtn.setAttribute('disabled', '');
+                verifyBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-500', 'dark:text-gray-400');
+                verifyBtn.classList.remove('bg-primary-500', 'hover:bg-primary-600', 'text-white');
+            }
+            
+            function showPreview() {
+                video.classList.add('hidden');
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                captureBtn.classList.add('hidden');
+                verifyBtn.removeAttribute('disabled');
+                verifyBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-500', 'dark:text-gray-400');
+                verifyBtn.classList.add('bg-primary-500', 'hover:bg-primary-600', 'text-white');
+                
+                // Stop any existing camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+            }
+            
+            function simulateFaceDetection() {
+                // Simulate face detection after a short delay
+                setTimeout(() => {
+                    faceDetection.classList.remove('hidden');
+                    
+                    // Simulate positioning the face square with animation
+                    setTimeout(() => {
+                        faceSquare.style.top = '25%';
+                        faceSquare.style.left = '35%';
+                        faceSquare.style.width = '30%';
+                        faceSquare.style.height = '50%';
+                        faceSquare.classList.remove('hidden');
+                        faceDetected = true;
+                    }, 1000);
+                }, 500);
+            }
+            
+            function showVerificationResults() {
+                // Simulate verification processing
+                verifyBtn.innerHTML = '<span class="flex items-center justify-center"><svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...</span>';
+                
+                setTimeout(() => {
+                    // Set result image
+                    resultImage.src = preview.src;
+                    
+                    // Generate random confidence value for demo
+                    const confidence = Math.random();
+                    const confidencePercent = Math.round(confidence * 100);
+                    
+                    // Update confidence indicator
+                    confidencePercentage.textContent = `${confidencePercent}%`;
+                    
+                    // Set verification result based on confidence
+                    if (confidence >= minConfidenceThreshold) {
+                        // Successful verification
+                        resultBadge.className = 'ml-auto flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400';
+                        resultIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
+                        resultText.textContent = 'Verified';
+                        
+                        confidenceIndicator.className = 'w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-400 flex items-center justify-center';
+                    } else {
+                        // Failed verification
+                        resultBadge.className = 'ml-auto flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400';
+                        resultIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>';
+                        resultText.textContent = 'Not Verified';
+                        
+                        confidenceIndicator.className = 'w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-400 flex items-center justify-center';
+                    }
+                    
+                    // Show results container
+                    resultsContainer.classList.remove('hidden');
+                    
+                    // Reset the verify button text
+                    verifyBtn.innerHTML = '<span class="z-10 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>Verify Identity</span>';
+                }, 2000);
+            }
+            
+            function resetUI() {
+                // Reset UI state
+                video.classList.add('hidden');
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                faceDetection.classList.add('hidden');
+                faceSquare.classList.add('hidden');
+                captureBtn.classList.add('hidden');
+                resultsContainer.classList.add('hidden');
+                
+                verifyBtn.setAttribute('disabled', '');
+                verifyBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-500', 'dark:text-gray-400');
+                verifyBtn.classList.remove('bg-primary-500', 'hover:bg-primary-600', 'text-white');
+                
+                // Clear the file input
+                fileInput.value = '';
+                
+                // Stop any existing camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                
+                faceDetected = false;
+            }
+        });
+    </script>
+</body>
+</html>

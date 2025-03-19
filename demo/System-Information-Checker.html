@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitor</title>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #5D5CDE;
+            --secondary-color: #3A3A8C;
+            --accent-color: #FF6B6B;
+            --background-light: #FFFFFF;
+            --background-dark: #181818;
+            --text-light: #333333;
+            --text-dark: #F5F5F5;
+            --card-light: #F8F9FA;
+            --card-dark: #2A2A2A;
+            --border-light: #E0E0E0;
+            --border-dark: #454545;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+            --danger-color: #F44336;
+            --info-color: #2196F3;
+        }
+
+        .dark {
+            --text-color: var(--text-dark);
+            --background-color: var(--background-dark);
+            --card-color: var(--card-dark);
+            --border-color: var(--border-dark);
+            --shadow: var(--shadow-dark);
+        }
+        
+        :root:not(.dark) {
+            --text-color: var(--text-light);
+            --background-color: var(--background-light);
+            --card-color: var(--card-light);
+            --border-color: var(--border-light);
+            --shadow: var(--shadow-light);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(128, 128, 128, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+            opacity: 0.7;
+            border: none;
+            background: none;
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
+            transition: opacity 0.3s;
+        }
+
+        .tab:hover {
+            opacity: 1;
+        }
+
+        .tab.active {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .card-content {
+            margin-bottom: 10px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(128, 128, 128, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .progress-low {
+            background-color: var(--success-color);
+        }
+
+        .progress-medium {
+            background-color: var(--warning-color);
+        }
+
+        .progress-high {
+            background-color: var(--danger-color);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            background-color: var(--card-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .button i {
+            font-size: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 10px 0;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        td {
+            color: var(--text-color);
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-color);
+            color: var(--text-color);
+        }
+
+        .info-text {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 16px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+
+        .tag-success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+
+        .tag-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .tag-danger {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--danger-color);
+        }
+
+        .tag-info {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--info-color);
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-microchip logo-icon"></i>
+                <h1>System Monitor</h1>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="systemInfo">
+                <i class="fas fa-info-circle"></i> System Info
+            </button>
+            <button class="tab" data-tab="monitoring">
+                <i class="fas fa-chart-line"></i> Monitoring
+            </button>
+            <button class="tab" data-tab="diagnostics">
+                <i class="fas fa-stethoscope"></i> Diagnostics
+            </button>
+            <button class="tab" data-tab="advancedMonitoring">
+                <i class="fas fa-tachometer-alt"></i> Advanced Monitoring
+            </button>
+        </div>
+
+        <!-- System Info Tab -->
+        <div id="systemInfo" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Boot Time</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-power-off"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">Last Boot</div>
+                            <div class="stat-value" id="bootTime">--</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-value" id="uptime">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">CPU Info</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">Physical Cores</div>
+                            <div class="stat-value" id="physicalCores">4</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Total Cores</div>
+                            <div class="stat-value" id="totalCores">8</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Current Usage</div>
+                            <div class="stat-value" id="cpuUsage">32%</div>
+                            <div class="progress-container">
+                                <div id="cpuProgressBar" class="progress-bar progress-medium" style="width: 32%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Memory Info</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-memory"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">Total Memory</div>
+                            <div class="stat-value" id="totalMemory">16 GB</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Used Memory</div>
+                            <div class="stat-value" id="usedMemory">5.2 GB (32%)</div>
+                            <div class="progress-container">
+                                <div id="memoryProgressBar" class="progress-bar progress-medium" style="width: 32%"></div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Available Memory</div>
+                            <div class="stat-value" id="availableMemory">10.8 GB</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Disk Info</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">Total Space</div>
+                            <div class="stat-value" id="totalDisk">512 GB</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Used Space</div>
+                            <div class="stat-value" id="usedDisk">256 GB (50%)</div>
+                            <div class="progress-container">
+                                <div id="diskProgressBar" class="progress-bar progress-medium" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Free Space</div>
+                            <div class="stat-value" id="freeDisk">256 GB</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Network Info</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">Bytes Sent</div>
+                            <div class="stat-value" id="bytesSent">128 MB</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Bytes Received</div>
+                            <div class="stat-value" id="bytesReceived">256 MB</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Current Speed</div>
+                            <div class="stat-value" id="networkSpeed">10.5 Mbps</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Temperature Info</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-temperature-high"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat">
+                            <div class="stat-label">CPU Temperature</div>
+                            <div class="stat-value" id="cpuTemp">45°C</div>
+                            <div class="progress-container">
+                                <div id="cpuTempProgressBar" class="progress-bar progress-low" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">GPU Temperature</div>
+                            <div class="stat-value" id="gpuTemp">65°C</div>
+                            <div class="progress-container">
+                                <div id="gpuTempProgressBar" class="progress-bar progress-medium" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Tab -->
+        <div id="monitoring" class="tab-content">
+            <div class="grid">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title">CPU Utilization</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title">Memory Usage</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-memory"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="memoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title">Disk Usage</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="diskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title">Network Traffic</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="networkChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnostics Tab -->
+        <div id="diagnostics" class="tab-content">
+            <div class="grid">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title">System Health and Diagnostics</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <i class="fas fa-microchip" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="cpuHealth">98%</div>
+                                <div class="metric-label">CPU Health</div>
+                            </div>
+                            <div class="metric-card">
+                                <i class="fas fa-memory" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="memoryHealth">95%</div>
+                                <div class="metric-label">Memory Health</div>
+                            </div>
+                            <div class="metric-card">
+                                <i class="fas fa-hdd" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="diskHealth">87%</div>
+                                <div class="metric-label">Disk Health</div>
+                            </div>
+                            <div class="metric-card">
+                                <i class="fas fa-network-wired" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="networkHealth">99%</div>
+                                <div class="metric-label">Network Health</div>
+                            </div>
+                            <div class="metric-card">
+                                <i class="fas fa-battery-three-quarters" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="batteryHealth">92%</div>
+                                <div class="metric-label">Battery Health</div>
+                            </div>
+                            <div class="metric-card">
+                                <i class="fas fa-thermometer-half" style="color: var(--primary-color); font-size: 24px;"></i>
+                                <div class="metric-value" id="tempHealth">90%</div>
+                                <div class="metric-label">Temp Health</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 20px 0 15px;">System Diagnostics Report</h3>
+                        <div id="diagnosticsReport" class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                        <th>Last Check</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CPU</td>
+                                        <td><span class="tag tag-success">Good</span></td>
+                                        <td>Operating within normal parameters</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Memory</td>
+                                        <td><span class="tag tag-success">Good</span></td>
+                                        <td>All memory modules functioning normally</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Disk C:</td>
+                                        <td><span class="tag tag-warning">Warning</span></td>
+                                        <td>S.M.A.R.T. status indicates potential issues</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Network Adapter</td>
+                                        <td><span class="tag tag-success">Good</span></td>
+                                        <td>Connection stable at 1Gbps</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Battery</td>
+                                        <td><span class="tag tag-success">Good</span></td>
+                                        <td>92% capacity remaining of original design</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cooling System</td>
+                                        <td><span class="tag tag-success">Good</span></td>
+                                        <td>All fans operating normally</td>
+                                        <td>Just now</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Monitoring Tab -->
+        <div id="advancedMonitoring" class="tab-content">
+            <div class="button-group">
+                <button class="button" onclick="showAdvancedMonitoring('advancedCPU')">
+                    <i class="fas fa-microchip"></i>
+                    Advanced CPU Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('detailedMemory')">
+                    <i class="fas fa-memory"></i>
+                    Detailed Memory Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('comprehensiveDisk')">
+                    <i class="fas fa-hdd"></i>
+                    Comprehensive Disk Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('advancedGPU')">
+                    <i class="fas fa-tv"></i>
+                    Advanced GPU Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('comprehensiveSensor')">
+                    <i class="fas fa-thermometer-half"></i>
+                    Comprehensive Sensor Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('networkMonitoring')">
+                    <i class="fas fa-network-wired"></i>
+                    Network Monitoring and Diagnostics
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('powerBattery')">
+                    <i class="fas fa-battery-three-quarters"></i>
+                    Power and Battery Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('systemResource')">
+                    <i class="fas fa-tasks"></i>
+                    System Resource Monitoring
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('benchmarking')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    System Benchmarking 
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('optimization')">
+                    <i class="fas fa-sliders-h"></i>
+                    System Optimization and Tuning
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('logging')">
+                    <i class="fas fa-clipboard-list"></i>
+                    Advanced Logging and Reporting
+                </button>
+                <button class="button" onclick="showAdvancedMonitoring('remoteMonitoring')">
+                    <i class="fas fa-server"></i>
+                    Remote Monitoring and Management
+                </button>
+            </div>
+            
+            <div id="advancedMonitoringContent" class="card full-width" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title" id="advancedMonitoringTitle">Advanced Monitoring</h3>
+                    <div class="card-icon">
+                        <i id="advancedMonitoringIcon" class="fas fa-microchip"></i>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div id="advancedMonitoringChartContainer" class="chart-container">
+                        <canvas id="advancedMonitoringChart"></canvas>
+                    </div>
+                    <div id="advancedMonitoringDetails" class="table-container">
+                        <!-- Advanced monitoring details will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables for charts
+        let cpuChart, memoryChart, diskChart, networkChart, advancedMonitoringChart;
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Check user's preferred color scheme
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        // Listen for changes to color scheme
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+            updateChartTheme();
+        });
+        
+        // Toggle theme manually
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                document.documentElement.classList.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+            updateChartTheme();
+        });
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to the clicked tab
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Update charts when tab is activated
+                if (tabId === 'monitoring') {
+                    initializeCharts();
+                }
+            });
+        });
+        
+        // Format bytes to human-readable form
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+        
+        // Get chart colors based on theme
+        function getChartColors() {
+            const isDark = document.documentElement.classList.contains('dark');
+            return {
+                textColor: isDark ? '#F5F5F5' : '#333333',
+                gridColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                backgroundColor: isDark ? '#2A2A2A' : '#F8F9FA'
+            };
+        }
+        
+        // Update chart theme
+        function updateChartTheme() {
+            const colors = getChartColors();
+            
+            Chart.defaults.color = colors.textColor;
+            Chart.defaults.borderColor = colors.gridColor;
+            
+            if (cpuChart) cpuChart.update();
+            if (memoryChart) memoryChart.update();
+            if (diskChart) diskChart.update();
+            if (networkChart) networkChart.update();
+            if (advancedMonitoringChart) advancedMonitoringChart.update();
+        }
+        
+        // Initialize monitoring charts
+        function initializeCharts() {
+            const colors = getChartColors();
+            
+            Chart.defaults.color = colors.textColor;
+            Chart.defaults.borderColor = colors.gridColor;
+            
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+            if (!cpuChart) {
+                cpuChart = new Chart(cpuCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: 30 }, (_, i) => i + 1),
+                        datasets: [
+                            {
+                                label: 'Core 1',
+                                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 100)),
+                                borderColor: '#5D5CDE',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'Core 2',
+                                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 100)),
+                                borderColor: '#FF6B6B',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'Core 3',
+                                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 100)),
+                                borderColor: '#4CAF50',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'Core 4',
+                                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 100)),
+                                borderColor: '#FFC107',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.3,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Usage (%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time (s)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Memory Chart
+            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+            if (!memoryChart) {
+                memoryChart = new Chart(memoryCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: 30 }, (_, i) => i + 1),
+                        datasets: [
+                            {
+                                label: 'Memory Usage',
+                                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 70) + 20),
+                                borderColor: '#5D5CDE',
+                                backgroundColor: 'rgba(93, 92, 222, 0.1)',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Usage (%)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time (s)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Disk Chart
+            const diskCtx = document.getElementById('diskChart').getContext('2d');
+            if (!diskChart) {
+                diskChart = new Chart(diskCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['C: (System)', 'D: (Data)', 'E: (Backup)'],
+                        datasets: [
+                            {
+                                data: [250, 150, 100],
+                                backgroundColor: ['#5D5CDE', '#4CAF50', '#FF6B6B'],
+                                borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} GB (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Network Chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            if (!networkChart) {
+                networkChart = new Chart(networkCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({ length: 10 }, (_, i) => `${i + 1}s ago`),
+                        datasets: [
+                            {
+                                label: 'Download (Mbps)',
+                                data: Array.from({ length: 10 }, () => Math.floor(Math.random() * 30) + 5),
+                                backgroundColor: 'rgba(93, 92, 222, 0.7)',
+                                borderColor: '#5D5CDE',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Upload (Mbps)',
+                                data: Array.from({ length: 10 }, () => Math.floor(Math.random() * 10) + 2),
+                                backgroundColor: 'rgba(255, 107, 107, 0.7)',
+                                borderColor: '#FF6B6B',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Speed (Mbps)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Simulate data updates
+        function simulateDataUpdates() {
+            // Update CPU Usage
+            const cpuUsage = Math.floor(Math.random() * 60) + 10;
+            document.getElementById('cpuUsage').textContent = `${cpuUsage}%`;
+            
+            const cpuProgressBar = document.getElementById('cpuProgressBar');
+            cpuProgressBar.style.width = `${cpuUsage}%`;
+            
+            if (cpuUsage < 40) {
+                cpuProgressBar.className = 'progress-bar progress-low';
+            } else if (cpuUsage < 70) {
+                cpuProgressBar.className = 'progress-bar progress-medium';
+            } else {
+                cpuProgressBar.className = 'progress-bar progress-high';
+            }
+            
+            // Update Memory Usage
+            const totalMemory = 16;
+            const memoryPercentage = Math.floor(Math.random() * 50) + 20;
+            const usedMemory = (totalMemory * memoryPercentage / 100).toFixed(1);
+            const availableMemory = (totalMemory - usedMemory).toFixed(1);
+            
+            document.getElementById('totalMemory').textContent = `${totalMemory} GB`;
+            document.getElementById('usedMemory').textContent = `${usedMemory} GB (${memoryPercentage}%)`;
+            document.getElementById('availableMemory').textContent = `${availableMemory} GB`;
+            
+            const memoryProgressBar = document.getElementById('memoryProgressBar');
+            memoryProgressBar.style.width = `${memoryPercentage}%`;
+            
+            if (memoryPercentage < 40) {
+                memoryProgressBar.className = 'progress-bar progress-low';
+            } else if (memoryPercentage < 70) {
+                memoryProgressBar.className = 'progress-bar progress-medium';
+            } else {
+                memoryProgressBar.className = 'progress-bar progress-high';
+            }
+            
+            // Update Network Info
+            const bytesSent = Math.floor(Math.random() * 200) + 50;
+            const bytesReceived = Math.floor(Math.random() * 500) + 100;
+            const networkSpeed = (Math.random() * 20 + 5).toFixed(1);
+            
+            document.getElementById('bytesSent').textContent = `${bytesSent} MB`;
+            document.getElementById('bytesReceived').textContent = `${bytesReceived} MB`;
+            document.getElementById('networkSpeed').textContent = `${networkSpeed} Mbps`;
+            
+            // Update CPU Temperature
+            const cpuTemp = Math.floor(Math.random() * 30) + 35;
+            document.getElementById('cpuTemp').textContent = `${cpuTemp}°C`;
+            
+            const cpuTempProgressBar = document.getElementById('cpuTempProgressBar');
+            cpuTempProgressBar.style.width = `${cpuTemp}%`;
+            
+            if (cpuTemp < 50) {
+                cpuTempProgressBar.className = 'progress-bar progress-low';
+            } else if (cpuTemp < 75) {
+                cpuTempProgressBar.className = 'progress-bar progress-medium';
+            } else {
+                cpuTempProgressBar.className = 'progress-bar progress-high';
+            }
+            
+            // Update GPU Temperature
+            const gpuTemp = Math.floor(Math.random() * 20) + 55;
+            document.getElementById('gpuTemp').textContent = `${gpuTemp}°C`;
+            
+            const gpuTempProgressBar = document.getElementById('gpuTempProgressBar');
+            gpuTempProgressBar.style.width = `${gpuTemp}%`;
+            
+            if (gpuTemp < 60) {
+                gpuTempProgressBar.className = 'progress-bar progress-low';
+            } else if (gpuTemp < 80) {
+                gpuTempProgressBar.className = 'progress-bar progress-medium';
+            } else {
+                gpuTempProgressBar.className = 'progress-bar progress-high';
+            }
+            
+            // Update charts if they exist
+            if (cpuChart) {
+                for (let i = 0; i < cpuChart.data.datasets.length; i++) {
+                    const data = cpuChart.data.datasets[i].data;
+                    data.shift();
+                    data.push(Math.floor(Math.random() * 100));
+                }
+                cpuChart.update();
+            }
+            
+            if (memoryChart) {
+                const data = memoryChart.data.datasets[0].data;
+                data.shift();
+                data.push(memoryPercentage);
+                memoryChart.update();
+            }
+            
+            if (networkChart) {
+                for (let i = 0; i < networkChart.data.datasets.length; i++) {
+                    const data = networkChart.data.datasets[i].data;
+                    data.shift();
+                    data.push(i === 0 ? Math.floor(Math.random() * 30) + 5 : Math.floor(Math.random() * 10) + 2);
+                }
+                networkChart.update();
+            }
+        }
+        
+        // Show advanced monitoring content
+        function showAdvancedMonitoring(type) {
+            const contentDiv = document.getElementById('advancedMonitoringContent');
+            const titleElement = document.getElementById('advancedMonitoringTitle');
+            const iconElement = document.getElementById('advancedMonitoringIcon');
+            const chartContainer = document.getElementById('advancedMonitoringChartContainer');
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            
+            contentDiv.style.display = 'block';
+            
+            // Clear previous content
+            detailsContainer.innerHTML = '';
+            
+            // Set up based on type
+            switch(type) {
+                case 'advancedCPU':
+                    titleElement.textContent = 'Advanced CPU Monitoring';
+                    iconElement.className = 'fas fa-microchip';
+                    showAdvancedCPUMonitoring();
+                    break;
+                case 'detailedMemory':
+                    titleElement.textContent = 'Detailed Memory Monitoring';
+                    iconElement.className = 'fas fa-memory';
+                    showDetailedMemoryMonitoring();
+                    break;
+                case 'comprehensiveDisk':
+                    titleElement.textContent = 'Comprehensive Disk Monitoring';
+                    iconElement.className = 'fas fa-hdd';
+                    showComprehensiveDiskMonitoring();
+                    break;
+                case 'advancedGPU':
+                    titleElement.textContent = 'Advanced GPU Monitoring';
+                    iconElement.className = 'fas fa-tv';
+                    showAdvancedGPUMonitoring();
+                    break;
+                case 'comprehensiveSensor':
+                    titleElement.textContent = 'Comprehensive Sensor Monitoring';
+                    iconElement.className = 'fas fa-thermometer-half';
+                    showComprehensiveSensorMonitoring();
+                    break;
+                case 'networkMonitoring':
+                    titleElement.textContent = 'Network Monitoring and Diagnostics';
+                    iconElement.className = 'fas fa-network-wired';
+                    showNetworkMonitoring();
+                    break;
+                case 'powerBattery':
+                    titleElement.textContent = 'Power and Battery Monitoring';
+                    iconElement.className = 'fas fa-battery-three-quarters';
+                    showPowerBatteryMonitoring();
+                    break;
+                case 'systemResource':
+                    titleElement.textContent = 'System Resource Monitoring';
+                    iconElement.className = 'fas fa-tasks';
+                    showSystemResourceMonitoring();
+                    break;
+                case 'benchmarking':
+                    titleElement.textContent = 'System Benchmarking and Performance Testing';
+                    iconElement.className = 'fas fa-tachometer-alt';
+                    showBenchmarking();
+                    break;
+                case 'optimization':
+                    titleElement.textContent = 'System Optimization and Tuning';
+                    iconElement.className = 'fas fa-sliders-h';
+                    showOptimization();
+                    break;
+                case 'logging':
+                    titleElement.textContent = 'Advanced Logging and Reporting';
+                    iconElement.className = 'fas fa-clipboard-list';
+                    showLogging();
+                    break;
+                case 'remoteMonitoring':
+                    titleElement.textContent = 'Remote Monitoring and Management';
+                    iconElement.className = 'fas fa-server';
+                    showRemoteMonitoring();
+                    break;
+                default:
+                    titleElement.textContent = 'Advanced Monitoring';
+                    iconElement.className = 'fas fa-chart-line';
+                    detailsContainer.innerHTML = '<p class="info-text">Select a monitoring option to view details.</p>';
+            }
+            
+            // Scroll to content
+            contentDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Advanced monitoring content generators
+        function showAdvancedCPUMonitoring() {
+            const chartCanvas = document.getElementById('advancedMonitoringChart');
+            const ctx = chartCanvas.getContext('2d');
+            
+            if (advancedMonitoringChart) {
+                advancedMonitoringChart.destroy();
+            }
+            
+            const labels = Array.from({ length: 30 }, (_, i) => i + 1);
+            const cores = 8;
+            const datasets = [];
+            
+            // Create datasets for each core
+            for (let i = 0; i < cores; i++) {
+                datasets.push({
+                    label: `Core ${i + 1}`,
+                    data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 100)),
+                    borderColor: getRandomColor(),
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.3,
+                    fill: false
+                });
+            }
+            
+            // Add temperature and frequency datasets
+            datasets.push({
+                label: 'CPU Frequency (GHz)',
+                data: Array.from({ length: 30 }, () => (Math.random() * 1.5 + 2.5).toFixed(1)),
+                borderColor: '#FF6B6B',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.3,
+                fill: false,
+                yAxisID: 'y1'
+            });
+            
+            datasets.push({
+                label: 'CPU Temperature (°C)',
+                data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 20) + 40),
+                borderColor: '#FFC107',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.3,
+                fill: false,
+                yAxisID: 'y2'
+            });
+            
+            advancedMonitoringChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Usage (%)'
+                            },
+                            position: 'left'
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Frequency (GHz)'
+                            },
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y2: {
+                            beginAtZero: true,
+                            min: 30,
+                            max: 90,
+                            title: {
+                                display: true,
+                                text: 'Temperature (°C)'
+                            },
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (s)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add detailed CPU info
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Core</th>
+                            <th>Usage</th>
+                            <th>Frequency</th>
+                            <th>Temperature</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Array.from({ length: cores }, (_, i) => {
+                            const usage = Math.floor(Math.random() * 100);
+                            const freq = (Math.random() * 1.5 + 2.5).toFixed(1);
+                            const temp = Math.floor(Math.random() * 20) + 40;
+                            let status = 'Good';
+                            let statusClass = 'tag-success';
+                            
+                            if (temp > 70) {
+                                status = 'Warning';
+                                statusClass = 'tag-warning';
+                            } else if (usage > 90) {
+                                status = 'High Load';
+                                statusClass = 'tag-warning';
+                            }
+                            
+                            return `
+                                <tr>
+                                    <td>Core ${i + 1}</td>
+                                    <td>${usage}%</td>
+                                    <td>${freq} GHz</td>
+                                    <td>${temp}°C</td>
+                                    <td><span class="tag ${statusClass}">${status}</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                
+                <h3 style="margin: 20px 0 15px;">CPU Information</h3>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>CPU Model</td>
+                            <td>Intel Core i7-10700K</td>
+                        </tr>
+                        <tr>
+                            <td>Base Frequency</td>
+                            <td>3.8 GHz</td>
+                        </tr>
+                        <tr>
+                            <td>Turbo Frequency</td>
+                            <td>5.1 GHz</td>
+                        </tr>
+                        <tr>
+                            <td>Physical Cores</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>Logical Cores</td>
+                            <td>16</td>
+                        </tr>
+                        <tr>
+                            <td>L1 Cache</td>
+                            <td>512 KB</td>
+                        </tr>
+                        <tr>
+                            <td>L2 Cache</td>
+                            <td>2 MB</td>
+                        </tr>
+                        <tr>
+                            <td>L3 Cache</td>
+                            <td>16 MB</td>
+                        </tr>
+                        <tr>
+                            <td>TDP</td>
+                            <td>125W</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function showDetailedMemoryMonitoring() {
+            const chartCanvas = document.getElementById('advancedMonitoringChart');
+            const ctx = chartCanvas.getContext('2d');
+            
+            if (advancedMonitoringChart) {
+                advancedMonitoringChart.destroy();
+            }
+            
+            advancedMonitoringChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['RAM (Used)', 'RAM (Available)', 'RAM (Free)', 'Swap (Used)', 'Swap (Free)', 'Swap (Cached)'],
+                    datasets: [
+                        {
+                            label: 'Memory (GB)',
+                            data: [5.2, 10.8, 8.6, 1.2, 14.8, 0.8],
+                            backgroundColor: [
+                                'rgba(255, 107, 107, 0.7)',
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(33, 150, 243, 0.7)',
+                                'rgba(255, 193, 7, 0.7)',
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(156, 39, 176, 0.7)'
+                            ],
+                            borderColor: [
+                                '#FF6B6B',
+                                '#4CAF50',
+                                '#2196F3',
+                                '#FFC107',
+                                '#4CAF50',
+                                '#9C27B0'
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Memory (GB)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add memory details
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <h3 style="margin: 20px 0 15px;">Memory Usage Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Memory Type</th>
+                            <th>Total</th>
+                            <th>Used</th>
+                            <th>Available</th>
+                            <th>Free</th>
+                            <th>Cached</th>
+                            <th>Buffers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Physical Memory (RAM)</td>
+                            <td>16.0 GB</td>
+                            <td>5.2 GB (32.5%)</td>
+                            <td>10.8 GB</td>
+                            <td>8.6 GB</td>
+                            <td>1.4 GB</td>
+                            <td>0.8 GB</td>
+                        </tr>
+                        <tr>
+                            <td>Swap Space</td>
+                            <td>16.0 GB</td>
+                            <td>1.2 GB (7.5%)</td>
+                            <td>N/A</td>
+                            <td>14.8 GB</td>
+                            <td>0.8 GB</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin: 20px 0 15px;">Top Memory Consumers</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Process</th>
+                            <th>PID</th>
+                            <th>Memory Usage</th>
+                            <th>Virtual Memory</th>
+                            <th>Shared Memory</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>chrome.exe</td>
+                            <td>1234</td>
+                            <td>1.2 GB</td>
+                            <td>2.4 GB</td>
+                            <td>0.4 GB</td>
+                            <td><span class="tag tag-warning">High Usage</span></td>
+                        </tr>
+                        <tr>
+                            <td>code.exe</td>
+                            <td>5678</td>
+                            <td>0.8 GB</td>
+                            <td>1.6 GB</td>
+                            <td>0.3 GB</td>
+                            <td><span class="tag tag-success">Normal</span></td>
+                        </tr>
+                        <tr>
+                            <td>explorer.exe</td>
+                            <td>9012</td>
+                            <td>0.5 GB</td>
+                            <td>1.2 GB</td>
+                            <td>0.2 GB</td>
+                            <td><span class="tag tag-success">Normal</span></td>
+                        </tr>
+                        <tr>
+                            <td>spotify.exe</td>
+                            <td>3456</td>
+                            <td>0.4 GB</td>
+                            <td>0.8 GB</td>
+                            <td>0.1 GB</td>
+                            <td><span class="tag tag-success">Normal</span></td>
+                        </tr>
+                        <tr>
+                            <td>discord.exe</td>
+                            <td>7890</td>
+                            <td>0.3 GB</td>
+                            <td>0.7 GB</td>
+                            <td>0.1 GB</td>
+                            <td><span class="tag tag-success">Normal</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin: 20px 0 15px;">Memory Hardware Information</h3>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Memory Type</td>
+                            <td>DDR4 SDRAM</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Speed</td>
+                            <td>3200 MHz</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Modules</td>
+                            <td>2 x 8GB Dual Channel</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Timings</td>
+                            <td>CL16-18-18-36</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Voltage</td>
+                            <td>1.35V</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Form Factor</td>
+                            <td>DIMM</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function showComprehensiveDiskMonitoring() {
+            const chartCanvas = document.getElementById('advancedMonitoringChart');
+            const ctx = chartCanvas.getContext('2d');
+            
+            if (advancedMonitoringChart) {
+                advancedMonitoringChart.destroy();
+            }
+            
+            advancedMonitoringChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['C: Used', 'C: Free', 'D: Used', 'D: Free', 'E: Used', 'E: Free'],
+                    datasets: [
+                        {
+                            data: [200, 50, 100, 50, 25, 75],
+                            backgroundColor: [
+                                'rgba(255, 107, 107, 0.7)',
+                                'rgba(255, 107, 107, 0.3)',
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(76, 175, 80, 0.3)',
+                                'rgba(33, 150, 243, 0.7)',
+                                'rgba(33, 150, 243, 0.3)'
+                            ],
+                            borderColor: [
+                                '#FF6B6B',
+                                '#FF6B6B',
+                                '#4CAF50',
+                                '#4CAF50',
+                                '#2196F3',
+                                '#2196F3'
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    return `${label}: ${value} GB`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add disk details
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <h3 style="margin: 20px 0 15px;">Disk Usage Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Drive</th>
+                            <th>Type</th>
+                            <th>Total</th>
+                            <th>Used</th>
+                            <th>Free</th>
+                            <th>Health</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>C: (System)</td>
+                            <td>SSD (NVMe)</td>
+                            <td>250 GB</td>
+                            <td>200 GB (80%)</td>
+                            <td>50 GB</td>
+                            <td><span class="tag tag-warning">80% Full</span></td>
+                        </tr>
+                        <tr>
+                            <td>D: (Data)</td>
+                            <td>SSD (SATA)</td>
+                            <td>150 GB</td>
+                            <td>100 GB (67%)</td>
+                            <td>50 GB</td>
+                            <td><span class="tag tag-success">Good</span></td>
+                        </tr>
+                        <tr>
+                            <td>E: (Backup)</td>
+                            <td>HDD</td>
+                            <td>100 GB</td>
+                            <td>25 GB (25%)</td>
+                            <td>75 GB</td>
+                            <td><span class="tag tag-success">Good</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin: 20px 0 15px;">Disk Performance</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Drive</th>
+                            <th>Read Speed</th>
+                            <th>Write Speed</th>
+                            <th>Current Activity</th>
+                            <th>Temperature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>C: (System)</td>
+                            <td>2,200 MB/s</td>
+                            <td>1,800 MB/s</td>
+                            <td>12 MB/s (Read), 4 MB/s (Write)</td>
+                            <td>38°C</td>
+                        </tr>
+                        <tr>
+                            <td>D: (Data)</td>
+                            <td>550 MB/s</td>
+                            <td>500 MB/s</td>
+                            <td>5 MB/s (Read), 0 MB/s (Write)</td>
+                            <td>36°C</td>
+                        </tr>
+                        <tr>
+                            <td>E: (Backup)</td>
+                            <td>120 MB/s</td>
+                            <td>110 MB/s</td>
+                            <td>0 MB/s (Read), 0 MB/s (Write)</td>
+                            <td>32°C</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin: 20px 0 15px;">S.M.A.R.T. Status</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Drive</th>
+                            <th>Status</th>
+                            <th>Power-On Hours</th>
+                            <th>TBW</th>
+                            <th>Health Percentage</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>C: (System)</td>
+                            <td><span class="tag tag-success">Healthy</span></td>
+                            <td>3,245 hours</td>
+                            <td>12.6 TB</td>
+                            <td>93%</td>
+                            <td>No issues detected</td>
+                        </tr>
+                        <tr>
+                            <td>D: (Data)</td>
+                            <td><span class="tag tag-success">Healthy</span></td>
+                            <td>5,867 hours</td>
+                            <td>18.4 TB</td>
+                            <td>87%</td>
+                            <td>No issues detected</td>
+                        </tr>
+                        <tr>
+                            <td>E: (Backup)</td>
+                            <td><span class="tag tag-warning">Caution</span></td>
+                            <td>12,456 hours</td>
+                            <td>N/A</td>
+                            <td>76%</td>
+                            <td>Reallocated sectors: 5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // Helper function to generate random colors
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Initialize data
+        function initializeData() {
+            // Set boot time
+            const bootDate = new Date();
+            bootDate.setHours(bootDate.getHours() - 48);
+            document.getElementById('bootTime').textContent = bootDate.toLocaleString();
+            document.getElementById('uptime').textContent = '2 days 0 hours';
+            
+            // Update dynamic data
+            simulateDataUpdates();
+            
+            // Set up interval to update data
+            setInterval(simulateDataUpdates, 2000);
+        }
+        
+        // Additional advanced monitoring content generators (simplified)
+        function showAdvancedGPUMonitoring() {
+            // Implementation details similar to CPU monitoring but for GPU
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Advanced GPU monitoring content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showComprehensiveSensorMonitoring() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Comprehensive sensor monitoring content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showNetworkMonitoring() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Network monitoring and diagnostics content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showPowerBatteryMonitoring() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Power and battery monitoring content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showSystemResourceMonitoring() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">System resource monitoring content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showBenchmarking() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">System benchmarking content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showOptimization() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">System optimization and tuning content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showLogging() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Advanced logging and reporting content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        function showRemoteMonitoring() {
+            const detailsContainer = document.getElementById('advancedMonitoringDetails');
+            detailsContainer.innerHTML = `
+                <div class="info-text">Remote monitoring and management content would appear here.</div>
+                <div class="loading"><div class="spinner"></div></div>
+            `;
+        }
+        
+        // Initialize data and UI
+        initializeData();
+    </script>
+</body>
+</html>

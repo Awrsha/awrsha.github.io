@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FountainPlayer | Music & Fountain Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f8ff',
+                            100: '#e0f0fe',
+                            200: '#c0e0fd',
+                            300: '#90c8fb',
+                            400: '#60a5f8',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        },
+                        dark: {
+                            800: '#1e1e24',
+                            900: '#121218',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'wave': 'wave 1.5s ease-in-out infinite',
+                        'fountain': 'fountain 3s ease-in-out infinite',
+                        'rainbow': 'rainbow 6s linear infinite'
+                    },
+                    keyframes: {
+                        wave: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        fountain: {
+                            '0%': { height: '0%', opacity: 0.7 },
+                            '50%': { height: '100%', opacity: 1 },
+                            '100%': { height: '0%', opacity: 0.7 },
+                        },
+                        rainbow: {
+                            '0%': { filter: 'hue-rotate(0deg)' },
+                            '100%': { filter: 'hue-rotate(360deg)' }
+                        }
+                    }
+                },
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.7);
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgba(55, 65, 81, 0.7);
+        }
+        
+        /* Custom range input styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #e5e7eb;
+            height: 4px;
+            border-radius: 4px;
+        }
+        
+        .dark input[type="range"]::-webkit-slider-runnable-track {
+            background: #374151;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #3b82f6;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+        }
+        
+        /* Fountain animation elements */
+        .fountain-water {
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(0deg, rgba(59, 130, 246, 0.7) 0%, rgba(59, 130, 246, 0.2) 100%);
+            width: 4px;
+            border-radius: 4px;
+            transform-origin: bottom center;
+        }
+        
+        .fountain-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(30, 58, 138, 0.1);
+        }
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            background: rgba(255, 255, 255, 0.3);
+            animation: ripple 0.8s linear;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Visualization bars */
+        .visualizer-container {
+            display: flex;
+            align-items: flex-end;
+            height: 60px;
+            gap: 2px;
+        }
+        
+        .visualizer-bar {
+            width: 4px;
+            background: #3b82f6;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+        
+        .dark .visualizer-bar {
+            background: #60a5f8;
+        }
+        
+        /* Glassmorphism effect */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark .glassmorphism {
+            background: rgba(30, 30, 36, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+        }
+        
+        /* Status indicator dot */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .status-dot.active {
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+        
+        .status-dot.inactive {
+            background-color: #ef4444;
+        }
+        
+        .status-dot.standby {
+            background-color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark-900 text-gray-800 dark:text-white font-sans transition-colors duration-300">
+    <div class="min-h-screen flex flex-col">
+        <!-- Sidebar Navigation -->
+        <div class="flex flex-1 overflow-hidden">
+            <aside class="w-16 md:w-64 bg-white dark:bg-dark-800 shadow-lg z-10 flex flex-col transition-all duration-300 border-r border-gray-200 dark:border-gray-700">
+                <div class="p-4 flex items-center justify-center md:justify-start">
+                    <div class="w-10 h-10 rounded-lg bg-primary-500 flex items-center justify-center text-white shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                    </div>
+                    <h1 class="hidden md:block ml-3 text-lg font-bold">FountainPlayer</h1>
+                </div>
+                
+                <nav class="mt-8 flex-1">
+                    <ul class="space-y-2 px-2">
+                        <li>
+                            <a href="#" class="flex items-center justify-center md:justify-start p-3 rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <span class="hidden md:block">Home</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                </svg>
+                                <span class="hidden md:block">Music</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span class="hidden md:block">Fountain</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                </svg>
+                                <span class="hidden md:block">Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="hidden md:block">About</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="p-4">
+                    <div class="hidden md:flex items-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700/50">
+                        <div class="status-dot active"></div>
+                        <span class="text-sm">System Online</span>
+                    </div>
+                    
+                    <button id="theme-toggle" class="mt-2 w-full flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 dark:hidden md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block md:mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <span class="hidden md:block">Toggle Theme</span>
+                    </button>
+                </div>
+            </aside>
+            
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Top Bar -->
+                <header class="h-16 bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-gray-700 flex items-center px-4 z-10">
+                    <div class="flex items-center">
+                        <button class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+                            </svg>
+                        </button>
+                        <h2 class="text-xl font-bold">Dashboard</h2>
+                    </div>
+                    
+                    <div class="ml-auto flex items-center space-x-4">
+                        <button class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </button>
+                        
+                        <div class="relative">
+                            <button class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                
+                <!-- Main Content -->
+                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-800 p-4 md:p-6">
+                    <!-- Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm p-4 flex items-center">
+                            <div class="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-500 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Tracks</p>
+                                <p class="text-2xl font-bold">256</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm p-4 flex items-center">
+                            <div class="w-12 h-12 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center text-secondary-500 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Playlists</p>
+                                <p class="text-2xl font-bold">14</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm p-4 flex items-center">
+                            <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-500 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Patterns</p>
+                                <p class="text-2xl font-bold">8</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm p-4 flex items-center">
+                            <div class="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-500 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Play Time</p>
+                                <p class="text-2xl font-bold">28h</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Now Playing and Fountain Visualization -->
+                    <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                        <!-- Now Playing -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm overflow-hidden">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                    <h3 class="text-lg font-bold">Now Playing</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Playing</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 flex">
+                                    <div class="w-24 h-24 rounded-lg overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex-shrink-0 mr-4">
+                                        <div class="w-full h-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center animate-rainbow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-xl font-bold">Summer Vibes</h4>
+                                        <p class="text-gray-500 dark:text-gray-400">Electronic Beats</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">From: Summer Playlist</p>
+                                        
+                                        <div class="mt-3">
+                                            <div class="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                                                <div class="absolute top-0 left-0 h-full bg-primary-500 rounded-full" style="width: 45%"></div>
+                                            </div>
+                                            <div class="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                <span>1:45</span>
+                                                <span>3:52</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Controls -->
+                                <div class="p-4 flex items-center justify-center space-x-4">
+                                    <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <button class="w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center shadow-md hover:bg-primary-600 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <!-- Audio Visualization -->
+                                <div class="p-4 pt-0">
+                                    <div class="visualizer-container">
+                                        <div class="visualizer-bar" style="height: 30%"></div>
+                                        <div class="visualizer-bar" style="height: 50%"></div>
+                                        <div class="visualizer-bar" style="height: 75%"></div>
+                                        <div class="visualizer-bar" style="height: 45%"></div>
+                                        <div class="visualizer-bar" style="height: 25%"></div>
+                                        <div class="visualizer-bar" style="height: 60%"></div>
+                                        <div class="visualizer-bar" style="height: 80%"></div>
+                                        <div class="visualizer-bar" style="height: 55%"></div>
+                                        <div class="visualizer-bar" style="height: 40%"></div>
+                                        <div class="visualizer-bar" style="height: 65%"></div>
+                                        <div class="visualizer-bar" style="height: 85%"></div>
+                                        <div class="visualizer-bar" style="height: 70%"></div>
+                                        <div class="visualizer-bar" style="height: 50%"></div>
+                                        <div class="visualizer-bar" style="height: 30%"></div>
+                                        <div class="visualizer-bar" style="height: 45%"></div>
+                                        <div class="visualizer-bar" style="height: 65%"></div>
+                                        <div class="visualizer-bar" style="height: 85%"></div>
+                                        <div class="visualizer-bar" style="height: 50%"></div>
+                                        <div class="visualizer-bar" style="height: 40%"></div>
+                                        <div class="visualizer-bar" style="height: 60%"></div>
+                                        <div class="visualizer-bar" style="height: 75%"></div>
+                                        <div class="visualizer-bar" style="height: 30%"></div>
+                                        <div class="visualizer-bar" style="height: 45%"></div>
+                                        <div class="visualizer-bar" style="height: 65%"></div>
+                                        <div class="visualizer-bar" style="height: 20%"></div>
+                                        <div class="visualizer-bar" style="height: 40%"></div>
+                                        <div class="visualizer-bar" style="height: 60%"></div>
+                                        <div class="visualizer-bar" style="height: 30%"></div>
+                                        <div class="visualizer-bar" style="height: 50%"></div>
+                                        <div class="visualizer-bar" style="height: 75%"></div>
+                                        <div class="visualizer-bar" style="height: 40%"></div>
+                                        <div class="visualizer-bar" style="height: 60%"></div>
+                                        <div class="visualizer-bar" style="height: 80%"></div>
+                                        <div class="visualizer-bar" style="height: 50%"></div>
+                                        <div class="visualizer-bar" style="height: 30%"></div>
+                                        <div class="visualizer-bar" style="height: 45%"></div>
+                                        <div class="visualizer-bar" style="height: 70%"></div>
+                                        <div class="visualizer-bar" style="height: 35%"></div>
+                                        <div class="visualizer-bar" style="height: 55%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Additional Controls -->
+                                <div class="p-4 pt-0 flex items-center justify-between">
+                                    <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 010-7.072m12.728 0l3.536-3.536M6.343 6.343l3.536 3.536m7.072 0l3.536-3.536M2.343 2.343l3.536 3.536m0 7.072l-3.536 3.536M9.879 16.121l3.536-3.536m3.536 0l.707.707-3.536 3.536m-3.536 0l3.536-3.536" />
+                                        </svg>
+                                        <input type="range" min="0" max="100" value="75" class="w-20">
+                                    </div>
+                                    
+                                    <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Fountain Visualization -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm h-full">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                    <h3 class="text-lg font-bold">Fountain Control</h3>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Pattern:</span>
+                                        <select class="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm border border-gray-200 dark:border-gray-600">
+                                            <option>Wave (Synchronized)</option>
+                                            <option>Burst</option>
+                                            <option>Cascade</option>
+                                            <option>Random</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <!-- Fountain Visualization -->
+                                    <div class="fountain-container mb-4">
+                                        <div class="fountain-water" style="left: 10%; height: 80%; animation-delay: 0.1s;"></div>
+                                        <div class="fountain-water" style="left: 15%; height: 60%; animation-delay: 0.3s;"></div>
+                                        <div class="fountain-water" style="left: 20%; height: 70%; animation-delay: 0.5s;"></div>
+                                        <div class="fountain-water" style="left: 25%; height: 90%; animation-delay: 0.2s;"></div>
+                                        <div class="fountain-water" style="left: 30%; height: 75%; animation-delay: 0.4s;"></div>
+                                        <div class="fountain-water" style="left: 35%; height: 85%; animation-delay: 0.7s;"></div>
+                                        <div class="fountain-water" style="left: 40%; height: 95%; animation-delay: 0.1s;"></div>
+                                        <div class="fountain-water" style="left: 45%; height: 80%; animation-delay: 0.3s;"></div>
+                                        <div class="fountain-water" style="left: 50%; height: 70%; animation-delay: 0.5s;"></div>
+                                        <div class="fountain-water" style="left: 55%; height: 90%; animation-delay: 0.2s;"></div>
+                                        <div class="fountain-water" style="left: 60%; height: 75%; animation-delay: 0.4s;"></div>
+                                        <div class="fountain-water" style="left: 65%; height: 85%; animation-delay: 0.8s;"></div>
+                                        <div class="fountain-water" style="left: 70%; height: 95%; animation-delay: 0.1s;"></div>
+                                        <div class="fountain-water" style="left: 75%; height: 80%; animation-delay: 0.3s;"></div>
+                                        <div class="fountain-water" style="left: 80%; height: 70%; animation-delay: 0.6s;"></div>
+                                        <div class="fountain-water" style="left: 85%; height: 90%; animation-delay: 0.2s;"></div>
+                                        <div class="fountain-water" style="left: 90%; height: 75%; animation-delay: 0.4s;"></div>
+                                        
+                                        <!-- Base "water" -->
+                                        <div class="absolute bottom-0 left-0 right-0 h-5 bg-primary-200 dark:bg-primary-900/30"></div>
+                                    </div>
+                                    
+                                    <!-- Controls -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Intensity</label>
+                                            <input type="range" min="0" max="100" value="75" class="w-full">
+                                            <div class="flex justify-between mt-1 text-xs text-gray-500">
+                                                <span>Low</span>
+                                                <span>High</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Speed</label>
+                                            <input type="range" min="0" max="100" value="50" class="w-full">
+                                            <div class="flex justify-between mt-1 text-xs text-gray-500">
+                                                <span>Slow</span>
+                                                <span>Fast</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Color</label>
+                                            <div class="flex space-x-2">
+                                                <button class="w-6 h-6 rounded-full bg-blue-500 ring-2 ring-blue-200 dark:ring-blue-900"></button>
+                                                <button class="w-6 h-6 rounded-full bg-purple-500"></button>
+                                                <button class="w-6 h-6 rounded-full bg-red-500"></button>
+                                                <button class="w-6 h-6 rounded-full bg-green-500"></button>
+                                                <button class="w-6 h-6 rounded-full bg-yellow-500"></button>
+                                                <button class="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sync Mode</label>
+                                            <select class="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                                <option>Beat Detection</option>
+                                                <option>Frequency</option>
+                                                <option>Manual</option>
+                                                <option>Random</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex items-center">
+                                            <span class="status-dot active"></span>
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">DMX Connected</span>
+                                        </div>
+                                        
+                                        <div>
+                                            <button class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg flex items-center shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                                                </svg>
+                                                Test Fountain
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Playlist and DMX Settings -->
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Playlist -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                    <h3 class="text-lg font-bold">Current Playlist</h3>
+                                    <button class="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-sm flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add Track
+                                    </button>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <div class="space-y-3 max-h-80 overflow-y-auto">
+                                        <div class="flex items-center p-2 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
+                                            <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-500 mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium truncate">Summer Vibes</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Electronic Beats • 3:52</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white ml-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/20 rounded-lg">
+                                            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium truncate">Ocean Waves</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Ambient Sound • 5:17</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 ml-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/20 rounded-lg">
+                                            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium truncate">Moonlight Sonata</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Classical • 4:35</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 ml-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/20 rounded-lg">
+                                            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium truncate">Dance Floor</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Disco • 3:18</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 ml-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/20 rounded-lg">
+                                            <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 mr-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium truncate">Fountain Symphony</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Orchestral • 4:52</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-400 ml-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div class="flex items-center space-x-3">
+                                            <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                            </button>
+                                            <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                </svg>
+                                            </button>
+                                            <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        
+                                        <select class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm">
+                                            <option>Default Mode</option>
+                                            <option>Repeat All</option>
+                                            <option>Repeat One</option>
+                                            <option>Shuffle</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- DMX Settings -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="bg-white dark:bg-dark-800 rounded-xl shadow-sm">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                    <h3 class="text-lg font-bold">DMX Configuration</h3>
+                                    <button class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Save Config
+                                    </button>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interface</label>
+                                            <select class="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                                <option>Raspberry Pi GPIO</option>
+                                                <option>USB DMX Interface</option>
+                                                <option>Ethernet DMX</option>
+                                                <option>Custom Hardware</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Channel Mode</label>
+                                            <select class="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                                <option>16 Channels</option>
+                                                <option>32 Channels</option>
+                                                <option>64 Channels</option>
+                                                <option>128 Channels</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">DMX Channels</label>
+                                        <div class="grid grid-cols-8 gap-2">
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 font-medium">1</div>
+                                                <div class="text-xs mt-1 text-gray-500">Water</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 font-medium">2</div>
+                                                <div class="text-xs mt-1 text-gray-500">Water</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 font-medium">3</div>
+                                                <div class="text-xs mt-1 text-gray-500">Water</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center text-secondary-700 dark:text-secondary-300 font-medium">4</div>
+                                                <div class="text-xs mt-1 text-gray-500">Light</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center text-secondary-700 dark:text-secondary-300 font-medium">5</div>
+                                                <div class="text-xs mt-1 text-gray-500">Light</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 font-medium">6</div>
+                                                <div class="text-xs mt-1 text-gray-500">Free</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 font-medium">7</div>
+                                                <div class="text-xs mt-1 text-gray-500">Free</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 font-medium">8</div>
+                                                <div class="text-xs mt-1 text-gray-500">Free</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                        <h4 class="font-medium mb-2">Hardware Configuration</h4>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GPIO Pin</label>
+                                                <select class="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                                    <option>GPIO 18</option>
+                                                    <option>GPIO 12</option>
+                                                    <option>GPIO 21</option>
+                                                    <option>Custom</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Refresh Rate</label>
+                                                <select class="w-full px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                                    <option>30 Hz</option>
+                                                    <option>44.1 Hz</option>
+                                                    <option>60 Hz</option>
+                                                    <option>Custom</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Reset
+                                        </button>
+                                        
+                                        <button class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg flex items-center shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                
+                <!-- Bottom Control Bar (Fixed) -->
+                <footer class="h-16 bg-white dark:bg-dark-800 border-t border-gray-200 dark:border-gray-700 flex items-center p-4 z-10">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-lg overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-500 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-medium">Summer Vibes</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Electronic Beats</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3 ml-auto">
+                        <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+                            </svg>
+                        </button>
+                        
+                        <button class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center shadow-md hover:bg-primary-600 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        
+                        <button class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+                            </svg>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle functionality
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            
+            // Initialize dark mode based on user preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Theme toggle
+            themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+            
+            // Ripple effect for buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple-effect');
+                    this.appendChild(ripple);
+                    
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    ripple.style.left = `${e.clientX - rect.left - size/2}px`;
+                    ripple.style.top = `${e.clientY - rect.top - size/2}px`;
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 800);
+                });
+            });
+            
+            // Audio visualizer animation
+            const visualizerBars = document.querySelectorAll('.visualizer-bar');
+            
+            function animateVisualizer() {
+                visualizerBars.forEach(bar => {
+                    const height = Math.floor(Math.random() * 100);
+                    bar.style.height = `${height}%`;
+                });
+                
+                requestAnimationFrame(() => {
+                    setTimeout(animateVisualizer, 100);
+                });
+            }
+            
+            animateVisualizer();
+            
+            // Animate fountain elements
+            const fountainWaters = document.querySelectorAll('.fountain-water');
+            
+            fountainWaters.forEach(water => {
+                water.style.animation = `fountain ${1 + Math.random() * 2}s ease-in-out infinite`;
+            });
+        });
+    </script>
+</body>
+</html>
