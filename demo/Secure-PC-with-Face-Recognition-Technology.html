@@ -1,0 +1,1117 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceGuard - Facial Recognition Security</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        accent: '#34C9EB',
+                        secondary: '#1C1D20',
+                        'dark-bg': '#181818',
+                        'light-bg': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(90deg, #5D5CDE, #34C9EB);
+        }
+        
+        .dark .gradient-text {
+            background-image: linear-gradient(90deg, #7879F1, #5CEBFF);
+        }
+        
+        .gradient-bg {
+            background-image: linear-gradient(135deg, rgba(93, 92, 222, 0.8), rgba(52, 201, 235, 0.8));
+        }
+        
+        .sticky-nav {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background-color 0.3s ease;
+        }
+        
+        .hero-image-mask {
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .circle-glow {
+            box-shadow: 0 0 40px 5px rgba(93, 92, 222, 0.4);
+        }
+        
+        .dark .circle-glow {
+            box-shadow: 0 0 40px 5px rgba(93, 92, 222, 0.3);
+        }
+        
+        .code-window {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .system-window {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .system-header {
+            height: 30px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e2e2e2;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+        }
+        
+        .system-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .system-content {
+            background: #ffffff;
+            padding: 16px;
+        }
+        
+        .dark .system-header {
+            background: #2c2c2c;
+            border-bottom: 1px solid #3b3b3b;
+        }
+        
+        .dark .system-content {
+            background: #202020;
+        }
+        
+        .face-scan-animation {
+            position: relative;
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, #5D5CDE, #34C9EB, transparent);
+            animation: scanAnimation 3s ease-in-out infinite;
+            z-index: 2;
+        }
+        
+        @keyframes scanAnimation {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        
+        .terminal-window {
+            font-family: 'Consolas', 'Monaco', monospace;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #2c2c2c;
+            border-bottom: 1px solid #3b3b3b;
+        }
+        
+        .terminal-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .terminal-content {
+            background: #1c1d20;
+            color: #f1f1f1;
+            padding: 16px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .terminal-prompt {
+            color: #6ad964;
+        }
+        
+        .terminal-command {
+            color: #f1f1f1;
+        }
+        
+        .terminal-output {
+            color: #a9a9a9;
+        }
+        
+        .terminal-success {
+            color: #6ad964;
+        }
+        
+        .terminal-error {
+            color: #ff595e;
+        }
+    </style>
+</head>
+<body class="bg-light-bg dark:bg-dark-bg text-slate-800 dark:text-slate-200 antialiased">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 sticky-nav bg-white/80 dark:bg-dark-bg/80 border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center">
+                        <div class="h-10 w-10 rounded-full gradient-bg flex items-center justify-center mr-3">
+                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl">FaceGuard</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex md:items-center md:space-x-6">
+                    <a href="#features" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
+                    <a href="#installation" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors">Installation</a>
+                    <a href="#faq" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors">FAQ</a>
+                    <button id="darkModeToggle" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <a href="#download" class="ml-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary/90 transition-colors">
+                        Download
+                    </a>
+                </div>
+                <div class="flex md:hidden items-center">
+                    <button id="mobileMenuButton" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 text-sm font-medium transition-colors focus:outline-none">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-gray-800">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Features</a>
+                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">How It Works</a>
+                <a href="#installation" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Installation</a>
+                <a href="#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">FAQ</a>
+                <div class="flex items-center justify-between px-3 py-2">
+                    <button id="mobileDarkModeToggle" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                        <span class="ml-2">Toggle Dark Mode</span>
+                    </button>
+                </div>
+                <a href="#download" class="block w-full text-center px-3 py-2 rounded-md text-base font-medium text-white bg-primary hover:bg-primary/90 transition-colors">Download</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center pt-16">
+        <div class="absolute inset-0 overflow-hidden z-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-gray-100 to-white dark:from-gray-900 dark:to-dark-bg"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(93,92,222,0.1)_0%,rgba(255,255,255,0)_60%)] dark:bg-[radial-gradient(circle_at_30%_50%,rgba(93,92,222,0.15)_0%,rgba(0,0,0,0)_60%)]"></div>
+        </div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8 animate-fade-in">
+                    <h1 class="text-4xl md:text-6xl font-display font-bold tracking-tight leading-tight">
+                        Secure your PC with <span class="gradient-text">Face Recognition</span> Technology
+                    </h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        FaceGuard uses advanced AI to protect your programs and system with facial recognition security that's both powerful and easy to use.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#download" class="inline-flex items-center justify-center px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium text-center transition-colors shadow-lg shadow-primary/20 hover:shadow-primary/30">
+                            <i class="fas fa-download mr-2"></i> Download Now
+                        </a>
+                        <a href="#how-it-works" class="inline-flex items-center justify-center px-8 py-3 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-gray-200 dark:border-gray-700 rounded-lg font-medium text-center transition-colors">
+                            <i class="fas fa-play mr-2"></i> See How It Works
+                        </a>
+                    </div>
+                    <div class="flex flex-wrap gap-6">
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <span class="text-sm font-medium">Cross Platform</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-blue-500"></i>
+                            </div>
+                            <span class="text-sm font-medium">YOLO-based Detection</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                                <i class="fas fa-code text-purple-500"></i>
+                            </div>
+                            <span class="text-sm font-medium">Open Source</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face-scan-animation">
+                    <div class="scan-line"></div>
+                    <div class="system-window animate-fade-in">
+                        <div class="system-header dark:bg-gray-800">
+                            <div class="system-dot bg-red-500"></div>
+                            <div class="system-dot bg-yellow-500"></div>
+                            <div class="system-dot bg-green-500"></div>
+                            <div class="ml-auto text-xs text-gray-500 dark:text-gray-400">FaceGuard Security</div>
+                        </div>
+                        <div class="system-content dark:bg-gray-900 p-0">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&amp;h=400&amp;fit=crop" alt="Face Recognition Demo" class="w-full h-auto rounded-b-lg">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="h-64 w-64 border-4 border-primary rounded-full animate-pulse-slow"></div>
+                                    <div class="absolute h-52 w-52 border-2 border-accent rounded-full animate-spin-slow"></div>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 bg-primary/90 py-2 px-4 text-white text-center">
+                                    <span class="font-medium">Identity Verified</span> <i class="fas fa-check-circle ml-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">Powerful Security Features</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    FaceGuard combines cutting-edge facial recognition with intuitive controls to keep your system and applications secure.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-lock text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Program Protection</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Secure individual applications with facial recognition, preventing unauthorized access even when your system is unlocked.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal" data-delay="200">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-desktop text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Screen Lock</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Lock your entire system with facial recognition that works instantly and securely to protect your privacy.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal" data-delay="400">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-robot text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Custom AI Training</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Train the system to recognize your face with a personalized dataset for maximum security and accuracy.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal" data-delay="100">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Real-time Monitoring</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Continuously monitors for unauthorized access attempts and provides immediate security responses.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal" data-delay="300">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-laptop-code text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Cross-Platform Support</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Works on both Windows and Linux systems with the same powerful features and intuitive interface.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 feature-card scroll-reveal" data-delay="500">
+                    <div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <i class="fas fa-user-cog text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Simple Setup</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Get started in minutes with an easy installation process and intuitive configuration options.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">How It Works</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    FaceGuard uses YOLO-based facial recognition to provide secure, real-time protection for your programs and system.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+                <div class="order-2 lg:order-1 scroll-reveal">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold mb-6">1. Create Your Dataset</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                FaceGuard captures multiple images of your face to create a personalized dataset that ensures accurate recognition in various lighting conditions and angles.
+                            </p>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Uses your webcam to capture multiple facial angles
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Automatically detects and crops facial features
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Saves images securely to your local system
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2 scroll-reveal">
+                    <div class="system-window">
+                        <div class="system-header">
+                            <div class="system-dot bg-red-500"></div>
+                            <div class="system-dot bg-yellow-500"></div>
+                            <div class="system-dot bg-green-500"></div>
+                            <div class="ml-auto text-xs text-gray-500 dark:text-gray-400">Create Dataset</div>
+                        </div>
+                        <div class="system-content dark:bg-gray-900 p-0">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&amp;h=400&amp;fit=crop" alt="Dataset Creation" class="w-full h-auto">
+                            <div class="p-4 bg-gray-100 dark:bg-gray-800 flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium">Creating Dataset</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">100 images captured</div>
+                                </div>
+                                <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+                <div class="order-2 lg:order-2 scroll-reveal">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold mb-6">2. Train Your Model</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                Using advanced YOLO-based machine learning, FaceGuard trains a custom model that can quickly and accurately verify your identity.
+                            </p>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Uses transfer learning from YOLOv8 for efficiency
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Trains locally on your device for privacy
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Optimized for real-time performance on CPU
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-1 scroll-reveal">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-circle bg-red-500"></div>
+                            <div class="terminal-circle bg-yellow-500"></div>
+                            <div class="terminal-circle bg-green-500"></div>
+                            <div class="ml-auto text-xs text-gray-400">Training Model</div>
+                        </div>
+                        <div class="terminal-content">
+                            <div><span class="terminal-prompt">$</span> <span class="terminal-command">python train_model.py</span></div>
+                            <div class="terminal-output mt-2">Loading dataset from './dataset'...</div>
+                            <div class="terminal-output">Found 100 training images</div>
+                            <div class="terminal-output">Initializing YOLOv8 model...</div>
+                            <div class="terminal-output mt-2">Training: 0%|          | 0/50 [00:00&lt;?, ?it/s]</div>
+                            <div class="terminal-output">Training: 20%|██        | 10/50 [00:45&lt;03:00, 4.5s/it]</div>
+                            <div class="terminal-output">Training: 40%|████      | 20/50 [01:30&lt;02:15, 4.5s/it]</div>
+                            <div class="terminal-output">Training: 60%|██████    | 30/50 [02:15&lt;01:30, 4.5s/it]</div>
+                            <div class="terminal-output">Training: 80%|████████  | 40/50 [03:00&lt;00:45, 4.5s/it]</div>
+                            <div class="terminal-output">Training: 100%|██████████| 50/50 [03:45&lt;00:00, 4.5s/it]</div>
+                            <div class="terminal-success mt-2">Training complete. Model saved to 'trained_face_model.pt'</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="order-2 lg:order-1 scroll-reveal">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold mb-6">3. Secure Your Programs</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                Choose which programs to protect and FaceGuard will require facial verification before allowing access to these applications.
+                            </p>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Select specific applications to protect
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Real-time monitoring prevents unauthorized access
+                                    </p>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="h-8 w-8 rounded-full bg-green-500/10 flex-shrink-0 flex items-center justify-center mt-1 mr-3">
+                                        <i class="fas fa-check text-green-500 text-sm"></i>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Lock or unlock everything with a single click
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2 scroll-reveal">
+                    <div class="system-window">
+                        <div class="system-header">
+                            <div class="system-dot bg-red-500"></div>
+                            <div class="system-dot bg-yellow-500"></div>
+                            <div class="system-dot bg-green-500"></div>
+                            <div class="ml-auto text-xs text-gray-500 dark:text-gray-400">FaceGuard App</div>
+                        </div>
+                        <div class="system-content dark:bg-gray-900 p-0">
+                            <div class="flex bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                <div class="w-1/3 p-4 border-r border-gray-200 dark:border-gray-700">
+                                    <div class="font-medium mb-2">Programs</div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" checked="" class="mr-2 rounded text-primary focus:ring-primary">
+                                            <span class="text-sm">Chrome</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" checked="" class="mr-2 rounded text-primary focus:ring-primary">
+                                            <span class="text-sm">Outlook</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" class="mr-2 rounded text-primary focus:ring-primary">
+                                            <span class="text-sm">Firefox</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" checked="" class="mr-2 rounded text-primary focus:ring-primary">
+                                            <span class="text-sm">VS Code</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-2/3 p-4">
+                                    <div class="mb-4 text-center">
+                                        <div class="inline-block h-16 w-16 rounded-full bg-green-500 flex items-center justify-center mb-2">
+                                            <i class="fas fa-lock text-white text-xl"></i>
+                                        </div>
+                                        <div class="font-medium">Programs Locked</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Face verification required for access</div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3 mt-4">
+                                        <button class="py-2 px-4 bg-primary rounded-lg text-white text-sm font-medium">Lock All</button>
+                                        <button class="py-2 px-4 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm font-medium">Unlock All</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section id="installation" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">Installation Guide</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Get started with FaceGuard in just a few simple steps.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden scroll-reveal">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center mr-4">
+                            <i class="fab fa-windows text-blue-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Windows Installation</h3>
+                    </div>
+                    <div class="p-6">
+                        <ol class="space-y-6">
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">1</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Download the installer</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Download the latest FaceGuard installer package for Windows
+                                    </p>
+                                    <a href="#download" class="mt-2 inline-flex items-center text-primary hover:text-primary/80">
+                                        <span>Download Now</span>
+                                        <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">2</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Run the installer</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Double-click the downloaded file and follow the installation wizard
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">3</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Create your dataset</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Launch FaceGuard and click "Create Dataset" to begin capturing facial images
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">4</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Train your model</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Click "Train Model" and wait for the process to complete
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">5</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Select programs to protect</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Choose which applications to secure with facial recognition
+                                    </p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden scroll-reveal" data-delay="200">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-orange-500/10 flex items-center justify-center mr-4">
+                            <i class="fab fa-ubuntu text-orange-500"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Linux Installation</h3>
+                    </div>
+                    <div class="p-6">
+                        <ol class="space-y-6">
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">1</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Clone the repository</h4>
+                                    <div class="mt-2 mb-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg overflow-x-auto">
+                                        <code class="text-sm text-gray-800 dark:text-gray-200">
+                                            git clone https://github.com/username/faceguard.git
+                                        </code>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">2</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Run the installation script</h4>
+                                    <div class="mt-2 mb-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg overflow-x-auto">
+                                        <code class="text-sm text-gray-800 dark:text-gray-200">
+                                            cd faceguard<br>
+                                            chmod +x install.sh<br>
+                                            ./install.sh
+                                        </code>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">3</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Launch the application</h4>
+                                    <div class="mt-2 mb-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg overflow-x-auto">
+                                        <code class="text-sm text-gray-800 dark:text-gray-200">
+                                            source venv/bin/activate<br>
+                                            python ubuntu_app.py
+                                        </code>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">4</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Create dataset and train model</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Use the application UI to create your facial dataset and train the recognition model
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex">
+                                <div class="h-8 w-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center mr-4 mt-0.5">
+                                    <span class="text-primary font-semibold">5</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Select programs to protect</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        Choose which applications to secure with facial recognition
+                                    </p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden scroll-reveal">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-bold">System Requirements</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-medium mb-4 flex items-center">
+                                <i class="fas fa-microchip text-primary mr-2"></i>
+                                <span>Hardware Requirements</span>
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>Webcam (built-in or external)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>2GHz dual-core processor or better</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>4GB RAM minimum (8GB recommended)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>500MB free disk space</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-4 flex items-center">
+                                <i class="fas fa-laptop-code text-primary mr-2"></i>
+                                <span>Software Requirements</span>
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>Windows 10/11 or Ubuntu 20.04+/Debian-based distros</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>Python 3.8 or newer</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>Required Python packages (installed automatically)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                    <span>Internet connection (for initial setup only)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">Frequently Asked Questions</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Find answers to common questions about FaceGuard's features and functionality.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="py-6 scroll-reveal">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>How secure is facial recognition for locking programs?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            FaceGuard uses YOLO-based deep learning models that are trained specifically on your face. While no security system is 100% foolproof, the facial recognition offers a good balance between security and convenience. The system can be configured to require additional verification for highly sensitive applications.
+                        </p>
+                    </details>
+                </div>
+                
+                <div class="py-6 scroll-reveal" data-delay="100">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>Does FaceGuard work when I'm wearing glasses or a hat?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            Yes! When creating your dataset, we recommend including images with and without glasses, different hairstyles, or hats to improve recognition accuracy in various conditions. The more diverse your training dataset, the better the system will recognize you in different situations.
+                        </p>
+                    </details>
+                </div>
+                
+                <div class="py-6 scroll-reveal" data-delay="200">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>Can I protect multiple user accounts with different faces?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            Currently, FaceGuard is designed to work with a single user per installation. For multi-user environments, we recommend installing FaceGuard separately for each user account on the system, with each user creating their own facial dataset and training model.
+                        </p>
+                    </details>
+                </div>
+                
+                <div class="py-6 scroll-reveal" data-delay="300">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>How much system resources does FaceGuard use?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            FaceGuard is designed to be lightweight when monitoring programs. The facial recognition component only activates when attempting to access protected applications. When idle, it uses minimal CPU and memory resources. The model training phase is more resource-intensive but only runs once during setup or when you choose to retrain.
+                        </p>
+                    </details>
+                </div>
+                
+                <div class="py-6 scroll-reveal" data-delay="400">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>Is FaceGuard compatible with virtual meetings and webcam use?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            Yes, FaceGuard releases the webcam immediately after verification, allowing other applications to use it. If you're in a virtual meeting and try to access a protected program, the facial recognition will briefly activate and then return control of the webcam to your meeting software.
+                        </p>
+                    </details>
+                </div>
+                
+                <div class="py-6 scroll-reveal" data-delay="500">
+                    <details class="group">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none">
+                            <span>Does FaceGuard store or send my facial data anywhere?</span>
+                            <span class="transition group-open:rotate-180">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </summary>
+                        <p class="text-gray-600 dark:text-gray-400 mt-4 group-open:animate-fadeIn">
+                            No, FaceGuard is designed with privacy in mind. All facial data and trained models are stored locally on your device. The application does not connect to the internet or send any data outside your system. Your facial dataset and recognition model never leave your computer.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download/CTA Section -->
+    <section id="download" class="py-20 bg-gray-900 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center scroll-reveal">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-6">Secure Your System Today</h2>
+                <p class="text-xl text-gray-300 mb-10 leading-relaxed">
+                    Download FaceGuard and experience the future of personal computing security.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto mb-12">
+                    <a href="#" class="bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-6 transition-all flex flex-col items-center justify-center group">
+                        <div class="h-16 w-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fab fa-windows text-2xl text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Windows Download</h3>
+                        <p class="text-sm text-gray-300 mb-4">For Windows 10 &amp; 11</p>
+                        <div class="flex items-center text-blue-400">
+                            <span class="mr-2">Download</span>
+                            <i class="fas fa-download"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-6 transition-all flex flex-col items-center justify-center group">
+                        <div class="h-16 w-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fab fa-linux text-2xl text-orange-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Linux Download</h3>
+                        <p class="text-sm text-gray-300 mb-4">For Ubuntu 20.04+ &amp; Debian</p>
+                        <div class="flex items-center text-orange-400">
+                            <span class="mr-2">Clone Repository</span>
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                        <i class="fab fa-github mr-2 text-xl"></i>
+                        <span>Source Code</span>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                        <i class="fas fa-book mr-2"></i>
+                        <span>Documentation</span>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors flex items-center">
+                        <i class="fas fa-bug mr-2"></i>
+                        <span>Report Issues</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-6">
+                        <div class="h-10 w-10 rounded-full gradient-bg flex items-center justify-center mr-3">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl">FaceGuard</span>
+                    </div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        FaceGuard is an open-source application that provides facial recognition security for your programs and system.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GitHub Repository</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Release Notes</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Community Forum</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Issue Tracker</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 text-center">
+                <p class="text-gray-400 text-sm">
+                    © 2023 FaceGuard Project. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        document.getElementById('mobileDarkModeToggle')?.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        mobileMenuButton?.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Scroll reveal animation
+        function handleScrollReveal() {
+            const elements = document.querySelectorAll('.scroll-reveal');
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                const delay = element.getAttribute('data-delay') || 0;
+                
+                // If element is in viewport
+                if(position.top < window.innerHeight - 50) {
+                    setTimeout(() => {
+                        element.classList.add('visible');
+                    }, delay);
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', handleScrollReveal);
+        window.addEventListener('load', () => {
+            // Initial scroll reveal check
+            handleScrollReveal();
+            
+            // Hide mobile menu when clicking on a link
+            const mobileLinks = document.querySelectorAll('#mobileMenu a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        });
+    </script>
+
+
+</body></html>

@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Framework | Advanced Quantum Computing Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-light': '#7878FF',
+                        'primary-dark': '#4848B8',
+                        secondary: '#19BCDF',
+                        accent: '#FF5E57',
+                        quantum: {
+                            100: '#E0E7FF',
+                            200: '#C7D2FE',
+                            300: '#A5B4FC',
+                            400: '#818CF8',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            800: '#3730A3',
+                            900: '#312E81'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'SF Mono', 'monospace']
+                    },
+                    animation: {
+                        'spin-slow': 'spin 8s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'wave': 'wave 8s linear infinite',
+                        'fade-in': 'fadeIn 0.8s ease-in-out forwards',
+                        'fade-in-slow': 'fadeIn 1.5s ease-in-out forwards',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                        'slide-down': 'slideDown 0.8s ease-out forwards',
+                        'scale': 'scale 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        wave: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '10%': { transform: 'rotate(14deg)' },
+                            '20%': { transform: 'rotate(-8deg)' },
+                            '30%': { transform: 'rotate(14deg)' },
+                            '40%': { transform: 'rotate(-4deg)' },
+                            '50%': { transform: 'rotate(10deg)' },
+                            '60%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(0deg)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        scale: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgb(243 244 246);
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: rgb(31 41 55);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgb(156 163 175);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(107 114 128);
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgb(75 85 99);
+        }
+        
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgb(107 114 128);
+        }
+        
+        /* Animation Delays */
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+        
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+        
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+        
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+        
+        .delay-500 {
+            animation-delay: 500ms;
+        }
+        
+        /* Particle Canvas Background */
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Quantum Circuit Styles */
+        .quantum-wire {
+            stroke: #6366F1;
+            stroke-width: 2;
+        }
+        
+        .dark .quantum-wire {
+            stroke: #A5B4FC;
+        }
+        
+        .quantum-gate {
+            fill: #4F46E5;
+            stroke: #312E81;
+            stroke-width: 1;
+        }
+        
+        .dark .quantum-gate {
+            fill: #6366F1;
+            stroke: #C7D2FE;
+        }
+        
+        .quantum-gate-text {
+            fill: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        
+        .quantum-control-dot {
+            fill: #FF5E57;
+            stroke: none;
+        }
+        
+        .dark .quantum-control-dot {
+            fill: #FF5E57;
+        }
+        
+        /* Bloch Sphere Style */
+        #bloch-sphere {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Code Editor */
+        .code-editor {
+            font-family: 'JetBrains Mono', monospace;
+            tab-size: 4;
+            background-color: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .token-keyword {
+            color: #ff79c6;
+        }
+        
+        .token-function {
+            color: #50fa7b;
+        }
+        
+        .token-string {
+            color: #f1fa8c;
+        }
+        
+        .token-comment {
+            color: #6272a4;
+        }
+        
+        .token-number {
+            color: #bd93f9;
+        }
+        
+        .line-number {
+            color: #6272a4;
+            padding-right: 1rem;
+            user-select: none;
+        }
+        
+        /* Custom Gradient Backgrounds */
+        .bg-quantum-gradient {
+            background: linear-gradient(135deg, #4338CA 0%, #6366F1 50%, #818CF8 100%);
+        }
+        
+        .bg-matrix-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(#4338CA 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Card hover effects */
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04);
+        }
+        
+        /* Terminal styles */
+        .terminal {
+            background-color: #0f172a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: #f8fafc;
+            line-height: 1.6;
+        }
+        
+        .terminal-line {
+            display: block;
+            white-space: pre-wrap;
+        }
+        
+        .terminal-prompt {
+            color: #10b981;
+        }
+        
+        /* Fade in animation for elements */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Circuit wires animation */
+        @keyframes pulseWire {
+            0%, 100% {
+                stroke-opacity: 0.6;
+                stroke-width: 2;
+            }
+            50% {
+                stroke-opacity: 1;
+                stroke-width: 3;
+            }
+        }
+        
+        .animated-wire {
+            animation: pulseWire 3s infinite;
+        }
+        
+        /* Typing animation */
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid #6366F1;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .1em;
+            animation: typing 3.5s steps(30, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #6366F1 }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white antialiased font-sans">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center">
+                        <div class="h-9 w-9 rounded-lg bg-quantum-600 flex items-center justify-center mr-3 shadow-lg">
+                            <i class="fas fa-atom text-white text-lg"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl text-gray-900 dark:text-white">Quantum<span class="text-quantum-600">Framework</span></span>
+                    </a>
+                </div>
+                <div class="hidden md:flex md:items-center md:space-x-6">
+                    <a href="#features" class="text-gray-700 dark:text-gray-300 hover:text-quantum-600 dark:hover:text-quantum-400 px-3 py-2 text-sm font-medium transition-colors">Features</a>
+                    <a href="#algorithms" class="text-gray-700 dark:text-gray-300 hover:text-quantum-600 dark:hover:text-quantum-400 px-3 py-2 text-sm font-medium transition-colors">Algorithms</a>
+                    <a href="#simulator" class="text-gray-700 dark:text-gray-300 hover:text-quantum-600 dark:hover:text-quantum-400 px-3 py-2 text-sm font-medium transition-colors">Simulator</a>
+                    <a href="#visualization" class="text-gray-700 dark:text-gray-300 hover:text-quantum-600 dark:hover:text-quantum-400 px-3 py-2 text-sm font-medium transition-colors">Visualization</a>
+                    <a href="#documentation" class="text-gray-700 dark:text-gray-300 hover:text-quantum-600 dark:hover:text-quantum-400 px-3 py-2 text-sm font-medium transition-colors">Docs</a>
+                    <button id="darkModeToggle" class="ml-2 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors">
+                        <i class="fas fa-moon text-sm dark:hidden"></i>
+                        <i class="fas fa-sun text-sm hidden dark:inline"></i>
+                    </button>
+                    <a href="#download" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-quantum-600 hover:bg-quantum-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-quantum-500 transition-colors">
+                        <i class="fas fa-download mr-2"></i> Download
+                    </a>
+                </div>
+                <div class="flex md:hidden items-center">
+                    <button id="mobileMenuButton" class="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Features</a>
+                <a href="#algorithms" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Algorithms</a>
+                <a href="#simulator" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Simulator</a>
+                <a href="#visualization" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Visualization</a>
+                <a href="#documentation" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Docs</a>
+                <div class="flex items-center justify-between px-3 py-2">
+                    <button id="mobileDarkModeToggle" class="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                        <span class="ml-2 text-sm">Toggle Dark Mode</span>
+                    </button>
+                </div>
+                <a href="#download" class="block w-full text-center px-3 py-2 rounded-md text-base font-medium text-white bg-quantum-600 hover:bg-quantum-700">Download</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center pt-16">
+        <div id="particles-canvas" class="absolute inset-0 z-0"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 animate-fade-in">
+                    <h1 class="text-4xl md:text-6xl font-display font-bold tracking-tight leading-tight">
+                        Advanced <span class="text-quantum-600">Quantum Computing</span> Framework
+                    </h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        A comprehensive simulation toolkit for quantum computation, providing state-of-the-art modeling of quantum circuits, algorithms, and visualizations.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+                        <a href="#features" class="inline-flex items-center justify-center px-8 py-3 bg-quantum-600 hover:bg-quantum-700 text-white rounded-lg font-medium text-center transition-colors shadow-lg shadow-quantum-600/20">
+                            Explore Features
+                        </a>
+                        <a href="#demo" class="inline-flex items-center justify-center px-8 py-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg font-medium text-center transition-colors">
+                            <i class="fas fa-play mr-2"></i> Live Demo
+                        </a>
+                    </div>
+                    <div class="flex flex-wrap gap-6 pt-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center">
+                                <i class="fas fa-microchip text-quantum-600"></i>
+                            </div>
+                            <span class="text-sm font-medium">High-Performance</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center">
+                                <i class="fas fa-layer-group text-quantum-600"></i>
+                            </div>
+                            <span class="text-sm font-medium">Modular Architecture</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center">
+                                <i class="fas fa-code-branch text-quantum-600"></i>
+                            </div>
+                            <span class="text-sm font-medium">Open Source</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative animate-fade-in-slow">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-quantum-700/20 to-quantum-300/20 dark:from-quantum-700/10 dark:to-quantum-400/10 rounded-2xl"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl relative overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">quantum_framework.py</div>
+                        </div>
+                        <pre class="code-editor text-sm overflow-x-auto">
+<span class="line-number">1</span><span class="token-keyword">import</span> numpy <span class="token-keyword">as</span> np
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="token-keyword">class</span> <span class="token-function">QuantumState</span>:
+<span class="line-number">4</span>    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(self, name: str, num_qubits: <span class="token-keyword">int</span> = 1):
+<span class="line-number">5</span>        self.name = name
+<span class="line-number">6</span>        self.num_qubits = num_qubits
+<span class="line-number">7</span>        self.state = self.initialize_state()
+<span class="line-number">8</span>
+<span class="line-number">9</span>    <span class="token-keyword">def</span> <span class="token-function">initialize_state</span>(self) -> np.ndarray:
+<span class="line-number">10</span>        <span class="token-comment"># Initialize to |0> state</span>
+<span class="line-number">11</span>        state = np.zeros(<span class="token-number">2</span>**self.num_qubits, dtype=np.complex128)
+<span class="line-number">12</span>        state[<span class="token-number">0</span>] = <span class="token-number">1</span>
+<span class="line-number">13</span>        <span class="token-keyword">return</span> state
+<span class="line-number">14</span>
+<span class="line-number">15</span>    <span class="token-keyword">def</span> <span class="token-function">apply_gate</span>(self, gate, target_qubit, control_qubit=<span class="token-keyword">None</span>):
+<span class="line-number">16</span>        <span class="token-comment"># Apply quantum gate to the state</span>
+<span class="line-number">17</span>        <span class="token-keyword">if</span> gate == QuantumGate.HADAMARD:
+<span class="line-number">18</span>            self._apply_hadamard(target_qubit)
+<span class="line-number">19</span>        <span class="token-keyword">elif</span> gate == QuantumGate.CNOT:
+<span class="line-number">20</span>            self._apply_cnot(control_qubit, target_qubit)
+                        </pre>
+                        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Core Features</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Our quantum computing framework provides powerful tools for simulation, algorithm development, and visualization of quantum phenomena.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-wave-square text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Quantum State Modeling</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Comprehensive quantum state representation with support for superposition, entanglement, and measurement operations on systems of arbitrary qubit size.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in delay-100">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-project-diagram text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Circuit Design & Simulation</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Design complex quantum circuits with a rich set of gates including Hadamard, CNOT, Pauli, and Phase, with high-performance simulation of execution.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in delay-200">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-code text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Algorithm Development</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Implement and test quantum algorithms including Grover's Search and Quantum Fourier Transform with optimized components for accuracy and performance.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in delay-100">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Advanced Visualization</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Rich visualization tools for quantum circuits, Bloch spheres, and probability distributions to better understand quantum states and operations.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in delay-200">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-tasks text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Resource Management</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Efficient scheduling and resource allocation with adaptive prioritization to optimize quantum task execution in complex computational workflows.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-8 feature-card fade-in delay-300">
+                    <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-quantum-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Error Correction & Mitigation</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Built-in quantum error correction codes and noise models to simulate and mitigate errors in quantum calculations for more robust computations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quantum Gates Showcase -->
+    <section class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Quantum Gates & Circuits</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Our framework supports a comprehensive set of quantum gates that can be combined to create powerful quantum circuits.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                <div class="lg:col-span-1 fade-in">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6">
+                        <h3 class="text-xl font-bold mb-6">Supported Gates</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">H</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Hadamard Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Creates superposition by transforming |0⟩ to (|0⟩ + |1⟩)/√2 and |1⟩ to (|0⟩ - |1⟩)/√2
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">X</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Pauli-X Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Quantum NOT gate - flips the state of a qubit from |0⟩ to |1⟩ and vice versa
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">CNOT</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">CNOT Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Controlled-NOT gate - flips the target qubit if the control qubit is |1⟩
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">Z</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Pauli-Z Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Introduces a phase shift of π for the |1⟩ state, leaving |0⟩ unchanged
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">T</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">T Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        π/4 phase rotation gate - introduces a phase shift of π/4
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-3 mt-1">
+                                    <span class="font-mono font-bold text-quantum-600">SWAP</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">SWAP Gate</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Exchanges the quantum states of two qubits
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 fade-in delay-100">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6">
+                        <h3 class="text-xl font-bold mb-6">Interactive Circuit Designer</h3>
+                        <div class="relative">
+                            <svg id="quantum-circuit" width="100%" height="250" class="mb-4"></svg>
+                            <div class="mt-8 flex flex-wrap gap-2">
+                                <button class="px-3 py-2 bg-quantum-600 text-white rounded hover:bg-quantum-700 font-mono">Add H</button>
+                                <button class="px-3 py-2 bg-quantum-600 text-white rounded hover:bg-quantum-700 font-mono">Add X</button>
+                                <button class="px-3 py-2 bg-quantum-600 text-white rounded hover:bg-quantum-700 font-mono">Add CNOT</button>
+                                <button class="px-3 py-2 bg-quantum-600 text-white rounded hover:bg-quantum-700 font-mono">Add Z</button>
+                                <button class="px-3 py-2 bg-quantum-600 text-white rounded hover:bg-quantum-700 font-mono">Run Circuit</button>
+                            </div>
+                            <div class="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                <h4 class="font-medium mb-2">Simulation Result:</h4>
+                                <div class="flex gap-4">
+                                    <div class="text-center">
+                                        <div class="text-sm font-mono">|00⟩: 50%</div>
+                                        <div class="h-16 w-8 bg-quantum-600 rounded-t-sm mx-auto"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm font-mono">|01⟩: 0%</div>
+                                        <div class="h-0 w-8 bg-quantum-600 rounded-t-sm mx-auto"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm font-mono">|10⟩: 0%</div>
+                                        <div class="h-0 w-8 bg-quantum-600 rounded-t-sm mx-auto"></div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-sm font-mono">|11⟩: 50%</div>
+                                        <div class="h-16 w-8 bg-quantum-600 rounded-t-sm mx-auto"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Algorithms Section -->
+    <section id="algorithms" class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Quantum Algorithms</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Leverage the power of quantum computing with these state-of-the-art algorithm implementations.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 overflow-hidden fade-in">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-xl font-bold flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                <i class="fas fa-search text-quantum-600"></i>
+                            </div>
+                            Grover's Search Algorithm
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Our implementation of Grover's algorithm provides quadratic speedup for unstructured search problems, finding a marked item among N items in O(√N) steps instead of O(N).
+                        </p>
+                        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-5 mb-6">
+                            <pre class="text-sm font-mono overflow-x-auto">
+<span class="text-purple-600">class</span> <span class="text-blue-600">GroverSearch</span>(QuantumAlgorithm):
+    <span class="text-purple-600">def</span> <span class="text-green-600">__init__</span>(self, n_qubits, target_state):
+        self.n_qubits = n_qubits
+        self.target_state = target_state
+        self.circuit = QuantumCircuit(n_qubits)
+
+    <span class="text-purple-600">def</span> <span class="text-green-600">run</span>(self):
+        <span class="text-gray-600"># Initialize superposition</span>
+        <span class="text-purple-600">for</span> qubit <span class="text-purple-600">in</span> range(self.n_qubits):
+            self.circuit.add_gate(
+                QuantumGate.HADAMARD, qubit)
+        
+        <span class="text-gray-600"># Optimal iterations</span>
+        iterations = max(1, int(
+            np.pi/4 * np.sqrt(2**self.n_qubits)))
+        
+        <span class="text-purple-600">for</span> _ <span class="text-purple-600">in</span> range(iterations):
+            self._oracle()
+            self._diffusion()
+
+        <span class="text-purple-600">return</span> self.circuit.measure()</pre>
+                        </div>
+                        <h4 class="font-bold mb-3 text-lg">Performance Analysis</h4>
+                        <canvas id="grover-performance-chart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 overflow-hidden fade-in delay-100">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-xl font-bold flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                <i class="fas fa-wave-square text-quantum-600"></i>
+                            </div>
+                            Quantum Fourier Transform
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Our Quantum Fourier Transform (QFT) implementation efficiently transforms quantum states from position to momentum representation, a fundamental building block for many quantum algorithms.
+                        </p>
+                        <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-5 mb-6">
+                            <pre class="text-sm font-mono overflow-x-auto">
+<span class="text-purple-600">class</span> <span class="text-blue-600">QuantumFourierTransform</span>(QuantumAlgorithm):
+    <span class="text-purple-600">def</span> <span class="text-green-600">__init__</span>(self, n_qubits):
+        self.n_qubits = n_qubits
+        self.circuit = QuantumCircuit(n_qubits)
+
+    <span class="text-purple-600">def</span> <span class="text-green-600">run</span>(self):
+        <span class="text-gray-600"># Apply Hadamard and controlled phase gates</span>
+        <span class="text-purple-600">for</span> i <span class="text-purple-600">in</span> range(self.n_qubits):
+            self.circuit.add_gate(
+                QuantumGate.HADAMARD, i)
+            
+            <span class="text-purple-600">for</span> j <span class="text-purple-600">in</span> range(i + 1, self.n_qubits):
+                <span class="text-gray-600"># Apply controlled phase rotation</span>
+                self.circuit.add_gate(
+                    QuantumGate.CNOT, j, i)
+                self.circuit.add_gate(
+                    QuantumGate.PHASE, j)
+                self.circuit.add_gate(
+                    QuantumGate.CNOT, j, i)
+
+        <span class="text-gray-600"># Swap qubits to complete QFT</span>
+        self._swap_qubits()
+        
+        <span class="text-purple-600">return</span> self.circuit.run()</pre>
+                        </div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold mb-3 text-center">Input State</h4>
+                                <div id="qft-input" class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="font-mono text-sm">|001⟩</div>
+                                        <div class="mt-2 font-mono">[0, 0, 0, 0, 0, 0, 0, 1]</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-3 text-center">QFT Output</h4>
+                                <div id="qft-output" class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="font-mono text-sm">Transformed State</div>
+                                        <div class="mt-2 font-mono text-xs">[0.35, 0.35e<sup>-iπ/4</sup>, 0.35, ...]</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 fade-in delay-200">
+                <div class="bg-quantum-100/50 dark:bg-quantum-900/30 rounded-xl p-8 border border-quantum-200 dark:border-quantum-800">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/3 mb-6 md:mb-0 md:pr-6">
+                            <h3 class="text-xl font-bold mb-2">Algorithm Benchmarking</h3>
+                            <p class="text-gray-600 dark:text-gray-400">
+                                Compare the performance of classical vs. quantum algorithms for common computational tasks.
+                            </p>
+                            <a href="#documentation" class="mt-4 inline-flex items-center text-quantum-600 hover:text-quantum-700">
+                                View detailed benchmarks
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                        <div class="md:w-2/3 w-full">
+                            <canvas id="benchmark-chart" width="600" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section id="simulator" class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Quantum Simulation Engine</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    High-performance quantum simulation with advanced noise modeling and error correction.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div class="lg:col-span-5 fade-in">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6">
+                        <h3 class="text-xl font-bold mb-6">Simulation Features</h3>
+                        <div class="space-y-5">
+                            <div class="flex items-start">
+                                <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-microchip text-quantum-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-lg">High-Performance State Vector Simulation</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                                        Efficiently simulate quantum systems with up to 30+ qubits using optimized linear algebra operations.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-random text-quantum-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-lg">Quantum Noise Models</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                                        Simulate realistic quantum noise including depolarizing, amplitude damping, and phase flip errors.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-shield-alt text-quantum-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-lg">Error Correction Techniques</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                                        Implement quantum error correction with bit flip codes, phase flip codes, and the Shor code.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="h-10 w-10 rounded-full bg-quantum-100 dark:bg-quantum-900 flex-shrink-0 flex items-center justify-center mr-4 mt-1">
+                                    <i class="fas fa-cogs text-quantum-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-lg">Circuit Compilation & Optimization</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                                        Compile circuits for specific architectures with gate decomposition and optimization techniques.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-7 fade-in delay-100">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 overflow-hidden">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-xl font-bold">Quantum Simulator Demo</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2">Number of Qubits</label>
+                                <div class="flex space-x-4">
+                                    <button class="px-4 py-2 bg-quantum-600 text-white rounded-lg">2</button>
+                                    <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">3</button>
+                                    <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">4</button>
+                                    <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">5</button>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2">Noise Level</label>
+                                <input type="range" min="0" max="100" value="20" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs mt-1">
+                                    <span>None</span>
+                                    <span>Low</span>
+                                    <span>Medium</span>
+                                    <span>High</span>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2">Error Correction</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" id="error-correction" class="rounded text-quantum-600 focus:ring-quantum-500">
+                                    <label for="error-correction">Enable error correction</label>
+                                </div>
+                            </div>
+                            <div class="mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                                <h4 class="font-medium mb-3">State Vector</h4>
+                                <div class="terminal">
+                                    <span class="terminal-line">|ψ⟩ = (0.707+0.000i)|00⟩ + (0.000+0.000i)|01⟩ + (0.000+0.000i)|10⟩ + (0.707+0.000i)|11⟩</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium mb-3">Simulated Measurements</h4>
+                                    <div class="h-48 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                                        <canvas id="measurements-chart" width="200" height="150"></canvas>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-3">Noise Impact</h4>
+                                    <div class="h-48 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                                        <canvas id="noise-impact-chart" width="200" height="150"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <button class="w-full py-3 bg-quantum-600 hover:bg-quantum-700 text-white rounded-lg font-medium text-center transition-colors">
+                                    Run Simulation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualization Section -->
+    <section id="visualization" class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Visualization Tools</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Gain insights into quantum systems with our comprehensive visualization suite.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 fade-in">
+                    <h3 class="text-xl font-bold mb-6">Bloch Sphere Representation</h3>
+                    <div class="aspect-square w-full relative mb-6">
+                        <div id="bloch-sphere" class="h-full w-full"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Theta (θ)</label>
+                            <input type="range" min="0" max="100" value="25" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phi (φ)</label>
+                            <input type="range" min="0" max="100" value="75" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 fade-in delay-100">
+                    <h3 class="text-xl font-bold mb-6">Circuit Visualization</h3>
+                    <div class="h-80 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                        <svg id="circuit-visualization" width="100%" height="100%"></svg>
+                    </div>
+                    <div class="flex justify-center space-x-4">
+                        <button class="px-4 py-2 bg-quantum-600 text-white rounded-lg">
+                            <i class="fas fa-file-export mr-2"></i> Export as SVG
+                        </button>
+                        <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                            <i class="fas fa-code mr-2"></i> Show Circuit Code
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 fade-in delay-200">
+                    <h3 class="text-xl font-bold mb-6">Probability Distributions</h3>
+                    <div class="h-80 mb-6">
+                        <canvas id="probability-chart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="flex justify-between">
+                        <button class="px-4 py-2 bg-quantum-600 text-white rounded-lg">
+                            <i class="fas fa-random mr-2"></i> Random State
+                        </button>
+                        <div>
+                            <select class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                                <option>Bar Chart</option>
+                                <option>Histogram</option>
+                                <option>Polar Plot</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 fade-in delay-300">
+                    <h3 class="text-xl font-bold mb-6">Entanglement Visualization</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="h-56 bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                            <div class="relative">
+                                <div class="h-16 w-16 rounded-full bg-quantum-600 absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+                                <div class="h-16 w-16 rounded-full bg-quantum-600 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"></div>
+                                <svg width="150" height="150">
+                                    <line x1="0" y1="0" x2="150" y2="0" stroke="#818CF8" stroke-width="3" stroke-dasharray="5,5" class="animated-wire"></line>
+                                    <text x="75" y="20" text-anchor="middle" font-family="monospace" fill="#818CF8" font-weight="bold">Entangled</text>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-medium text-center">Bell State</h4>
+                            <div class="terminal">
+                                <span class="terminal-line">|ψ⟩ = (1/√2)(|00⟩ + |11⟩)</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
+                                Perfect entanglement: Measuring one qubit instantly determines the state of the other.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                        <h4 class="font-medium mb-3">Entanglement Measures</h4>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-lg font-bold text-quantum-600">1.0</div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">von Neumann Entropy</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-quantum-600">1.0</div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">Concurrence</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-quantum-600">1.0</div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">Negativity</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource Management -->
+    <section class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Quantum Task Management</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Efficiently manage quantum computing resources with advanced scheduling and prioritization.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 fade-in">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 h-full">
+                        <h3 class="text-xl font-bold mb-6">Resource Management Features</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="font-medium flex items-center">
+                                    <i class="fas fa-tasks text-quantum-600 mr-2"></i>
+                                    Adaptive Task Scheduling
+                                </h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Dynamically adjust task priorities based on historical performance and current resource availability.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium flex items-center">
+                                    <i class="fas fa-project-diagram text-quantum-600 mr-2"></i>
+                                    Dependency Management
+                                </h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Efficiently handle complex task dependencies with visualization and critical path analysis.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium flex items-center">
+                                    <i class="fas fa-chart-line text-quantum-600 mr-2"></i>
+                                    Performance Monitoring
+                                </h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Track resource utilization and execution times with detailed logging and visualization.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium flex items-center">
+                                    <i class="fas fa-server text-quantum-600 mr-2"></i>
+                                    Multi-threaded Execution
+                                </h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Parallelize quantum tasks with efficient thread management and resource allocation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 fade-in delay-100">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6">
+                        <h3 class="text-xl font-bold mb-6">Task Dependency Graph</h3>
+                        <div id="dependency-graph" class="h-80 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6"></div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-medium mb-3">Task Statuses</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                        <span class="flex items-center">
+                                            <span class="h-3 w-3 rounded-full bg-green-500 mr-2"></span>
+                                            Completed
+                                        </span>
+                                        <span class="font-mono">4</span>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                        <span class="flex items-center">
+                                            <span class="h-3 w-3 rounded-full bg-blue-500 mr-2"></span>
+                                            Running
+                                        </span>
+                                        <span class="font-mono">2</span>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                        <span class="flex items-center">
+                                            <span class="h-3 w-3 rounded-full bg-gray-500 mr-2"></span>
+                                            Pending
+                                        </span>
+                                        <span class="font-mono">3</span>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                        <span class="flex items-center">
+                                            <span class="h-3 w-3 rounded-full bg-red-500 mr-2"></span>
+                                            Failed
+                                        </span>
+                                        <span class="font-mono">1</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-3">Resource Utilization</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-sm">
+                                            <span>CPU</span>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                                            <div class="h-2 bg-quantum-600 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-sm">
+                                            <span>Memory</span>
+                                            <span>60%</span>
+                                        </div>
+                                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                                            <div class="h-2 bg-quantum-600 rounded-full" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-sm">
+                                            <span>Quantum Resources</span>
+                                            <span>90%</span>
+                                        </div>
+                                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                                            <div class="h-2 bg-quantum-600 rounded-full" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-sm">
+                                            <span>Thread Pool</span>
+                                            <span>40%</span>
+                                        </div>
+                                        <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                                            <div class="h-2 bg-quantum-600 rounded-full" style="width: 40%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation -->
+    <section id="documentation" class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
+                <h2 class="text-3xl font-display font-bold mb-6">Documentation & Resources</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Comprehensive guides and examples to help you get started with the Quantum Framework.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="fade-in">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 h-full">
+                        <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                            <i class="fas fa-book text-quantum-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">API Reference</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Complete documentation of all classes, methods, and parameters in the Quantum Framework.
+                        </p>
+                        <div class="space-y-3">
+                            <a href="#" class="flex items-center hover:text-quantum-600 transition-colors">
+                                <i class="fas fa-file-code mr-2"></i>
+                                <span>QuantumState Class</span>
+                            </a>
+                            <a href="#" class="flex items-center hover:text-quantum-600 transition-colors">
+                                <i class="fas fa-file-code mr-2"></i>
+                                <span>QuantumCircuit Class</span>
+                            </a>
+                            <a href="#" class="flex items-center hover:text-quantum-600 transition-colors">
+                                <i class="fas fa-file-code mr-2"></i>
+                                <span>Quantum Algorithms</span>
+                            </a>
+                            <a href="#" class="flex items-center hover:text-quantum-600 transition-colors">
+                                <i class="fas fa-file-code mr-2"></i>
+                                <span>Resource Management</span>
+                            </a>
+                            <a href="#" class="flex items-center text-quantum-600 font-medium hover:text-quantum-700 transition-colors">
+                                <span>View full API reference</span>
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-in delay-100">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 h-full">
+                        <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                            <i class="fas fa-graduation-cap text-quantum-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Tutorials & Guides</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Step-by-step tutorials and comprehensive guides for beginners and experienced users.
+                        </p>
+                        <div class="space-y-4">
+                            <a href="#" class="flex items-start hover:text-quantum-600 transition-colors">
+                                <div class="h-10 w-10 flex-shrink-0 rounded bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                    <span class="font-medium">1</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Getting Started</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Installation and basic concepts</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-start hover:text-quantum-600 transition-colors">
+                                <div class="h-10 w-10 flex-shrink-0 rounded bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                    <span class="font-medium">2</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Building Your First Circuit</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Creating and simulating quantum circuits</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-start hover:text-quantum-600 transition-colors">
+                                <div class="h-10 w-10 flex-shrink-0 rounded bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                    <span class="font-medium">3</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Implementing Algorithms</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">From Grover's Search to Quantum Fourier Transform</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-start hover:text-quantum-600 transition-colors">
+                                <div class="h-10 w-10 flex-shrink-0 rounded bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mr-3">
+                                    <span class="font-medium">4</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Advanced Topics</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Error correction, noise modeling, and optimization</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-in delay-200">
+                    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-gray-800/30 p-6 h-full">
+                        <div class="h-14 w-14 rounded-full bg-quantum-100 dark:bg-quantum-900 flex items-center justify-center mb-6">
+                            <i class="fas fa-code-branch text-quantum-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">GitHub & Community</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Open-source code repository, issue tracking, and community resources.
+                        </p>
+                        <div class="space-y-4">
+                            <a href="#" class="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <i class="fab fa-github text-xl mr-3"></i>
+                                <div>
+                                    <div class="font-medium">GitHub Repository</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Star: 432 | Fork: 98</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-bug text-xl mr-3"></i>
+                                <div>
+                                    <div class="font-medium">Issue Tracker</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Report bugs and request features</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-users text-xl mr-3"></i>
+                                <div>
+                                    <div class="font-medium">Community Forum</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Discuss and get help from other users</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-hands-helping text-xl mr-3"></i>
+                                <div>
+                                    <div class="font-medium">Contributing Guidelines</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">How to contribute to the project</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download CTA -->
+    <section id="download" class="py-20 bg-quantum-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center fade-in">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-6">Start Your Quantum Journey Today</h2>
+                <p class="text-xl text-gray-100 mb-10 leading-relaxed">
+                    Download the Quantum Framework and explore the possibilities of quantum computing simulation.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto mb-12">
+                    <a href="#" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6 transition-all flex flex-col items-center justify-center group">
+                        <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fab fa-python text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">PyPI Package</h3>
+                        <p class="text-sm text-gray-300 mb-4">pip install quantum-framework</p>
+                        <div class="flex items-center text-white">
+                            <span class="mr-2">Download</span>
+                            <i class="fas fa-download"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6 transition-all flex flex-col items-center justify-center group">
+                        <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fab fa-github text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Source Code</h3>
+                        <p class="text-sm text-gray-300 mb-4">Clone from GitHub repository</p>
+                        <div class="flex items-center text-white">
+                            <span class="mr-2">Clone Repo</span>
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl p-6 transition-all flex flex-col items-center justify-center group">
+                        <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-book text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Documentation</h3>
+                        <p class="text-sm text-gray-300 mb-4">Comprehensive guides and API reference</p>
+                        <div class="flex items-center text-white">
+                            <span class="mr-2">View Docs</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-gray-300 space-y-4">
+                    <p>Looking for enterprise support or custom development?</p>
+                    <a href="#contact" class="inline-flex items-center justify-center px-8 py-3 bg-white text-quantum-600 hover:bg-gray-100 rounded-lg font-medium text-center transition-colors">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-6">
+                        <div class="h-10 w-10 rounded-lg bg-quantum-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-atom text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl">Quantum<span class="text-quantum-400">Framework</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        A comprehensive toolkit for quantum computing simulation, providing powerful tools for state representation, circuit design, algorithm development, and visualization.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="h-10 w-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="h-10 w-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="h-10 w-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="h-10 w-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fas fa-rss"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Examples</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GitHub Repository</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Community</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Forum</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Issue Tracker</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contributing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Code of Conduct</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-500 text-sm">
+                    &copy; 2023 Quantum Framework. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        document.getElementById('darkModeToggle')?.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        document.getElementById('mobileDarkModeToggle')?.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // Mobile menu
+        document.getElementById('mobileMenuButton')?.addEventListener('click', () => {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+        
+        // Scroll reveal animation
+        function handleScrollReveal() {
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                if(position.top < window.innerHeight - 100) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', handleScrollReveal);
+        window.addEventListener('load', handleScrollReveal);
+        
+        // Quantum circuit visualization
+        function drawQuantumCircuit() {
+            const svg = document.getElementById('quantum-circuit');
+            if (!svg) return;
+            
+            const width = svg.clientWidth;
+            const height = svg.clientHeight;
+            
+            const numQubits = 3;
+            const qubitSpacing = height / (numQubits + 1);
+            
+            // Draw quantum wires
+            for (let i = 0; i < numQubits; i++) {
+                const y = (i + 1) * qubitSpacing;
+                const wire = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                wire.setAttribute('x1', '0');
+                wire.setAttribute('y1', y);
+                wire.setAttribute('x2', width);
+                wire.setAttribute('y2', y);
+                wire.setAttribute('class', 'quantum-wire');
+                svg.appendChild(wire);
+                
+                // Add qubit label
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', '10');
+                label.setAttribute('y', y - 10);
+                label.setAttribute('class', 'text-sm font-mono');
+                label.textContent = `q${i}`;
+                svg.appendChild(label);
+            }
+            
+            // Add gates
+            const gates = [
+                { type: 'H', qubit: 0, pos: 80 },
+                { type: 'H', qubit: 1, pos: 80 },
+                { type: 'CNOT', control: 0, target: 2, pos: 180 },
+                { type: 'X', qubit: 1, pos: 280 },
+                { type: 'CNOT', control: 1, target: 2, pos: 380 }
+            ];
+            
+            gates.forEach(gate => {
+                if (gate.type === 'CNOT') {
+                    const controlY = (gate.control + 1) * qubitSpacing;
+                    const targetY = (gate.target + 1) * qubitSpacing;
+                    
+                    // Vertical line connecting control and target
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', gate.pos);
+                    line.setAttribute('y1', controlY);
+                    line.setAttribute('x2', gate.pos);
+                    line.setAttribute('y2', targetY);
+                    line.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(line);
+                    
+                    // Control dot
+                    const controlDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    controlDot.setAttribute('cx', gate.pos);
+                    controlDot.setAttribute('cy', controlY);
+                    controlDot.setAttribute('r', '6');
+                    controlDot.setAttribute('class', 'quantum-control-dot');
+                    svg.appendChild(controlDot);
+                    
+                    // Target circle with plus
+                    const targetCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    targetCircle.setAttribute('cx', gate.pos);
+                    targetCircle.setAttribute('cy', targetY);
+                    targetCircle.setAttribute('r', '10');
+                    targetCircle.setAttribute('fill', 'none');
+                    targetCircle.setAttribute('stroke', '#6366F1');
+                    targetCircle.setAttribute('stroke-width', '2');
+                    svg.appendChild(targetCircle);
+                    
+                    // Horizontal line in plus sign
+                    const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    hLine.setAttribute('x1', gate.pos - 10);
+                    hLine.setAttribute('y1', targetY);
+                    hLine.setAttribute('x2', gate.pos + 10);
+                    hLine.setAttribute('y2', targetY);
+                    hLine.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(hLine);
+                    
+                    // Vertical line in plus sign
+                    const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    vLine.setAttribute('x1', gate.pos);
+                    vLine.setAttribute('y1', targetY - 10);
+                    vLine.setAttribute('x2', gate.pos);
+                    vLine.setAttribute('y2', targetY + 10);
+                    vLine.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(vLine);
+                } else {
+                    const qubitY = (gate.qubit + 1) * qubitSpacing;
+                    
+                    // Gate rectangle
+                    const gateRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    gateRect.setAttribute('x', gate.pos - 15);
+                    gateRect.setAttribute('y', qubitY - 15);
+                    gateRect.setAttribute('width', '30');
+                    gateRect.setAttribute('height', '30');
+                    gateRect.setAttribute('class', 'quantum-gate');
+                    svg.appendChild(gateRect);
+                    
+                    // Gate label
+                    const gateText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    gateText.setAttribute('x', gate.pos);
+                    gateText.setAttribute('y', qubitY);
+                    gateText.setAttribute('class', 'quantum-gate-text');
+                    gateText.textContent = gate.type;
+                    svg.appendChild(gateText);
+                }
+            });
+        }
+        
+        // Circuit visualization for the visualization section
+        function drawCircuitVisualization() {
+            const svg = document.getElementById('circuit-visualization');
+            if (!svg) return;
+            
+            const width = svg.clientWidth;
+            const height = svg.clientHeight;
+            
+            const numQubits = 4;
+            const qubitSpacing = height / (numQubits + 1);
+            
+            // Clear SVG
+            svg.innerHTML = '';
+            
+            // Draw quantum wires
+            for (let i = 0; i < numQubits; i++) {
+                const y = (i + 1) * qubitSpacing;
+                const wire = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                wire.setAttribute('x1', '50');
+                wire.setAttribute('y1', y);
+                wire.setAttribute('x2', width - 50);
+                wire.setAttribute('y2', y);
+                wire.setAttribute('class', 'quantum-wire');
+                svg.appendChild(wire);
+                
+                // Add qubit label
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', '20');
+                label.setAttribute('y', y);
+                label.setAttribute('class', 'text-sm font-mono');
+                label.setAttribute('dominant-baseline', 'middle');
+                label.textContent = `|0⟩`;
+                svg.appendChild(label);
+                
+                // Add output label
+                const outputLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                outputLabel.setAttribute('x', width - 20);
+                outputLabel.setAttribute('y', y);
+                outputLabel.setAttribute('text-anchor', 'end');
+                outputLabel.setAttribute('dominant-baseline', 'middle');
+                outputLabel.setAttribute('class', 'text-sm font-mono');
+                outputLabel.textContent = `q${i}`;
+                svg.appendChild(outputLabel);
+            }
+            
+            // More complex gate pattern - implementing QFT circuit
+            const gatePositions = [
+                { type: 'H', qubit: 0, pos: 100 },
+                { type: 'CNOT', control: 0, target: 1, pos: 180 },
+                { type: 'T', qubit: 1, pos: 260 },
+                { type: 'CNOT', control: 0, target: 1, pos: 340 },
+                { type: 'H', qubit: 1, pos: 420 },
+                { type: 'CNOT', control: 1, target: 2, pos: 500 },
+                { type: 'T', qubit: 2, pos: 580 },
+                { type: 'CNOT', control: 1, target: 2, pos: 660 },
+                { type: 'H', qubit: 2, pos: 740 },
+                { type: 'CNOT', control: 2, target: 3, pos: 820 },
+                { type: 'T', qubit: 3, pos: 900 },
+                { type: 'CNOT', control: 2, target: 3, pos: 980 },
+                { type: 'H', qubit: 3, pos: 1060 }
+            ];
+            
+            gatePositions.forEach(gate => {
+                if (gate.type === 'CNOT') {
+                    const controlY = (gate.control + 1) * qubitSpacing;
+                    const targetY = (gate.target + 1) * qubitSpacing;
+                    
+                    // Vertical line connecting control and target
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', gate.pos);
+                    line.setAttribute('y1', controlY);
+                    line.setAttribute('x2', gate.pos);
+                    line.setAttribute('y2', targetY);
+                    line.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(line);
+                    
+                    // Control dot
+                    const controlDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    controlDot.setAttribute('cx', gate.pos);
+                    controlDot.setAttribute('cy', controlY);
+                    controlDot.setAttribute('r', '6');
+                    controlDot.setAttribute('class', 'quantum-control-dot');
+                    svg.appendChild(controlDot);
+                    
+                    // Target circle with plus
+                    const targetCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    targetCircle.setAttribute('cx', gate.pos);
+                    targetCircle.setAttribute('cy', targetY);
+                    targetCircle.setAttribute('r', '10');
+                    targetCircle.setAttribute('fill', 'none');
+                    targetCircle.setAttribute('stroke', '#6366F1');
+                    targetCircle.setAttribute('stroke-width', '2');
+                    svg.appendChild(targetCircle);
+                    
+                    // Horizontal line in plus sign
+                    const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    hLine.setAttribute('x1', gate.pos - 10);
+                    hLine.setAttribute('y1', targetY);
+                    hLine.setAttribute('x2', gate.pos + 10);
+                    hLine.setAttribute('y2', targetY);
+                    hLine.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(hLine);
+                    
+                    // Vertical line in plus sign
+                    const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    vLine.setAttribute('x1', gate.pos);
+                    vLine.setAttribute('y1', targetY - 10);
+                    vLine.setAttribute('x2', gate.pos);
+                    vLine.setAttribute('y2', targetY + 10);
+                    vLine.setAttribute('class', 'quantum-wire');
+                    svg.appendChild(vLine);
+                } else {
+                    const qubitY = (gate.qubit + 1) * qubitSpacing;
+                    
+                    // Gate rectangle
+                    const gateRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    gateRect.setAttribute('x', gate.pos - 15);
+                    gateRect.setAttribute('y', qubitY - 15);
+                    gateRect.setAttribute('width', '30');
+                    gateRect.setAttribute('height', '30');
+                    gateRect.setAttribute('class', 'quantum-gate');
+                    svg.appendChild(gateRect);
+                    
+                    // Gate label
+                    const gateText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    gateText.setAttribute('x', gate.pos);
+                    gateText.setAttribute('y', qubitY);
+                    gateText.setAttribute('class', 'quantum-gate-text');
+                    gateText.textContent = gate.type;
+                    svg.appendChild(gateText);
+                }
+            });
+        }
+        
+        // Task Dependency Graph Visualization
+        function drawDependencyGraph() {
+            const graphElement = document.getElementById('dependency-graph');
+            if (!graphElement) return;
+            
+            // Create SVG
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            graphElement.appendChild(svg);
+            
+            // Define nodes (tasks)
+            const nodes = [
+                { id: 0, x: 80, y: 50, status: 'completed' },
+                { id: 1, x: 220, y: 50, status: 'completed' },
+                { id: 2, x: 360, y: 50, status: 'completed' },
+                { id: 3, x: 150, y: 140, status: 'completed' },
+                { id: 4, x: 290, y: 140, status: 'running' },
+                { id: 5, x: 150, y: 230, status: 'running' },
+                { id: 6, x: 290, y: 230, status: 'pending' },
+                { id: 7, x: 80, y: 230, status: 'pending' },
+                { id: 8, x: 220, y: 320, status: 'pending' },
+                { id: 9, x: 360, y: 230, status: 'failed' }
+            ];
+            
+            // Define edges (dependencies)
+            const edges = [
+                { source: 0, target: 3 },
+                { source: 1, target: 3 },
+                { source: 1, target: 4 },
+                { source: 2, target: 4 },
+                { source: 3, target: 5 },
+                { source: 3, target: 7 },
+                { source: 4, target: 6 },
+                { source: 4, target: 9 },
+                { source: 5, target: 8 },
+                { source: 7, target: 8 }
+            ];
+            
+            // Draw edges first (so they are behind nodes)
+            edges.forEach(edge => {
+                const source = nodes.find(n => n.id === edge.source);
+                const target = nodes.find(n => n.id === edge.target);
+                
+                // Edge line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', source.x);
+                line.setAttribute('y1', source.y);
+                line.setAttribute('x2', target.x);
+                line.setAttribute('y2', target.y);
+                line.setAttribute('stroke', '#6366F1');
+                line.setAttribute('stroke-width', '2');
+                line.setAttribute('marker-end', 'url(#arrowhead)');
+                svg.appendChild(line);
+            });
+            
+            // Define arrowhead marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            svg.appendChild(defs);
+            
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+            defs.appendChild(marker);
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', '#6366F1');
+            marker.appendChild(polygon);
+            
+            // Draw nodes
+            nodes.forEach(node => {
+                // Status color
+                let color;
+                switch (node.status) {
+                    case 'completed': color = '#10B981'; break; // Green
+                    case 'running': color = '#3B82F6'; break; // Blue
+                    case 'pending': color = '#6B7280'; break; // Gray
+                    case 'failed': color = '#EF4444'; break; // Red
+                    default: color = '#6B7280';
+                }
+                
+                // Node circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', node.x);
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', '20');
+                circle.setAttribute('fill', color);
+                svg.appendChild(circle);
+                
+                // Node label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', node.x);
+                text.setAttribute('y', node.y);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'central');
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = node.id;
+                svg.appendChild(text);
+            });
+        }
+        
+        // Particles background
+        function createParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 3 + 1,
+                    speedX: Math.random() * 1 - 0.5,
+                    speedY: Math.random() * 1 - 0.5,
+                    color: '#6366F1',
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+            }
+            
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(particle => {
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = particle.color + Math.floor(particle.opacity * 255).toString(16).padStart(2, '0');
+                    ctx.fill();
+                    
+                    // Connect particles that are close to each other
+                    particles.forEach(otherParticle => {
+                        const dx = particle.x - otherParticle.x;
+                        const dy = particle.y - otherParticle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(particle.x, particle.y);
+                            ctx.lineTo(otherParticle.x, otherParticle.y);
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.1 * (1 - distance/100)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    });
+                    
+                    // Update positions
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+                    
+                    // Bounce off edges
+                    if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+                });
+                
+                requestAnimationFrame(drawParticles);
+            }
+            
+            drawParticles();
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Charts for visualization
+        function createCharts() {
+            // Measurements chart
+            const measurementsCtx = document.getElementById('measurements-chart');
+            if (measurementsCtx) {
+                new Chart(measurementsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['|00⟩', '|01⟩', '|10⟩', '|11⟩'],
+                        datasets: [{
+                            label: 'Measurement Probability',
+                            data: [0.5, 0, 0, 0.5],
+                            backgroundColor: '#6366F1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1,
+                                title: {
+                                    display: true,
+                                    text: 'Probability'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Noise impact chart
+            const noiseCtx = document.getElementById('noise-impact-chart');
+            if (noiseCtx) {
+                new Chart(noiseCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['None', '0.05', '0.1', '0.15', '0.2'],
+                        datasets: [{
+                            label: 'Fidelity',
+                            data: [1, 0.95, 0.87, 0.76, 0.62],
+                            borderColor: '#6366F1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1,
+                                title: {
+                                    display: true,
+                                    text: 'Fidelity'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Noise Level'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Probability chart
+            const probabilityCtx = document.getElementById('probability-chart');
+            if (probabilityCtx) {
+                new Chart(probabilityCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['|000⟩', '|001⟩', '|010⟩', '|011⟩', '|100⟩', '|101⟩', '|110⟩', '|111⟩'],
+                        datasets: [{
+                            label: 'Probability',
+                            data: [0.25, 0.25, 0, 0, 0.25, 0, 0, 0.25],
+                            backgroundColor: '#6366F1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'GHZ State: (|000⟩ + |111⟩)/√2'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 0.5,
+                                title: {
+                                    display: true,
+                                    text: 'Probability'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Grover performance chart
+            const groverCtx = document.getElementById('grover-performance-chart');
+            if (groverCtx) {
+                new Chart(groverCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['8', '16', '32', '64', '128', '256', '512', '1024'],
+                        datasets: [
+                            {
+                                label: 'Classical Search',
+                                data: [8, 16, 32, 64, 128, 256, 512, 1024],
+                                borderColor: '#94A3B8',
+                                backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                                borderWidth: 2,
+                                fill: true
+                            },
+                            {
+                                label: 'Grover Search',
+                                data: [2.83, 4, 5.66, 8, 11.31, 16, 22.63, 32],
+                                borderColor: '#6366F1',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                borderWidth: 2,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'logarithmic',
+                                title: {
+                                    display: true,
+                                    text: 'Steps Required'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Database Size'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Benchmark chart
+            const benchmarkCtx = document.getElementById('benchmark-chart');
+            if (benchmarkCtx) {
+                new Chart(benchmarkCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Search', 'Factoring', 'Simulation', 'Optimization'],
+                        datasets: [
+                            {
+                                label: 'Classical Algorithm',
+                                data: [100, 100, 100, 100],
+                                backgroundColor: '#94A3B8'
+                            },
+                            {
+                                label: 'Quantum Algorithm',
+                                data: [25, 0.1, 40, 32],
+                                backgroundColor: '#6366F1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'logarithmic',
+                                title: {
+                                    display: true,
+                                    text: 'Relative Computation Time (Lower is Better)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Draw the 3D Bloch sphere using D3.js
+        function drawBlochSphere() {
+            const container = document.getElementById('bloch-sphere');
+            if (!container) return;
+            
+            // Create SVG
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Define radius and center
+            const radius = Math.min(width, height) / 2.5;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Draw coordinate axes
+            const axes = [
+                { label: 'X', x1: centerX - radius, y1: centerY, x2: centerX + radius, y2: centerY, color: '#E11D48' },
+                { label: 'Y', x1: centerX, y1: centerY - radius, x2: centerX, y2: centerY + radius, color: '#10B981' },
+                { label: 'Z', x1: centerX - radius/2, y1: centerY - radius/2, x2: centerX + radius/2, y2: centerY + radius/2, color: '#3B82F6' }
+            ];
+            
+            axes.forEach(axis => {
+                svg.append('line')
+                    .attr('x1', axis.x1)
+                    .attr('y1', axis.y1)
+                    .attr('x2', axis.x2)
+                    .attr('y2', axis.y2)
+                    .attr('stroke', axis.color)
+                    .attr('stroke-width', 1);
+                
+                svg.append('text')
+                    .attr('x', axis.x2 + 10)
+                    .attr('y', axis.y2)
+                    .attr('fill', axis.color)
+                    .attr('font-size', '12px')
+                    .attr('font-weight', 'bold')
+                    .text(axis.label);
+            });
+            
+            // Draw Bloch sphere circle
+            svg.append('circle')
+                .attr('cx', centerX)
+                .attr('cy', centerY)
+                .attr('r', radius)
+                .attr('fill', 'none')
+                .attr('stroke', '#6366F1')
+                .attr('stroke-width', 1);
+            
+            // Draw a qubit state vector
+            const theta = Math.PI / 4; // 45 degrees
+            const phi = Math.PI / 3;   // 60 degrees
+            
+            const x = radius * Math.sin(theta) * Math.cos(phi);
+            const y = radius * Math.sin(theta) * Math.sin(phi);
+            const z = radius * Math.cos(theta);
+            
+            // Draw the state vector
+            svg.append('line')
+                .attr('x1', centerX)
+                .attr('y1', centerY)
+                .attr('x2', centerX + x)
+                .attr('y2', centerY - z) // Note: y-axis is inverted in SVG
+                .attr('stroke', '#6366F1')
+                .attr('stroke-width', 2);
+            
+            // Add a dot at the end of the vector
+            svg.append('circle')
+                .attr('cx', centerX + x)
+                .attr('cy', centerY - z)
+                .attr('r', 5)
+                .attr('fill', '#6366F1');
+            
+            // Add state representation
+            svg.append('text')
+                .attr('x', centerX + x + 10)
+                .attr('y', centerY - z)
+                .attr('fill', '#6366F1')
+                .attr('font-size', '12px')
+                .attr('font-family', 'monospace')
+                .text('|ψ⟩');
+        }
+        
+        // Initialize all visualizations when the page loads
+        window.addEventListener('load', () => {
+            createParticles();
+            drawQuantumCircuit();
+            drawCircuitVisualization();
+            drawDependencyGraph();
+            createCharts();
+            drawBlochSphere();
+            
+            // Hide mobile menu when clicking on a link
+            document.querySelectorAll('#mobileMenu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                });
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RMS Titanic Interactive Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&amp;family=Source+Sans+Pro:wght@300;400;600&amp;display=swap" rel="stylesheet" />
+    <style>
+         :root {
+            --first-class-color: #9b8250;
+            --second-class-color: #3d648c;
+            --third-class-color: #656565;
+            --crew-color: #5a6b5a;
+            --first-class-bg: rgba(155, 130, 80, 0.15);
+            --second-class-bg: rgba(61, 100, 140, 0.15);
+            --third-class-bg: rgba(101, 101, 101, 0.15);
+            --crew-bg: rgba(90, 107, 90, 0.15);
+            --survived-color: #2e7d32;
+            --deceased-color: #c62828;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Source Sans Pro", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            background-image: url("https://i.imgur.com/8wMYSSA.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: rgba(10, 25, 47, 0.9);
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-family: "Playfair Display", serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        h2 {
+            font-family: "Playfair Display", serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #ddd;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .info-panel {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 350px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .ship-container {
+            flex: 3;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .deck-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .deck-btn {
+            padding: 8px 15px;
+            background-color: #0a192f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Source Sans Pro", sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .deck-btn:hover {
+            background-color: #1e3a8a;
+            transform: translateY(-2px);
+        }
+        
+        .deck-btn.active {
+            background-color: #2c5282;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ship-view {
+            position: relative;
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 20px 0;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        #deck-name {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-family: "Playfair Display", serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .room {
+            fill: #e0e0e0;
+            stroke: #999;
+            stroke-width: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .room:hover {
+            fill: #c0c0c0;
+            stroke-width: 2;
+            stroke: #333;
+        }
+        
+        .room-first-class {
+            fill: var(--first-class-bg);
+            stroke: var(--first-class-color);
+        }
+        
+        .room-second-class {
+            fill: var(--second-class-bg);
+            stroke: var(--second-class-color);
+        }
+        
+        .room-third-class {
+            fill: var(--third-class-bg);
+            stroke: var(--third-class-color);
+        }
+        
+        .room-crew {
+            fill: var(--crew-bg);
+            stroke: var(--crew-color);
+        }
+        
+        .ship-outline {
+            fill: none;
+            stroke: #333;
+            stroke-width: 2;
+        }
+        
+        .ship-details {
+            fill: none;
+            stroke: #666;
+            stroke-width: 1;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+        
+        .legend-first {
+            background-color: var(--first-class-bg);
+            border-color: var(--first-class-color);
+        }
+        
+        .legend-second {
+            background-color: var(--second-class-bg);
+            border-color: var(--second-class-color);
+        }
+        
+        .legend-third {
+            background-color: var(--third-class-bg);
+            border-color: var(--third-class-color);
+        }
+        
+        .legend-crew {
+            background-color: var(--crew-bg);
+            border-color: var(--crew-color);
+        }
+        
+        .legend-survived {
+            background-color: #c8e6c9;
+            border-color: var(--survived-color);
+        }
+        
+        .legend-deceased {
+            background-color: #ffcdd2;
+            border-color: var(--deceased-color);
+        }
+        
+        #room-info {
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 5px solid #ccc;
+        }
+        
+        #room-title {
+            margin-bottom: 10px;
+            color: #0a192f;
+        }
+        
+        .passengers-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-right: 10px;
+        }
+        
+        .passenger-card {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #ccc;
+            transition: transform 0.2s;
+        }
+        
+        .passenger-card:hover {
+            transform: translateX(3px);
+        }
+        
+        .passenger-survived {
+            border-left-color: var(--survived-color);
+            background-color: #f1f8e9;
+        }
+        
+        .passenger-deceased {
+            border-left-color: var(--deceased-color);
+            background-color: #ffebee;
+        }
+        
+        .passenger-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .passenger-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .survival-status {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .status-survived {
+            background-color: #c8e6c9;
+            color: var(--survived-color);
+        }
+        
+        .status-deceased {
+            background-color: #ffcdd2;
+            color: var(--deceased-color);
+        }
+        
+        .passenger-details {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
+        }
+        
+        .ship-facts {
+            margin-top: 20px;
+        }
+        
+        .ship-fact {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .fact-highlight {
+            font-weight: 600;
+            color: #0a192f;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            padding: 8px 15px;
+            background-color: #0a192f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .control-btn:hover {
+            background-color: #1e3a8a;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background-color: #eee;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .historical-note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .info-panel {
+                max-width: none;
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .ship-view {
+                padding: 10px 0;
+            }
+            .deck-selector {
+                gap: 5px;
+            }
+            .deck-btn {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>RMS Titanic Interactive Simulation</h1>
+            <div class="subtitle">
+                Explore the legendary ship and discover passenger stories
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="info-panel">
+                <h2>Ship Information</h2>
+
+                <div id="room-info" style="display: none">
+                    <h3 id="room-title">Select a room</h3>
+                    <div id="room-details"></div>
+
+                    <div class="passengers-list" id="passengers-list"></div>
+                </div>
+
+                <div class="ship-facts">
+                    <h3>Titanic Facts</h3>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Built:</span> Belfast, 1909-1912
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Maiden Voyage:</span> April 10, 1912
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Sank:</span> April 15, 1912, 2:20 AM
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Length:</span> 269 meters (882 feet)
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Weight:</span> 46,328 tons
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Speed:</span> 23 knots (42.6 km/h)
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Passengers:</span> 2,223 (capacity 3,300)
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Survivors:</span> 706
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Lifeboats:</span> 20 (capacity for 1,178)
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">First Class Ticket:</span> $4,350 ($100,000+ today)
+                    </div>
+                    <div class="ship-fact">
+                        <span class="fact-highlight">Third Class Ticket:</span> $15-$40 ($350-$900 today)
+                    </div>
+                </div>
+
+                <div class="historical-note">
+                    Note: This simulation contains historically accurate layouts and passenger information based on available records. Some minor details may vary due to limitations in historical documentation.
+                </div>
+            </div>
+
+            <div class="ship-container">
+                <h2 id="deck-name">Boat Deck</h2>
+
+                <div class="deck-selector">
+                    <button class="deck-btn active" data-deck="boat">Boat Deck</button>
+                    <button class="deck-btn" data-deck="a">A Deck</button>
+                    <button class="deck-btn" data-deck="b">B Deck</button>
+                    <button class="deck-btn" data-deck="c">C Deck</button>
+                    <button class="deck-btn" data-deck="d">D Deck</button>
+                    <button class="deck-btn" data-deck="e">E Deck</button>
+                    <button class="deck-btn" data-deck="f">F Deck</button>
+                    <button class="deck-btn" data-deck="g">G Deck</button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-first"></div>
+                        <span>First Class</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-second"></div>
+                        <span>Second Class</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-third"></div>
+                        <span>Third Class</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-crew"></div>
+                        <span>Crew Areas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-survived"></div>
+                        <span>Survived</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-deceased"></div>
+                        <span>Deceased</span>
+                    </div>
+                </div>
+
+                <div class="ship-view" id="ship-view">
+                    <!-- SVG content will be inserted here dynamically -->
+                </div>
+
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-in">+</button>
+                    <button class="zoom-btn" id="zoom-reset">↺</button>
+                    <button class="zoom-btn" id="zoom-out">-</button>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" id="view-manifest">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
+                ></path>
+                <path
+                  d="M2 3.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5z"
+                ></path>
+              </svg>
+              Passenger Manifest
+            </button>
+                    <button class="control-btn" id="view-journey">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472zM3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5H3.82zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933zM8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068H8.5zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5h2.49zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z"
+                ></path>
+              </svg>
+              Journey Timeline
+            </button>
+                    <button class="control-btn" id="view-3d">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M12.17 9.53c2.307-2.592 3.278-4.684 3.641-6.218.21-.887.214-1.58.16-2.065a3.578 3.578 0 0 0-.108-.563 2.22 2.22 0 0 0-.078-.23V.453c-.073-.164-.168-.234-.352-.295a2.35 2.35 0 0 0-.16-.045 3.797 3.797 0 0 0-.57-.093c-.49-.044-1.19-.03-2.08.188-1.536.374-3.618 1.343-6.161 3.604l-2.4.238h-.006a2.552 2.552 0 0 0-1.524.734L.15 7.17a.512.512 0 0 0 .433.868l1.896-.271c.28-.04.592.013.955.132.232.076.437.16.655.248l.203.083c.196.816.66 1.58 1.275 2.195.613.614 1.376 1.08 2.191 1.277l.082.202c.089.218.173.424.249.657.118.363.172.676.132.956l-.271 1.9a.512.512 0 0 0 .867.433l2.382-2.386c.41-.41.668-.949.732-1.526l.24-2.408Zm.11-3.699c-.797.8-1.93.961-2.528.362-.598-.6-.436-1.733.361-2.532.798-.799 1.93-.96 2.528-.361.599.599.437 1.732-.36 2.531Z"
+                ></path>
+                <path
+                  d="M5.205 10.787a7.632 7.632 0 0 0 1.804 1.352c-1.118 1.007-4.929 2.028-5.054 1.903-.126-.127.737-4.189 1.839-5.18.346.69.837 1.35 1.411 1.925Z"
+                ></path>
+              </svg>
+              3D View
+            </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Ship data structure
+        const shipData = {
+            // Decks of the Titanic
+            decks: {
+                boat: {
+                    name: "Boat Deck",
+                    description: "The topmost deck of the ship, featuring lifeboats, officers' quarters, and first-class facilities.",
+                    rooms: [{
+                        id: "bridge",
+                        name: "Bridge & Wheelhouse",
+                        coordinates: "50,50,150,100",
+                        description: "Command center of the ship where Captain Edward Smith and his officers navigated the vessel.",
+                        class: "crew",
+                        capacity: 10,
+                        features: [
+                            "Navigation Equipment",
+                            "Ship Controls",
+                            "Communication Devices",
+                        ],
+                        historical_note: "Captain Edward Smith was on the bridge when the Titanic struck the iceberg at 11:40 PM on April 14, 1912.",
+                        passengers: [{
+                            name: "Captain Edward John Smith",
+                            age: 62,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Captain",
+                            survived: false,
+                            biography: "Veteran captain with 40 years of experience at sea. This was to be his final voyage before retirement.",
+                        }, {
+                            name: "First Officer William McMaster Murdoch",
+                            age: 39,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "First Officer",
+                            survived: false,
+                            biography: "Was on duty when the Titanic struck the iceberg. Worked to load passengers into lifeboats.",
+                        }, {
+                            name: "Second Officer Charles Herbert Lightoller",
+                            age: 38,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Second Officer",
+                            survived: true,
+                            biography: "The most senior officer to survive the sinking. Helped load many women and children into lifeboats.",
+                        }, ],
+                    }, {
+                        id: "officers_quarters",
+                        name: "Officers' Quarters",
+                        coordinates: "160,50,240,100",
+                        description: "Accommodations for the ship's officers, located directly behind the bridge.",
+                        class: "crew",
+                        capacity: 8,
+                        features: [
+                            "Private Cabins",
+                            "Mess Room",
+                            "Bathroom Facilities",
+                        ],
+                        historical_note: "The officers maintained a hierarchy, with the Captain at the top, followed by six officers of decreasing rank.",
+                        passengers: [{
+                            name: "Third Officer Herbert John Pitman",
+                            age: 34,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Third Officer",
+                            survived: true,
+                            biography: "Was put in charge of Lifeboat No. 5 and survived the sinking.",
+                        }, {
+                            name: "Fourth Officer Joseph Groves Boxhall",
+                            age: 28,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Fourth Officer",
+                            survived: true,
+                            biography: "Calculated the ship's position after the collision and was in charge of Lifeboat No. 2.",
+                        }, {
+                            name: "Fifth Officer Harold Godfrey Lowe",
+                            age: 29,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Fifth Officer",
+                            survived: true,
+                            biography: "Known for returning to the wreck site with Lifeboat 14 to rescue survivors in the water.",
+                        }, {
+                            name: "Sixth Officer James Paul Moody",
+                            age: 24,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Sixth Officer",
+                            survived: false,
+                            biography: "The youngest officer aboard, who received the iceberg warning from lookout Frederick Fleet.",
+                        }, ],
+                    }, {
+                        id: "marconi_room",
+                        name: "Marconi Room (Wireless Telegraph)",
+                        coordinates: "250,50,330,100",
+                        description: "Communication center equipped with state-of-the-art Marconi wireless telegraph equipment.",
+                        class: "crew",
+                        capacity: 2,
+                        features: [
+                            "Wireless Telegraph Equipment",
+                            "Operating Desk",
+                            "Power Supply",
+                        ],
+                        historical_note: "The wireless operators transmitted distress signals continuously after the collision, using the new 'SOS' signal as well as the traditional 'CQD'.",
+                        passengers: [{
+                            name: "John George Phillips",
+                            age: 25,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Chief Wireless Operator",
+                            survived: false,
+                            biography: "Stayed at his post sending distress signals until the power failed, even after being released from duty by the Captain.",
+                        }, {
+                            name: "Harold Sydney Bride",
+                            age: 22,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Assistant Wireless Operator",
+                            survived: true,
+                            biography: "Survived the sinking by climbing aboard the overturned collapsible lifeboat B. Later served on the Carpathia sending messages.",
+                        }, ],
+                    }, {
+                        id: "first_class_lounge",
+                        name: "First Class Lounge",
+                        coordinates: "340,40,480,120",
+                        description: "Opulent social space designed in the Louis XV style, where first-class passengers could relax, socialize, and enjoy refreshments.",
+                        class: "first",
+                        capacity: 120,
+                        features: [
+                            "Ornate Furniture",
+                            "Fireplace",
+                            "Reading Sections",
+                            "Tea Service",
+                            "String Quartet Area",
+                        ],
+                        historical_note: "The lounge featured detailed woodwork and furnishings inspired by the Palace of Versailles. It was one of the most elegant public rooms on the ship.",
+                        passengers: [{
+                            name: "John Jacob Astor IV",
+                            age: 47,
+                            gender: "Male",
+                            ticket: "PC 17757",
+                            cabin: "C62-C64",
+                            fare: "£224 10s 6d",
+                            survived: false,
+                            biography: "The richest passenger aboard, worth an estimated $87 million (equivalent to $2.3 billion in 2022). Was traveling with his pregnant second wife.",
+                        }, {
+                            name: "Madeleine Talmage Astor",
+                            age: 18,
+                            gender: "Female",
+                            ticket: "PC 17757",
+                            cabin: "C62-C64",
+                            fare: "£224 10s 6d",
+                            survived: true,
+                            biography: "Five months pregnant wife of John Jacob Astor IV. Survived in Lifeboat 4.",
+                        }, {
+                            name: "Benjamin Guggenheim",
+                            age: 46,
+                            gender: "Male",
+                            ticket: "PC 17593",
+                            cabin: "B84",
+                            fare: "£79 4s",
+                            survived: false,
+                            biography: "Mining magnate who famously changed into his formal evening wear to go down 'like a gentleman'.",
+                        }, {
+                            name: "Margaret 'Molly' Brown",
+                            age: 44,
+                            gender: "Female",
+                            ticket: "PC 17610",
+                            cabin: "B28",
+                            fare: "£27 14s 5d",
+                            survived: true,
+                            biography: "Later nicknamed 'The Unsinkable Molly Brown' for her efforts to help others during the sinking and for organizing survivors on her lifeboat.",
+                        }, ],
+                    }, {
+                        id: "a_la_carte_restaurant",
+                        name: "À La Carte Restaurant",
+                        coordinates: "490,40,600,120",
+                        description: "Exclusive restaurant operated separately from the ship's regular dining saloons, offering high-end French cuisine.",
+                        class: "first",
+                        capacity: 150,
+                        features: [
+                            "Luxury Dining Tables",
+                            "Fine China",
+                            "Crystal Glassware",
+                            "French Cuisine",
+                            "Private Tables",
+                        ],
+                        historical_note: "Run by Italian restaurateur Luigi Gatti, it offered a dining experience comparable to the finest restaurants in London and Paris.",
+                        passengers: [{
+                            name: "Luigi Gatti",
+                            age: 37,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Restaurant Manager",
+                            survived: false,
+                            biography: "Manager of the restaurant who had previously run the Ritz Restaurant in London. Died along with most of his staff.",
+                        }, {
+                            name: "George Widener",
+                            age: 50,
+                            gender: "Male",
+                            ticket: "113503",
+                            cabin: "C80",
+                            fare: "£211 10s",
+                            survived: false,
+                            biography: "Wealthy Philadelphia businessman and son of P.A.B. Widener, one of the wealthiest men in America.",
+                        }, {
+                            name: "Eleanor Widener",
+                            age: 50,
+                            gender: "Female",
+                            ticket: "113503",
+                            cabin: "C80",
+                            fare: "£211 10s",
+                            survived: true,
+                            biography: "Wife of George Widener who later donated the Widener Library to Harvard University in memory of her son Harry who also died in the sinking.",
+                        }, {
+                            name: "Harry Elkins Widener",
+                            age: 27,
+                            gender: "Male",
+                            ticket: "113503",
+                            cabin: "C80",
+                            fare: "£211 10s",
+                            survived: false,
+                            biography: "Book collector and Harvard graduate. The Harry Elkins Widener Memorial Library at Harvard was built in his memory.",
+                        }, ],
+                    }, {
+                        id: "grand_staircase_boat",
+                        name: "Grand Staircase (Boat Deck Level)",
+                        coordinates: "610,40,670,120",
+                        description: "The crowning level of Titanic's famous Grand Staircase, featuring an ornate glass dome overhead.",
+                        class: "first",
+                        capacity: 0,
+                        features: [
+                            "Oak Paneling",
+                            "Glass Dome",
+                            "Cherub Statue",
+                            "Ornate Clock",
+                            "Honor & Glory Crowning Time",
+                        ],
+                        historical_note: "The Grand Staircase was the primary entrance to first-class facilities and a symbol of the ship's elegance and grandeur.",
+                        passengers: [{
+                            name: "Isidor Straus",
+                            age: 67,
+                            gender: "Male",
+                            ticket: "PC 17483",
+                            cabin: "C55-C57",
+                            fare: "£221 15s 7d",
+                            survived: false,
+                            biography: "Co-owner of Macy's department store who refused to board a lifeboat while there were women and children still on the ship.",
+                        }, {
+                            name: "Ida Straus",
+                            age: 63,
+                            gender: "Female",
+                            ticket: "PC 17483",
+                            cabin: "C55-C57",
+                            fare: "£221 15s 7d",
+                            survived: false,
+                            biography: "Wife of Isidor Straus who famously refused to leave her husband, saying, 'Where you go, I go.'",
+                        }, ],
+                    }, {
+                        id: "lifeboats_port",
+                        name: "Lifeboats (Port Side)",
+                        coordinates: "100,20,700,40",
+                        description: "Location of lifeboats on the port (left) side of the ship, primarily loaded with 'women and children first'.",
+                        class: "crew",
+                        capacity: 0,
+                        features: [
+                            "8 Lifeboats",
+                            "Davits",
+                            "Boat Covers",
+                            "Emergency Supplies",
+                        ],
+                        historical_note: "The port side officer in charge (Lightoller) interpreted 'women and children first' as 'women and children only'. This resulted in many port lifeboats leaving with empty seats.",
+                        passengers: [],
+                    }, {
+                        id: "lifeboats_starboard",
+                        name: "Lifeboats (Starboard Side)",
+                        coordinates: "100,120,700,140",
+                        description: "Location of lifeboats on the starboard (right) side of the ship.",
+                        class: "crew",
+                        capacity: 0,
+                        features: [
+                            "8 Lifeboats",
+                            "Davits",
+                            "Boat Covers",
+                            "Emergency Supplies",
+                        ],
+                        historical_note: "The starboard side officer in charge (Murdoch) interpreted 'women and children first' to mean that women and children boarded first, but men could board if there was room. More men survived from the starboard side.",
+                        passengers: [],
+                    }, {
+                        id: "gymnasium",
+                        name: "Gymnasium",
+                        coordinates: "680,50,750,110",
+                        description: "Modern exercise facility with the latest fitness equipment for first-class passengers.",
+                        class: "first",
+                        capacity: 20,
+                        features: [
+                            "Rowing Machines",
+                            "Stationary Bicycles",
+                            "Electric Camels",
+                            "Electric Horses",
+                            "Punch Bags",
+                        ],
+                        historical_note: "The gym was supervised by Thomas McCawley, who charged a fee for using the equipment and gave personal instruction to passengers.",
+                        passengers: [{
+                            name: "Thomas McCawley",
+                            age: 36,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Gymnasium Instructor",
+                            survived: false,
+                            biography: "The gymnasium instructor who supervised the modern exercise equipment. Did not survive the sinking.",
+                        }, ],
+                    }, ],
+                },
+                a: {
+                    name: "A Deck (Promenade Deck)",
+                    description: "The highest full-length deck, featuring first-class staterooms, reading and writing rooms, and promenades.",
+                    rooms: [{
+                        id: "promenade_deck_a",
+                        name: "First Class Promenade",
+                        coordinates: "50,50,750,80",
+                        description: "A long, glass-enclosed walkway extending almost the entire length of the ship for first-class passengers.",
+                        class: "first",
+                        capacity: 400,
+                        features: [
+                            "Large Windows",
+                            "Deck Chairs",
+                            "Teak Flooring",
+                            "Shuffleboard Court",
+                            "Walking Area",
+                        ],
+                        historical_note: "This enclosed promenade allowed wealthy passengers to stroll comfortably regardless of weather, with spectacular views of the ocean.",
+                        passengers: [{
+                            name: "Colonel Archibald Gracie IV",
+                            age: 53,
+                            gender: "Male",
+                            ticket: "113780",
+                            cabin: "C51",
+                            fare: "£28 11s",
+                            survived: true,
+                            biography: "Survived by climbing onto an overturned lifeboat. Later wrote a detailed account of the disaster but died eight months later from complications of his ordeal.",
+                        }, {
+                            name: "Edith Corse Evans",
+                            age: 36,
+                            gender: "Female",
+                            ticket: "PC 17531",
+                            cabin: "A29",
+                            fare: "£26 5s 11d",
+                            survived: false,
+                            biography: "Reportedly gave up her chance to board a lifeboat, offering her place to another woman who had children.",
+                        }, {
+                            name: "Charlotte Wardle Cardeza",
+                            age: 58,
+                            gender: "Female",
+                            ticket: "PC 17755",
+                            cabin: "B51-B53-B55",
+                            fare: "£512 6s 7d",
+                            survived: true,
+                            biography: "Brought 14 trunks, 4 suitcases, and 3 crates of baggage containing 70 dresses and 10 fur coats valued at over $177,000 in today's currency.",
+                        }, ],
+                    }, {
+                        id: "reading_writing_room",
+                        name: "First Class Reading & Writing Room",
+                        coordinates: "500,100,650,200",
+                        description: "An elegant space primarily designed for female first-class passengers to read, write letters, and socialize.",
+                        class: "first",
+                        capacity: 60,
+                        features: [
+                            "Georgian Style Design",
+                            "Writing Desks",
+                            "Comfortable Seating",
+                            "Large Windows",
+                            "Stationery Supplies",
+                        ],
+                        historical_note: "Decorated in Georgian style, this room was used primarily by women during the day for reading, writing letters, and quiet conversation.",
+                        passengers: [{
+                            name: "Lucile, Lady Duff-Gordon",
+                            age: 48,
+                            gender: "Female",
+                            ticket: "PC 17485",
+                            cabin: "A20",
+                            fare: "£56 18s 7d",
+                            survived: true,
+                            biography: "Prominent fashion designer who survived in Lifeboat 1, which carried only 12 people despite having capacity for 40.",
+                        }, {
+                            name: "Edith Rosenbaum",
+                            age: 33,
+                            gender: "Female",
+                            ticket: "PC 17613",
+                            cabin: "A11",
+                            fare: "£50",
+                            survived: true,
+                            biography: "Fashion buyer who survived with her lucky toy pig musical box, which she initially refused to leave behind.",
+                        }, {
+                            name: "Helen Churchill Candee",
+                            age: 53,
+                            gender: "Female",
+                            ticket: "PC 17606",
+                            cabin: "A34",
+                            fare: "£27 14s 5d",
+                            survived: true,
+                            biography: "Author, journalist, and women's rights activist who later wrote about her Titanic experience.",
+                        }, ],
+                    }, {
+                        id: "grand_staircase_a",
+                        name: "Grand Staircase (A Deck Level)",
+                        coordinates: "400,130,480,200",
+                        description: "The magnificent staircase connecting the most opulent areas of the ship for first-class passengers.",
+                        class: "first",
+                        capacity: 0,
+                        features: [
+                            "Sweeping Steps",
+                            "Oak Paneling",
+                            "Wrought Iron Balustrades",
+                            "Carved Balustrades",
+                        ],
+                        historical_note: "The A Deck level of the Grand Staircase opened onto the most exclusive public rooms of the ship.",
+                        passengers: [],
+                    }, {
+                        id: "first_class_cabins_a",
+                        name: "First Class Cabins (A Deck)",
+                        coordinates: "100,100,390,200",
+                        description: "The most luxurious and expensive staterooms on the ship, featuring private promenade decks.",
+                        class: "first",
+                        capacity: 40,
+                        features: [
+                            "Private Promenade Decks",
+                            "Multiple Bedrooms",
+                            "Sitting Rooms",
+                            "Private Bathrooms",
+                            "Period Furnishings",
+                        ],
+                        historical_note: "These suites were the most expensive accommodations on Titanic, with tickets costing up to £870 (approximately $100,000 in today's currency).",
+                        passengers: [{
+                            name: "Thomas Andrews",
+                            age: 39,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Naval Architect",
+                            cabin: "A36",
+                            survived: false,
+                            biography: "Titanic's chief designer who was aboard to observe the ship's maiden voyage. After the collision, he inspected the damage and informed the captain the ship would sink.",
+                        }, {
+                            name: "Bruce Ismay",
+                            age: 49,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Chairman of White Star Line",
+                            cabin: "A32",
+                            survived: true,
+                            biography: "Managing director of White Star Line who survived in Collapsible C. Was heavily criticized for saving himself while women and children remained on board.",
+                        }, {
+                            name: "Sir Cosmo Duff-Gordon",
+                            age: 49,
+                            gender: "Male",
+                            ticket: "PC 17485",
+                            cabin: "A20",
+                            fare: "£56 18s 7d",
+                            survived: true,
+                            biography: "Wealthy Scottish baronet who escaped in Lifeboat 1 with his wife and her secretary. Later accused of bribing crew members not to return for survivors.",
+                        }, ],
+                    }, ],
+                },
+                b: {
+                    name: "B Deck (Bridge Deck)",
+                    description: "Home to luxurious first-class staterooms, including the famous Millionaire's Suites.",
+                    rooms: [{
+                        id: "millionaire_suites",
+                        name: "Millionaire's Suites (B-Deck)",
+                        coordinates: "100,50,300,150",
+                        description: "The four most expensive accommodations on the ship, featuring multiple rooms, private facilities, and exclusive decor.",
+                        class: "first",
+                        capacity: 16,
+                        features: [
+                            "Private Promenade Decks",
+                            "Sitting Rooms",
+                            "Wardrobes",
+                            "Marble Fireplaces",
+                            "Multiple Bedrooms",
+                            "Private Bathrooms",
+                        ],
+                        historical_note: "These four suites (B-52, B-54, B-56, and B-51/53/55) were the most luxurious on the ship. One was occupied by Charlotte Cardeza who paid the equivalent of over $60,000 in today's currency for her suite.",
+                        passengers: [{
+                            name: "John B. Thayer",
+                            age: 49,
+                            gender: "Male",
+                            ticket: "17421",
+                            cabin: "B52",
+                            fare: "£110 16s 6d",
+                            survived: false,
+                            biography: "Vice President of the Pennsylvania Railroad traveling with his wife and son. Did not survive but his wife and son did.",
+                        }, {
+                            name: "Marian Thayer",
+                            age: 39,
+                            gender: "Female",
+                            ticket: "17421",
+                            cabin: "B52",
+                            fare: "£110 16s 6d",
+                            survived: true,
+                            biography: "Wife of John B. Thayer who survived in Lifeboat 4. She became an active member of the Titanic Memorial Committee.",
+                        }, {
+                            name: "Jack Thayer",
+                            age: 17,
+                            gender: "Male",
+                            ticket: "17421",
+                            cabin: "B52",
+                            fare: "£110 16s 6d",
+                            survived: true,
+                            biography: "Son of John and Marian who survived by jumping from the ship and swimming to an overturned lifeboat (Collapsible B).",
+                        }, ],
+                    }, {
+                        id: "first_class_smoke_room",
+                        name: "First Class Smoking Room",
+                        coordinates: "350,50,550,150",
+                        description: "An elegant, men-only retreat for first-class gentlemen to smoke, drink, and socialize.",
+                        class: "first",
+                        capacity: 75,
+                        features: [
+                            "Georgian Style",
+                            "Leather Chairs",
+                            "Card Tables",
+                            "Fireplace",
+                            "Bar",
+                            "Dark Oak Paneling",
+                        ],
+                        historical_note: "This was a male-only space where wealthy men gathered after dinner for cigars, brandy, and conversation. It was one of the last places many prominent men were seen before the ship sank.",
+                        passengers: [{
+                            name: "Major Archibald Butt",
+                            age: 45,
+                            gender: "Male",
+                            ticket: "113050",
+                            cabin: "B38",
+                            fare: "£26 11s",
+                            survived: false,
+                            biography: "Military aide to Presidents Theodore Roosevelt and William Howard Taft. Last seen helping women and children into lifeboats.",
+                        }, {
+                            name: "Washington Roebling II",
+                            age: 31,
+                            gender: "Male",
+                            ticket: "PC 17590",
+                            cabin: "A24",
+                            fare: "£50 9s 3d",
+                            survived: false,
+                            biography: "President of John A. Roebling's Sons Co. and nephew of the Brooklyn Bridge designer. Was reportedly last seen in the smoking room.",
+                        }, {
+                            name: "William Thomas Stead",
+                            age: 62,
+                            gender: "Male",
+                            ticket: "113514",
+                            cabin: "C87",
+                            fare: "£27 14s 6d",
+                            survived: false,
+                            biography: "Prominent British journalist and editor. Ironically had written about ships sinking due to insufficient lifeboats years before.",
+                        }, ],
+                    }, {
+                        id: "first_class_cabins_b",
+                        name: "First Class Staterooms (B Deck)",
+                        coordinates: "600,50,750,200",
+                        description: "Luxury cabins for first-class passengers, most with private bathroom facilities.",
+                        class: "first",
+                        capacity: 108,
+                        features: [
+                            "Comfortable Beds",
+                            "Writing Desks",
+                            "Wardrobes",
+                            "Private Bathrooms",
+                            "Telephones",
+                            "Heating Controls",
+                        ],
+                        historical_note: "B Deck contained some of the most desired cabins outside the Millionaire's Suites, with most cabins having private bathrooms—a luxury at the time.",
+                        passengers: [{
+                            name: "Countess of Rothes",
+                            age: 33,
+                            gender: "Female",
+                            ticket: "110152",
+                            cabin: "B77",
+                            fare: "£86 10s",
+                            survived: true,
+                            biography: "Took command of Lifeboat 8, helping to organize rowing and keeping up morale. Helped row for hours until rescue.",
+                        }, {
+                            name: "Masabumi Hosono",
+                            age: 42,
+                            gender: "Male",
+                            ticket: "237798",
+                            cabin: "B13",
+                            fare: "£13",
+                            survived: true,
+                            biography: "The only Japanese passenger on the Titanic. He faced severe criticism in Japan for surviving while women and children perished.",
+                        }, {
+                            name: "Elsie Bowerman",
+                            age: 22,
+                            gender: "Female",
+                            ticket: "113505",
+                            cabin: "B32",
+                            fare: "£55",
+                            survived: true,
+                            biography: "Feminist, suffragette, and later the first woman barrister to appear at the Old Bailey in London. Survived in Lifeboat 6.",
+                        }, ],
+                    }, {
+                        id: "grand_staircase_b",
+                        name: "Grand Staircase (B Deck Level)",
+                        coordinates: "400,170,480,240",
+                        description: "The B Deck level of the Grand Staircase, connecting the Reception Room and the à la carte restaurant.",
+                        class: "first",
+                        capacity: 0,
+                        features: [
+                            "Oak Paneling",
+                            "Ornate Balustrades",
+                            "Large Landing",
+                            "Electric Lighting",
+                        ],
+                        historical_note: "The B Deck level of the Grand Staircase led directly to the Reception Room, where first-class passengers would gather before dinner.",
+                        passengers: [],
+                    }, {
+                        id: "first_class_dining_saloon",
+                        name: "First Class Dining Saloon Entry",
+                        coordinates: "390,170,600,240",
+                        description: "The entrance to the largest dining room on any ship of the era, descending to D Deck.",
+                        class: "first",
+                        capacity: 0,
+                        features: [
+                            "Reception Area",
+                            "Staircase to Dining Room",
+                            "Coat Check",
+                        ],
+                        historical_note: "First-class passengers would gather here before descending to the dining saloon on D Deck for meals.",
+                        passengers: [],
+                    }, ],
+                },
+                c: {
+                    name: "C Deck (Shelter Deck)",
+                    description: "Featured first and second-class cabins, with the second-class library and smoking room.",
+                    rooms: [{
+                        id: "first_class_cabins_c",
+                        name: "First Class Staterooms (C Deck)",
+                        coordinates: "100,50,400,150",
+                        description: "Luxury cabins with the highest room numbers for first-class passengers.",
+                        class: "first",
+                        capacity: 130,
+                        features: [
+                            "Comfortable Beds",
+                            "Writing Desks",
+                            "Wardrobes",
+                            "Private Bathrooms (in some)",
+                            "Telephones",
+                        ],
+                        historical_note: "While not as luxurious as A and B Deck staterooms, C Deck cabins were still elegant and comfortable with many modern amenities.",
+                        passengers: [{
+                            name: "Mrs. Lily Potter",
+                            age: 56,
+                            gender: "Female",
+                            ticket: "11767",
+                            cabin: "C50",
+                            fare: "£83 3s 5d",
+                            survived: true,
+                            biography: "Wealthy widow who was returning from vacation in Egypt and Palestine. Survived in Lifeboat 6.",
+                        }, {
+                            name: "Frank Warren",
+                            age: 60,
+                            gender: "Male",
+                            ticket: "110813",
+                            cabin: "C78",
+                            fare: "£75 5s",
+                            survived: false,
+                            biography: "Wealthy Portland businessman traveling with his wife. He insisted she board a lifeboat while he remained.",
+                        }, {
+                            name: "Anna Warren",
+                            age: 60,
+                            gender: "Female",
+                            ticket: "110813",
+                            cabin: "C78",
+                            fare: "£75 5s",
+                            survived: true,
+                            biography: "Wife of Frank Warren who survived in Lifeboat 5. She reported that her husband stood back calmly as she boarded.",
+                        }, ],
+                    }, {
+                        id: "second_class_library",
+                        name: "Second Class Library",
+                        coordinates: "450,50,600,150",
+                        description: "Reading and social room for second-class passengers, supplied with books and writing materials.",
+                        class: "second",
+                        capacity: 50,
+                        features: [
+                            "Bookcase",
+                            "Reading Tables",
+                            "Comfortable Chairs",
+                            "Writing Tables",
+                            "Windows",
+                        ],
+                        historical_note: "This was the main social center for second-class passengers, especially women who spent much of their time here reading or writing letters.",
+                        passengers: [{
+                            name: "Lawrence Beesley",
+                            age: 34,
+                            gender: "Male",
+                            ticket: "248698",
+                            cabin: "D56",
+                            fare: "£13",
+                            survived: true,
+                            biography: "Science teacher who survived and later wrote one of the most accurate accounts of the disaster in his book 'The Loss of the SS Titanic'.",
+                        }, {
+                            name: "Reverend John Harper",
+                            age: 39,
+                            gender: "Male",
+                            ticket: "248727",
+                            cabin: "C49",
+                            fare: "£13",
+                            survived: false,
+                            biography: "Baptist minister traveling with his daughter and niece. He put them in a lifeboat and spent his final hours preaching on the deck.",
+                        }, {
+                            name: "Annie Funk",
+                            age: 38,
+                            gender: "Female",
+                            ticket: "237671",
+                            cabin: "C125",
+                            fare: "£13",
+                            survived: false,
+                            biography: "Missionary returning from India who reportedly gave up her seat in a lifeboat to a mother and child.",
+                        }, ],
+                    }, {
+                        id: "second_class_smoking_room",
+                        name: "Second Class Smoking Room",
+                        coordinates: "650,50,750,150",
+                        description: "Men's social space for second-class passengers to smoke and socialize.",
+                        class: "second",
+                        capacity: 30,
+                        features: [
+                            "Oak Paneling",
+                            "Comfortable Chairs",
+                            "Card Tables",
+                            "Bar Service",
+                        ],
+                        historical_note: "This room was less opulent than its first-class counterpart but still provided a comfortable space for male second-class passengers.",
+                        passengers: [{
+                            name: "Charles Aldworth",
+                            age: 30,
+                            gender: "Male",
+                            ticket: "248744",
+                            cabin: "C118",
+                            fare: "£13",
+                            survived: false,
+                            biography: "First-class machinist on his way to a new job in the United States.",
+                        }, {
+                            name: "Benjamin Hart",
+                            age: 47,
+                            gender: "Male",
+                            ticket: "S.C.Hart 13529",
+                            cabin: "C111",
+                            fare: "£26 5s",
+                            survived: false,
+                            biography: "Builder traveling with his wife and daughter who both survived. He remained behind.",
+                        }, ],
+                    }, {
+                        id: "purser_office",
+                        name: "Purser's Office",
+                        coordinates: "400,180,480,240",
+                        description: "Administrative office managing passenger valuables, mail, and various passenger services.",
+                        class: "crew",
+                        capacity: 4,
+                        features: [
+                            "Service Counter",
+                            "Safe",
+                            "Administrative Records",
+                            "Ship's Mail",
+                        ],
+                        historical_note: "The purser was responsible for the ship's money, mail, and passenger valuables. Many passengers deposited their valuables here before the sinking.",
+                        passengers: [{
+                            name: "Hugh Walter McElroy",
+                            age: 37,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Chief Purser",
+                            survived: false,
+                            biography: "Veteran White Star Line purser who had been with the company for years. Went down with the ship.",
+                        }, {
+                            name: "Reginald Barker",
+                            age: 42,
+                            gender: "Male",
+                            ticket: "Officer",
+                            position: "Assistant Purser",
+                            survived: false,
+                            biography: "Assistant purser who helped manage passenger accounts and valuables.",
+                        }, ],
+                    }, {
+                        id: "second_class_cabins_c",
+                        name: "Second Class Staterooms (C Deck)",
+                        coordinates: "500,180,750,240",
+                        description: "Comfortable cabins for second-class passengers, most with 2-4 berths.",
+                        class: "second",
+                        capacity: 80,
+                        features: [
+                            "Twin Berths",
+                            "Washbasins",
+                            "Shared Bathrooms",
+                            "Storage Cabinets",
+                        ],
+                        historical_note: "Second-class accommodations on Titanic were comparable to first-class on many other ships of the era.",
+                        passengers: [{
+                            name: "Edwina Troutt",
+                            age: 27,
+                            gender: "Female",
+                            ticket: "34218",
+                            cabin: "C101",
+                            fare: "£10 10s",
+                            survived: true,
+                            biography: "Survived in Lifeboat 16. Later in life, she became a prominent Titanic survivor who often spoke about her experiences.",
+                        }, {
+                            name: "Michel Navratil",
+                            age: 36,
+                            gender: "Male",
+                            ticket: "230080",
+                            cabin: "C121",
+                            fare: "£26",
+                            survived: false,
+                            biography: "Traveling under the alias 'Louis Hoffman' after kidnapping his two sons from his estranged wife. He put his children on Lifeboat D but did not save himself.",
+                        }, {
+                            name: "Michel Navratil Jr.",
+                            age: 3,
+                            gender: "Male",
+                            ticket: "230080",
+                            cabin: "C121",
+                            fare: "£26",
+                            survived: true,
+                            biography: "Known as the 'Titanic Orphan' along with his brother. They were rescued without their father and eventually reunited with their mother.",
+                        }, ],
+                    }, ],
+                },
+                d: {
+                    name: "D Deck (Saloon Deck)",
+                    description: "The first full deck, containing the first-class dining saloon, second and third-class facilities, and the ship's galleys.",
+                    rooms: [{
+                        id: "first_class_dining_saloon_d",
+                        name: "First Class Dining Saloon",
+                        coordinates: "300,50,600,150",
+                        description: "The largest dining room on any ship of the era, capable of seating all first-class passengers in one sitting.",
+                        class: "first",
+                        capacity: 560,
+                        features: [
+                            "Jacobean Style Decor",
+                            "White Wall Panels",
+                            "Elegant Tables",
+                            "Comfortable Chairs",
+                            "Large Windows",
+                            "Grand Piano",
+                        ],
+                        historical_note: "The dining saloon was the center of first-class social life, with elaborate multi-course meals served on fine china with crystal glassware.",
+                        passengers: [{
+                            name: "Dorothy Gibson",
+                            age: 22,
+                            gender: "Female",
+                            ticket: "112378",
+                            cabin: "D38",
+                            fare: "£59 8s",
+                            survived: true,
+                            biography: "Silent film actress who starred in 'Saved From the Titanic,' the first film about the disaster, released just one month after the sinking.",
+                        }, {
+                            name: "Jacques Futrelle",
+                            age: 37,
+                            gender: "Male",
+                            ticket: "PC 17485",
+                            cabin: "D9",
+                            fare: "£53 2s",
+                            survived: false,
+                            biography: "Popular mystery writer best known for his 'Professor Van Dusen' stories. His wife survived but he remained on board.",
+                        }, {
+                            name: "Henry Sleeper Harper",
+                            age: 48,
+                            gender: "Male",
+                            ticket: "PC 17572",
+                            cabin: "D33",
+                            fare: "£76 14s 7d",
+                            survived: true,
+                            biography: "Publisher from the Harper & Brothers publishing family who survived in Lifeboat 3 along with his Pekingese dog.",
+                        }, ],
+                    }, {
+                        id: "ship_galleys",
+                        name: "Main Galleys & Kitchens",
+                        coordinates: "150,50,270,150",
+                        description: "The main food preparation areas serving the first and second-class dining rooms.",
+                        class: "crew",
+                        capacity: 60,
+                        features: [
+                            "Coal-Fired Ranges",
+                            "Serving Areas",
+                            "Cold Storage",
+                            "Bakery",
+                            "Preparation Tables",
+                        ],
+                        historical_note: "The galleys were staffed around the clock to serve meals and refreshments. The main kitchen was capable of preparing meals for over 2,000 people.",
+                        passengers: [{
+                            name: "Charles Joughin",
+                            age: 33,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Chief Baker",
+                            survived: true,
+                            biography: "Famously survived by drinking whiskey and stepping into the water at the last possible moment. The alcohol may have helped prevent hypothermia.",
+                        }, {
+                            name: "Paul Mauge",
+                            age: 35,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Kitchen Worker (À La Carte Restaurant)",
+                            survived: true,
+                            biography: "One of only three survivors from the staff of the À La Carte Restaurant (out of 66 employees).",
+                        }, ],
+                    }, {
+                        id: "second_class_dining_saloon",
+                        name: "Second Class Dining Saloon",
+                        coordinates: "650,50,750,150",
+                        description: "The dining room for second-class passengers, nearly as elegant as first-class on most other ships.",
+                        class: "second",
+                        capacity: 400,
+                        features: [
+                            "Oak Paneling",
+                            "Swivel Chairs",
+                            "White Linens",
+                            "Serving Stations",
+                        ],
+                        historical_note: "Second-class dining on Titanic was comparable to first-class on many other ships, with excellent service and high-quality meals.",
+                        passengers: [{
+                            name: "Juliette Laroche",
+                            age: 22,
+                            gender: "Female",
+                            ticket: "SC/Paris 2123",
+                            cabin: "D17",
+                            fare: "£41 11s 7d",
+                            survived: true,
+                            biography: "One of the few Black passengers on Titanic, traveling with her husband and two daughters. She and her daughters survived.",
+                        }, {
+                            name: "Joseph Laroche",
+                            age: 25,
+                            gender: "Male",
+                            ticket: "SC/Paris 2123",
+                            cabin: "D17",
+                            fare: "£41 11s 7d",
+                            survived: false,
+                            biography: "One of the few Black passengers on Titanic. An engineer returning to Haiti with his family after facing racism in France.",
+                        }, ],
+                    }, {
+                        id: "third_class_open_space",
+                        name: "Third Class Open Space",
+                        coordinates: "150,180,300,240",
+                        description: "General recreation and relaxation area for third-class passengers.",
+                        class: "third",
+                        capacity: 100,
+                        features: ["Open Space", "Benches", "Basic Facilities"],
+                        historical_note: "While more basic than first or second-class public areas, these spaces provided important social and relaxation areas for third-class passengers.",
+                        passengers: [{
+                            name: "Margaret Rice",
+                            age: 39,
+                            gender: "Female",
+                            ticket: "382652",
+                            cabin: "D",
+                            fare: "£29 2s 6d",
+                            survived: false,
+                            biography: "Widow traveling with her five young sons, ages 2 to 10. None of the family survived.",
+                        }, {
+                            name: "Eugene Daly",
+                            age: 29,
+                            gender: "Male",
+                            ticket: "349912",
+                            cabin: "D",
+                            fare: "£7 15s",
+                            survived: true,
+                            biography: "Irish passenger who played Irish pipes on the deck as the ship departed Queenstown. Survived in Collapsible B.",
+                        }, ],
+                    }, {
+                        id: "reception_room",
+                        name: "Reception Room",
+                        coordinates: "350,180,450,240",
+                        description: "Elegant space outside the first-class dining saloon where passengers would gather before dinner.",
+                        class: "first",
+                        capacity: 100,
+                        features: [
+                            "Fine Furnishings",
+                            "Grand Piano",
+                            "Comfortable Seating",
+                            "Ornate Ceiling",
+                        ],
+                        historical_note: "This room was where first-class passengers would gather before dinner, often to enjoy music played by the ship's band.",
+                        passengers: [{
+                            name: "Wallace Hartley",
+                            age: 33,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Bandmaster",
+                            survived: false,
+                            biography: "Led the band that famously played as the ship sank to help keep passengers calm. All eight band members perished.",
+                        }, {
+                            name: "Roger Bricoux",
+                            age: 20,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Cellist",
+                            survived: false,
+                            biography: "Youngest member of the ship's band, who continued playing with his colleagues as the ship went down.",
+                        }, ],
+                    }, {
+                        id: "first_class_cabins_d",
+                        name: "First Class Cabins (D Deck)",
+                        coordinates: "500,180,600,240",
+                        description: "Staterooms for first-class passengers, still luxurious though not as spacious as those on higher decks.",
+                        class: "first",
+                        capacity: 60,
+                        features: [
+                            "Beds",
+                            "Wardrobes",
+                            "Washbasins",
+                            "Electric Lighting",
+                            "Heating Controls",
+                        ],
+                        historical_note: "Many prominent passengers had cabins on D Deck, which was still considered very desirable due to its proximity to the dining saloon and other amenities.",
+                        passengers: [{
+                            name: "Mauritz Håkan Björnström-Steffansson",
+                            age: 28,
+                            gender: "Male",
+                            ticket: "110564",
+                            cabin: "D56",
+                            fare: "£26 11s",
+                            survived: true,
+                            biography: "Swedish businessman who later filed the largest financial claim for the disaster, for $100,000 (about $2.4 million today) for a lost painting.",
+                        }, {
+                            name: "Renée-Marie Harris",
+                            age: 35,
+                            gender: "Female",
+                            ticket: "PC 17558",
+                            cabin: "D12",
+                            fare: "£221 15s 7d",
+                            survived: true,
+                            biography: "Wife of Broadway producer Henry B. Harris, who put her in a lifeboat but perished himself.",
+                        }, ],
+                    }, {
+                        id: "third_class_dining_saloon",
+                        name: "Third Class Dining Saloon",
+                        coordinates: "650,180,750,240",
+                        description: "Cafeteria-style dining hall for third-class passengers, divided into separate sections for single men, and families/women.",
+                        class: "third",
+                        capacity: 430,
+                        features: [
+                            "Long Tables",
+                            "Bench Seating",
+                            "Basic Tableware",
+                            "Serving Counters",
+                        ],
+                        historical_note: "Though basic compared to first and second-class facilities, the third-class dining on Titanic was of much higher quality than most emigrants would have experienced at home.",
+                        passengers: [{
+                            name: "Frank Goldsmith",
+                            age: 9,
+                            gender: "Male",
+                            ticket: "363291",
+                            cabin: "F",
+                            fare: "£20 10s 6d",
+                            survived: true,
+                            biography: "Young boy traveling with his parents. He survived but his father did not. Later wrote a memoir titled 'Echoes from the Titanic'.",
+                        }, {
+                            name: "Jamila Yazbeck",
+                            age: 15,
+                            gender: "Female",
+                            ticket: "2626",
+                            cabin: "D",
+                            fare: "£14 4s 6d",
+                            survived: true,
+                            biography: "Lebanese immigrant traveling with her father, who did not survive. She was rescued in Lifeboat 16.",
+                        }, ],
+                    }, ],
+                },
+                e: {
+                    name: "E Deck (Upper Deck)",
+                    description: "Contained third-class and some second-class cabins, along with crew quarters and machinery spaces.",
+                    rooms: [{
+                        id: "second_class_cabins_e",
+                        name: "Second Class Cabins (E Deck)",
+                        coordinates: "150,50,350,150",
+                        description: "Comfortable cabins for second-class passengers, many with four berths.",
+                        class: "second",
+                        capacity: 140,
+                        features: [
+                            "Bunk Beds",
+                            "Washbasins",
+                            "Shared Bathrooms",
+                            "Basic Furniture",
+                        ],
+                        historical_note: "Some of these cabins were originally designed as third-class cabins but were upgraded to second-class before the maiden voyage.",
+                        passengers: [{
+                            name: "Eva Hart",
+                            age: 7,
+                            gender: "Female",
+                            ticket: "S.C.Hart 13529",
+                            cabin: "E49",
+                            fare: "£26 5s",
+                            survived: true,
+                            biography: "Young girl who survived with her mother. Her father put them in a lifeboat but went down with the ship. She became a prominent Titanic survivor.",
+                        }, {
+                            name: "Esther Hart",
+                            age: 45,
+                            gender: "Female",
+                            ticket: "S.C.Hart 13529",
+                            cabin: "E49",
+                            fare: "£26 5s",
+                            survived: true,
+                            biography: "Mother of Eva Hart who wrote a letter on Titanic stationary on the day of the disaster. The letter survived because it was in her husband's coat which she was wearing.",
+                        }, ],
+                    }, {
+                        id: "third_class_cabins_e_women",
+                        name: "Third Class Cabins - Women & Families (E Deck)",
+                        coordinates: "400,50,600,150",
+                        description: "Cabins designated for female third-class passengers and families.",
+                        class: "third",
+                        capacity: 200,
+                        features: [
+                            "Bunk Beds",
+                            "Basic Furnishings",
+                            "Shared Facilities",
+                        ],
+                        historical_note: "Third-class accommodations on Titanic were divided by gender, with women and families separated from single men.",
+                        passengers: [{
+                            name: "Mary Mangan",
+                            age: 30,
+                            gender: "Female",
+                            ticket: "364850",
+                            cabin: "E",
+                            fare: "£7 15s",
+                            survived: false,
+                            biography: "Irish emigrant traveling with her two sisters, all of whom perished in the disaster.",
+                        }, {
+                            name: "Catherine McGowan",
+                            age: 42,
+                            gender: "Female",
+                            ticket: "9232",
+                            cabin: "E",
+                            fare: "£7 15s",
+                            survived: false,
+                            biography: "Irish woman emigrating to start a new life in America after her husband died. Did not survive the sinking.",
+                        }, ],
+                    }, {
+                        id: "mail_room",
+                        name: "Mail Room",
+                        coordinates: "650,50,750,150",
+                        description: "Storage and sorting area for the 3,423 sacks of mail carried on the Titanic.",
+                        class: "crew",
+                        capacity: 5,
+                        features: ["Mail Sacks", "Sorting Tables", "Storage Areas"],
+                        historical_note: "Titanic was carrying over 7 million pieces of mail in 3,423 sacks. All five postal clerks aboard died trying to save the mail by moving it to higher decks.",
+                        passengers: [{
+                            name: "John Richard Jago Smith",
+                            age: 35,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Postal Clerk",
+                            survived: false,
+                            biography: "British postal clerk who died helping to move mail sacks to higher decks after the collision.",
+                        }, {
+                            name: "James Bertram Williamson",
+                            age: 35,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Postal Clerk",
+                            survived: false,
+                            biography: "American postal clerk who was seen helping to rescue mail bags as water flooded the mail room.",
+                        }, ],
+                    }, {
+                        id: "crew_cabins_e",
+                        name: "Crew Cabins (E Deck)",
+                        coordinates: "150,180,300,240",
+                        description: "Accommodations for various crew members, including stewards and stewardesses.",
+                        class: "crew",
+                        capacity: 60,
+                        features: ["Bunk Beds", "Minimal Storage", "Shared Facilities"],
+                        historical_note: "Crew accommodations were basic but still better than on many other ships of the era.",
+                        passengers: [{
+                            name: "Violet Jessop",
+                            age: 24,
+                            gender: "Female",
+                            ticket: "Staff",
+                            position: "First Class Stewardess",
+                            survived: true,
+                            biography: "Remarkably survived the sinking of both Titanic and Britannic (Titanic's sister ship). Later wrote a memoir of her experiences.",
+                        }, {
+                            name: "Annie Robinson",
+                            age: 40,
+                            gender: "Female",
+                            ticket: "Staff",
+                            position: "First Class Stewardess",
+                            survived: true,
+                            biography: "Stewardess who jumped from a lifeboat that was being lowered because she thought it was unsafe, only to be rescued by another lifeboat.",
+                        }, ],
+                    }, {
+                        id: "third_class_cabins_e_men",
+                        name: "Third Class Cabins - Men (E Deck)",
+                        coordinates: "350,180,600,240",
+                        description: "Cabins designated for male third-class passengers.",
+                        class: "third",
+                        capacity: 300,
+                        features: [
+                            "Bunk Beds",
+                            "Basic Furnishings",
+                            "Shared Facilities",
+                        ],
+                        historical_note: "Men in third class had the lowest survival rate of any group aboard, partly due to their location deep in the ship.",
+                        passengers: [{
+                            name: "Daniel Buckley",
+                            age: 21,
+                            gender: "Male",
+                            ticket: "330920",
+                            cabin: "E",
+                            fare: "£7 15s",
+                            survived: true,
+                            biography: "Irish emigrant who survived by hiding under a shawl in a lifeboat so officers would think he was a woman.",
+                        }, {
+                            name: "Olaus Abelseth",
+                            age: 25,
+                            gender: "Male",
+                            ticket: "348122",
+                            cabin: "E",
+                            fare: "£7 13s",
+                            survived: true,
+                            biography: "Norwegian-American who survived by swimming in the freezing water and climbing aboard Collapsible A.",
+                        }, ],
+                    }, {
+                        id: "propulsion_electric",
+                        name: "Electric Generator Room",
+                        coordinates: "650,180,750,240",
+                        description: "Contains the steam turbine and electric generators that powered the ship's systems.",
+                        class: "crew",
+                        capacity: 20,
+                        features: [
+                            "Steam Turbine",
+                            "Dynamos",
+                            "Electrical Switchboards",
+                            "Control Equipment",
+                        ],
+                        historical_note: "Titanic's electrical plant was the largest afloat in 1912, generating power equivalent to that used by a city of 50,000 people.",
+                        passengers: [{
+                            name: "William Kelly",
+                            age: 23,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Assistant Electrician",
+                            survived: false,
+                            biography: "One of the electricians who stayed at his post maintaining power for the lights and wireless until the very end.",
+                        }, {
+                            name: "Alfred Samuel Allsop",
+                            age: 34,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Electrician",
+                            survived: false,
+                            biography: "One of the electrical engineers who helped keep lights and power running until the final moments.",
+                        }, ],
+                    }, ],
+                },
+                f: {
+                    name: "F Deck (Middle Deck)",
+                    description: "Mostly third-class accommodations, along with crew areas and machinery spaces.",
+                    rooms: [{
+                        id: "third_class_cabins_f_men",
+                        name: "Third Class Cabins - Men (F Deck)",
+                        coordinates: "150,50,350,150",
+                        description: "Basic accommodations for male third-class passengers.",
+                        class: "third",
+                        capacity: 300,
+                        features: ["Bunk Beds", "Minimal Storage", "Shared Facilities"],
+                        historical_note: "These cabins typically held four to six men in bunk beds. Many of these passengers never made it to the boat deck due to confusing layouts and restricted access.",
+                        passengers: [{
+                            name: "Carl Jansson",
+                            age: 21,
+                            gender: "Male",
+                            ticket: "350034",
+                            cabin: "F",
+                            fare: "£7 15s 11d",
+                            survived: true,
+                            biography: "Swedish emigrant who managed to survive despite the low survival rate for men in third class.",
+                        }, {
+                            name: "Karl Gaskell",
+                            age: 21,
+                            gender: "Male",
+                            ticket: "315151",
+                            cabin: "F",
+                            fare: "£7 15s",
+                            survived: false,
+                            biography: "English third-class passenger who worked as a printer. Did not survive the sinking.",
+                        }, ],
+                    }, {
+                        id: "third_class_cabins_f_women",
+                        name: "Third Class Cabins - Women & Families (F Deck)",
+                        coordinates: "400,50,600,150",
+                        description: "Basic accommodations for female third-class passengers and families.",
+                        class: "third",
+                        capacity: 250,
+                        features: ["Bunk Beds", "Minimal Storage", "Shared Facilities"],
+                        historical_note: "These cabins, while basic, were cleaner and more comfortable than accommodations on most emigrant ships of the era.",
+                        passengers: [{
+                            name: "Catherine Buckley",
+                            age: 18,
+                            gender: "Female",
+                            ticket: "329944",
+                            cabin: "F",
+                            fare: "£7 16s 2d",
+                            survived: true,
+                            biography: "Irish emigrant traveling with the 'Addergoole Fourteen,' a group from County Mayo. Only three survived.",
+                        }, {
+                            name: "Mary Kelly",
+                            age: 22,
+                            gender: "Female",
+                            ticket: "330911",
+                            cabin: "F",
+                            fare: "£7 15s",
+                            survived: true,
+                            biography: "Irish woman emigrating to the United States. Was rescued in Lifeboat 16.",
+                        }, ],
+                    }, {
+                        id: "turkish_bath",
+                        name: "Turkish Bath & Swimming Pool",
+                        coordinates: "650,50,750,150",
+                        description: "Luxury spa facility with heated pools, steam rooms, and cooling rooms for first-class passengers.",
+                        class: "first",
+                        capacity: 20,
+                        features: [
+                            "Moorish Design",
+                            "Heated Pool",
+                            "Steam Rooms",
+                            "Cooling Rooms",
+                            "Massage Tables",
+                        ],
+                        historical_note: "An elaborate facility with ornate Arabic décor, one of the most luxurious amenities available exclusively to first-class passengers.",
+                        passengers: [{
+                            name: "Thomas McCawley",
+                            age: 36,
+                            gender: "Male",
+                            ticket: "Staff",
+                            position: "Bath Steward",
+                            survived: false,
+                            biography: "Responsible for managing the Turkish bath and swimming pool facilities.",
+                        }, ],
+                    }, {
+                        id: "boiler_rooms_access",
+                        name: "Boiler Room Access",
+                        coordinates: "150,180,350,240",
+                        description: "Access corridors and stairways leading to the boiler rooms on lower decks.",
+                        class: "crew",
+                        capacity: 0,
+                        features: [
+                            "Narrow Corridors",
+                            "Steep Stairs",
+                            "Access Hatches",
+                        ],
+                        historical_note: "These access ways were how the stokers, trimmers, and engineers moved between their work areas and accommodations.",
+                        passengers: [],
+                    }, {
+                        id: "third_class_common_room",
+                        name: "Third Class General Room",
+                        coordinates: "400,180,600,240",
+                        description: "The main public space for third-class passengers to socialize.",
+                        class: "third",
+                        capacity: 100,
+                        features: ["Long Tables", "Benches", "Piano", "Open Space"],
+                        historical_note: "This was where many third-class passengers gathered for entertainment, including the famous party on the night of the sinking.",
+                        passengers: [{
+                            name: "Kate Mullins",
+                            age: 19,
+                            gender: "Female",
+                            ticket: "35852",
+                            cabin: "F",
+                            fare: "£7 14s 8d",
+                            survived: false,
+                            biography: "Irish immigrant who was reportedly last seen dancing in the third-class general room after the collision.",
+                        }, {
+                            name: "Patrick Dooley",
+                            age: 32,
+                            gender: "Male",
+                            ticket: "370376",
+                            cabin: "F",
+                            fare: "£7 15s",
+                            survived: false,
+                            biography: "Irish third-class passenger who played the pipes during the third-class party on the night of the sinking.",
+                        }, ],
+                    }, {
+                        id: "third_class_washrooms",
+                        name: "Third Class Bathrooms & Washrooms",
+                        coordinates: "650,180,750,240",
+                        description: "Shared washing and toilet facilities for third-class passengers.",
+                        class: "third",
+                        capacity: 0,
+                        features: ["Sinks", "Toilets", "Cold Water Taps"],
+                        historical_note: "While basic by today's standards, having running water and flushing toilets was a luxury for many emigrants of the time.",
+                        passengers: [],
+                    }, ],
+                },
+                g: {
+                    name: "G Deck (Lower Deck)",
+                    description: "The lowest passenger deck, containing mostly third-class cabins and cargo.",
+                    rooms: [{
+                        id: "third_class_cabins_g",
+                        name: "Third Class Cabins (G Deck)",
+                        coordinates: "150,50,350,150",
+                        description: "The lowest passenger accommodations on the ship, closest to the engine noise.",
+                        class: "third",
+                        capacity: 400,
+                        features: ["Bunk Beds", "Minimal Storage", "Shared Facilities"],
+                        historical_note: "These cabins were located near the bow of the ship, which took the direct impact of the iceberg collision.",
+                        passengers: [{
+                            name: "Johan Svensson",
+                            age: 25,
+                            gender: "Male",
+                            ticket: "347060",
+                            cabin: "G",
+                            fare: "£7 15s 6d",
+                            survived: false,
+                            biography: "Swedish farmer emigrating to the United States. His cabin was in an area directly impacted by the iceberg.",
+                        }, {
+                            name: "Alma Pålsson",
+                            age: 29,
+                            gender: "Female",
+                            ticket: "349909",
+                            cabin: "G",
+                            fare: "£21 13s 9d",
+                            survived: false,
+                            biography: "Swedish mother traveling with her four children to join her husband in Chicago. All five perished.",
+                        }, ],
+                    }, {
+                        id: "forward_cargo",
+                        name: "Forward Cargo Hold",
+                        coordinates: "400,50,600,150",
+                        description: "Large storage area for mail, baggage, and general cargo.",
+                        class: "crew",
+                        capacity: 0,
+                        features: ["Cargo Cranes", "Storage Racks", "Loading Hatches"],
+                        historical_note: "Among the cargo were luxury automobiles, fine wines, clothing, food items, and industrial machinery.",
+                        passengers: [],
+                    }, {
+                        id: "refrigerated_cargo",
+                        name: "Refrigerated Cargo",
+                        coordinates: "650,50,750,150",
+                        description: "Cold storage for perishable food items.",
+                        class: "crew",
+                        capacity: 0,
+                        features: [
+                            "Insulated Walls",
+                            "Cooling Systems",
+                            "Storage Shelves",
+                        ],
+                        historical_note: "The Titanic carried thousands of pounds of fresh meat, produce, and dairy products in its refrigerated compartments.",
+                        passengers: [],
+                    }, {
+                        id: "coal_bunkers",
+                        name: "Coal Bunkers",
+                        coordinates: "150,180,350,240",
+                        description: "Storage areas for the 6,000 tons of coal needed to power the ship.",
+                        class: "crew",
+                        capacity: 0,
+                        features: ["Coal Piles", "Conveyor Systems", "Access Hatches"],
+                        historical_note: "A fire had been smoldering in one of the coal bunkers for days before the ship sailed, which some theories suggest may have weakened the hull in the area struck by the iceberg.",
+                        passengers: [],
+                    }, {
+                        id: "boiler_rooms_g",
+                        name: "Boiler Room Access",
+                        coordinates: "400,180,600,240",
+                        description: "Access points to the massive boiler rooms below.",
+                        class: "crew",
+                        capacity: 0,
+                        features: ["Ladders", "Hatches", "Supply Storage"],
+                        historical_note: "The boiler rooms were arranged in a line along the ship's center and manned by 'Black Gang' workers who shoveled coal into the furnaces.",
+                        passengers: [],
+                    }, {
+                        id: "fresh_water_tanks",
+                        name: "Fresh Water Tanks",
+                        coordinates: "650,180,750,240",
+                        description: "Storage tanks for the ship's fresh water supply.",
+                        class: "crew",
+                        capacity: 0,
+                        features: [
+                            "Large Tanks",
+                            "Pumping System",
+                            "Distribution Pipes",
+                        ],
+                        historical_note: "Titanic carried over 14,000 gallons of fresh water for drinking, cooking, and the swimming pool.",
+                        passengers: [],
+                    }, ],
+                },
+            },
+        };
+
+        const deckSvgTemplates = {
+            boat: `
+              <svg width="800" height="400" viewBox="0 0 800 300">
+
+                <!-- Bridge -->
+                <rect id="bridge" x="50" y="50" width="100" height="60" class="room room-crew" data-room-id="bridge"/>
+                <text x="100" y="75" text-anchor="middle" fill="#333" font-size="10">Bridge</text>
+
+                <!-- Officers' Quarters -->
+                <rect id="officers_quarters" x="160" y="50" width="90" height="60" class="room room-crew" data-room-id="officers_quarters"/>
+                <text x="210" y="75" text-anchor="middle" fill="#333" font-size="10">Officers</text>
+
+                <!-- Marconi Room -->
+                <rect id="marconi_room" x="270" y="50" width="90" height="60" class="room room-crew" data-room-id="marconi_room"/>
+                <text x="320" y="75" text-anchor="middle" fill="#333" font-size="10">Wireless</text>
+
+                <!-- First Class Lounge -->
+                <rect id="first_class_lounge" x="380" y="50" width="90" height="60" class="room room-first-class" data-room-id="first_class_lounge"/>
+                <text x="430" y="75" text-anchor="middle" fill="#333" font-size="10">First Class</text>
+
+                <!-- A La Carte Restaurant -->
+                <rect id="a_la_carte_restaurant" x="490" y="50" width="90" height="60" class="room room-first-class" data-room-id="a_la_carte_restaurant"/>
+                <text x="540" y="75" text-anchor="middle" fill="#333" font-size="10">À La Carte</text>
+
+                <!-- Grand Staircase -->
+                <rect id="grand_staircase_boat" x="600" y="50" width="90" height="60" class="room room-first-class" data-room-id="grand_staircase_boat"/>
+                <text x="650" y="75" text-anchor="middle" fill="#333" font-size="10">Grand Staircase</text>
+
+                <!-- Gymnasium -->
+                <rect id="gymnasium" x="710" y="50" width="90" height="60" class="room room-first-class" data-room-id="gymnasium"/>
+                <text x="760" y="75" text-anchor="middle" fill="#333" font-size="10">Gymnasium</text>
+
+
+                <!-- Lifeboats Port -->
+                <rect id="lifeboats_port" x="100" y="20" width="600" height="20" class="room room-crew" data-room-id="lifeboats_port"/>
+                <text x="400" y="32" text-anchor="middle" fill="#333" font-size="8">Lifeboats (Port)</text>
+
+                <!-- Lifeboats Starboard -->
+                <rect id="lifeboats_starboard" x="100" y="120" width="600" height="20" class="room room-crew" data-room-id="lifeboats_starboard"/>
+                <text x="400" y="132" text-anchor="middle" fill="#333" font-size="8">Lifeboats (Starboard)</text>
+
+                <!-- Deck label -->
+                <text x="400" y="180" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">Boat Deck</text>
+              </svg>
+          `,
+            a: `
+              <svg width="800" height="300" viewBox="0 0 800 300">
+
+                <!-- First Class Promenade -->
+                <rect id="promenade_deck_a" x="50" y="50" width="700" height="30" class="room room-first-class" data-room-id="promenade_deck_a"/>
+                <text x="400" y="70" text-anchor="middle" fill="#333" font-size="12">First Class Promenade</text>
+
+                <!-- Reading & Writing Room -->
+                <rect id="reading_writing_room" x="75" y="100" width="150" height="80" class="room room-first-class" data-room-id="reading_writing_room"/>
+                <text x="150" y="140" text-anchor="middle" fill="#333" font-size="12">Reading & Writing</text>
+
+                <!-- Grand Staircase A Deck -->
+                <rect id="grand_staircase_a" x="265" y="100" width="150" height="80" class="room room-first-class" data-room-id="grand_staircase_a"/>
+                <text x="340" y="140" text-anchor="middle" fill="#333" font-size="12">Grand Staircase</text>
+
+                <!-- First Class Cabins A-Deck -->
+                <rect id="first_class_cabins_a" x="455" y="100" width="150" height="80" class="room room-first-class" data-room-id="first_class_cabins_a"/>
+                <text x="530" y="140" text-anchor="middle" fill="#333" font-size="12">First Class Cabins</text>
+
+                <!-- Deck label -->
+                <text x="400" y="230" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">A Deck (Promenade Deck)</text>
+              </svg>
+          `,
+            b: `
+              <svg width="800" height="350" viewBox="0 0 800 350">
+
+                <!-- Millionaire Suites -->
+                <rect id="millionaire_suites" x="100" y="50" width="120" height="80" class="room room-first-class" data-room-id="millionaire_suites"/>
+                <text x="160" y="90" text-anchor="middle" fill="#333" font-size="10">Millionaire's Suites</text>
+
+                <!-- First Class Smoking Room -->
+                <rect id="first_class_smoke_room" x="230" y="50" width="120" height="80" class="room room-first-class" data-room-id="first_class_smoke_room"/>
+                <text x="290" y="90" text-anchor="middle" fill="#333" font-size="10">First Class Smoking Room</text>
+
+                <!-- First Class Cabins B-Deck -->
+                <rect id="first_class_cabins_b" x="360" y="50" width="120" height="80" class="room room-first-class" data-room-id="first_class_cabins_b"/>
+                <text x="420" y="90" text-anchor="middle" fill="#333" font-size="10">First Class Cabins</text>
+
+                <!-- Grand Staircase B Deck -->
+                <rect id="grand_staircase_b" x="490" y="150" width="110" height="80" class="room room-first-class" data-room-id="grand_staircase_b"/>
+                <text x="550" y="190" text-anchor="middle" fill="#333" font-size="10">Grand Staircase</text>
+
+                <!-- First Class Dining Saloon Entry -->
+                <rect id="first_class_dining_saloon" x="610" y="150" width="120" height="80" class="room room-first-class" data-room-id="first_class_dining_saloon"/>
+                <text x="670" y="190" text-anchor="middle" fill="#333" font-size="10">Dining Saloon Entry</text>
+
+
+
+                  <!-- Deck label -->
+                  <text x="400" y="270" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">B Deck (Bridge Deck)</text>
+              </svg>
+          `,
+            c: `
+              <svg width="800" height="350" viewBox="0 0 800 350">
+
+                <!-- First Class Cabins C-Deck -->
+                <rect id="first_class_cabins_c" x="100" y="50" width="150" height="80" class="room room-first-class" data-room-id="first_class_cabins_c"/>
+                <text x="175" y="90" text-anchor="middle" fill="#333" font-size="10">First Class Cabins</text>
+
+                <!-- Second Class Library -->
+                <rect id="second_class_library" x="275" y="50" width="150" height="80" class="room room-second-class" data-room-id="second_class_library"/>
+                <text x="350" y="90" text-anchor="middle" fill="#333" font-size="10">Second Class Library</text>
+
+                <!-- Second Class Smoking Room -->
+                <rect id="second_class_smoking_room" x="450" y="50" width="150" height="80" class="room room-second-class" data-room-id="second_class_smoking_room"/>
+                <text x="525" y="90" text-anchor="middle" fill="#333" font-size="8">Second Class Smoking Room</text>
+
+                <!-- Purser's Office -->
+                <rect id="purser_office" x="100" y="150" width="150" height="80" class="room room-crew" data-room-id="purser_office"/>
+                <text x="175" y="190" text-anchor="middle" fill="#333" font-size="10">Purser</text>
+
+                <!-- Second Class Cabins C-Deck -->
+                <rect id="second_class_cabins_c" x="275" y="150" width="150" height="80" class="room room-second-class" data-room-id="second_class_cabins_c"/>
+                <text x="350" y="190" text-anchor="middle" fill="#333" font-size="10">Second Class Cabins</text>
+
+                <!-- Deck label -->
+                <text x="400" y="300" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">C Deck (Shelter Deck)</text>
+
+            </svg>
+
+          `,
+            d: `
+            <svg width="800" height="350" viewBox="0 0 800 350">
+
+                <!-- First Class Dining Saloon -->
+                <rect id="first_class_dining_saloon_d" x="150" y="50" width="120" height="80" class="room room-first-class" data-room-id="first_class_dining_saloon_d"/>
+                <text x="210" y="90" text-anchor="middle" fill="#333" font-size="10">First Class Dining</text>
+
+                <!-- Galleys & Kitchens -->
+                <rect id="ship_galleys" x="325" y="50" width="120" height="80" class="room room-crew" data-room-id="ship_galleys"/>
+                <text x="385" y="90" text-anchor="middle" fill="#333" font-size="10">Galleys</text>
+
+                <!-- Second Class Dining Saloon -->
+                <rect id="second_class_dining_saloon" x="500" y="50" width="120" height="80" class="room room-second-class" data-room-id="second_class_dining_saloon"/>
+                <text x="560" y="90" text-anchor="middle" fill="#333" font-size="8">Second Class Dining</text>
+
+                <!-- Third Class Open Space -->
+                <rect id="third_class_open_space" x="150" y="150" width="120" height="80" class="room room-third-class" data-room-id="third_class_open_space"/>
+                <text x="210" y="190" text-anchor="middle" fill="#333" font-size="10">Third Class Space</text>
+
+                <!-- Reception Room -->
+                <rect id="reception_room" x="325" y="150" width="120" height="80" class="room room-first-class" data-room-id="reception_room"/>
+                <text x="385" y="190" text-anchor="middle" fill="#333" font-size="10">Reception</text>
+
+                <!-- First Class Cabins D-Deck -->
+                <rect id="first_class_cabins_d" x="500" y="150" width="120" height="80" class="room room-first-class" data-room-id="first_class_cabins_d"/>
+                <text x="560" y="190" text-anchor="middle" fill="#333" font-size="10">First Class</text>
+
+                <!-- Third Class Dining Saloon -->
+                <rect id="third_class_dining_saloon" x="675" y="150" width="120" height="80" class="room room-third-class" data-room-id="third_class_dining_saloon"/>
+                <text x="735" y="190" text-anchor="middle" fill="#333" font-size="8">Third Class Dining</text>
+
+                <!-- Deck label -->
+                <text x="400" y="300" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">D Deck (Saloon Deck)</text>
+
+            </svg>
+
+          `,
+            e: `
+              <svg width="800" height="300" viewBox="0 0 800 300">
+
+                  <!-- Second Class Cabins E-Deck -->
+                  <rect id="second_class_cabins_e" x="150" y="50" width="200" height="100" class="room room-second-class" data-room-id="second_class_cabins_e"/>
+                  <text x="250" y="100" text-anchor="middle" fill="#333" font-size="10">Second Class Cabins</text>
+
+                  <!-- Third Class Cabins - Women & Families -->
+                  <rect id="third_class_cabins_e_women" x="400" y="50" width="200" height="100" class="room room-third-class" data-room-id="third_class_cabins_e_women"/>
+                  <text x="500" y="100" text-anchor="middle" fill="#333" font-size="10">Third Class - Women & Families</text>
+
+                  <!-- Mail Room -->
+                  <rect id="mail_room" x="650" y="50" width="100" height="100" class="room room-crew" data-room-id="mail_room"/>
+                  <text x="700" y="100" text-anchor="middle" fill="#333" font-size="10">Mail Room</text>
+
+                  <!-- Crew Cabins -->
+                  <rect id="crew_cabins_e" x="150" y="180" width="150" height="60" class="room room-crew" data-room-id="crew_cabins_e"/>
+                  <text x="225" y="210" text-anchor="middle" fill="#333" font-size="10">Crew Cabins</text>
+
+                  <!-- Third Class Cabins - Men -->
+                  <rect id="third_class_cabins_e_men" x="350" y="180" width="250" height="60" class="room room-third-class" data-room-id="third_class_cabins_e_men"/>
+                  <text x="475" y="210" text-anchor="middle" fill="#333" font-size="10">Third Class - Men</text>
+
+                  <!-- Electric Generator Room -->
+                  <rect id="propulsion_electric" x="650" y="180" width="100" height="60" class="room room-crew" data-room-id="propulsion_electric"/>
+                  <text x="700" y="210" text-anchor="middle" fill="#333" font-size="8">Electric Generators</text>
+
+                  <!-- Deck label -->
+                  <text x="400" y="270" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">E Deck (Upper Deck)</text>
+              </svg>
+          `,
+            f: `
+              <svg width="800" height="300" viewBox="0 0 800 300">
+
+                  <!-- Third Class Cabins - Men -->
+                  <rect id="third_class_cabins_f_men" x="150" y="50" width="200" height="100" class="room room-third-class" data-room-id="third_class_cabins_f_men"/>
+                  <text x="250" y="100" text-anchor="middle" fill="#333" font-size="10">Third Class - Men</text>
+
+                  <!-- Third Class Cabins - Women & Families -->
+                  <rect id="third_class_cabins_f_women" x="400" y="50" width="200" height="100" class="room room-third-class" data-room-id="third_class_cabins_f_women"/>
+                  <text x="500" y="100" text-anchor="middle" fill="#333" font-size="10">Third Class - Women & Families</text>
+
+                  <!-- Turkish Bath & Pool -->
+                  <rect id="turkish_bath" x="650" y="50" width="100" height="100" class="room room-first-class" data-room-id="turkish_bath"/>
+                  <text x="700" y="100" text-anchor="middle" fill="#333" font-size="8">Turkish Bath & Pool</text>
+
+                  <!-- Boiler Room Access -->
+                  <rect id="boiler_rooms_access" x="150" y="180" width="200" height="60" class="room room-crew" data-room-id="boiler_rooms_access"/>
+                  <text x="250" y="210" text-anchor="middle" fill="#333" font-size="10">Boiler Room Access</text>
+
+                  <!-- Third Class Common Room -->
+                  <rect id="third_class_common_room" x="400" y="180" width="200" height="60" class="room room-third-class" data-room-id="third_class_common_room"/>
+                  <text x="500" y="210" text-anchor="middle" fill="#333" font-size="10">Third Class General Room</text>
+
+                  <!-- Third Class Washrooms -->
+                  <rect id="third_class_washrooms" x="650" y="180" width="100" height="60" class="room room-third-class" data-room-id="third_class_washrooms"/>
+                  <text x="700" y="210" text-anchor="middle" fill="#333" font-size="10">Washrooms</text>
+
+                  <!-- Deck label -->
+                  <text x="400" y="270" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">F Deck (Middle Deck)</text>
+              </svg>
+          `,
+            g: `
+              <svg width="800" height="300" viewBox="0 0 800 300">
+
+                  <!-- Third Class Cabins G-Deck -->
+                  <rect id="third_class_cabins_g" x="150" y="50" width="200" height="100" class="room room-third-class" data-room-id="third_class_cabins_g"/>
+                  <text x="250" y="100" text-anchor="middle" fill="#333" font-size="10">Third Class Cabins</text>
+
+                  <!-- Forward Cargo Hold -->
+                  <rect id="forward_cargo" x="400" y="50" width="200" height="100" class="room room-crew" data-room-id="forward_cargo"/>
+                  <text x="500" y="100" text-anchor="middle" fill="#333" font-size="10">Forward Cargo Hold</text>
+
+                  <!-- Refrigerated Cargo -->
+                  <rect id="refrigerated_cargo" x="650" y="50" width="100" height="100" class="room room-crew" data-room-id="refrigerated_cargo"/>
+                  <text x="700" y="100" text-anchor="middle" fill="#333" font-size="8">Refrigerated Cargo</text>
+
+                  <!-- Coal Bunkers -->
+                  <rect id="coal_bunkers" x="150" y="180" width="200" height="60" class="room room-crew" data-room-id="coal_bunkers"/>
+                  <text x="250" y="210" text-anchor="middle" fill="#333" font-size="10">Coal Bunkers</text>
+
+                  <!-- Boiler Room Access -->
+                  <rect id="boiler_rooms_g" x="400" y="180" width="200" height="60" class="room room-crew" data-room-id="boiler_rooms_g"/>
+                  <text x="500" y="210" text-anchor="middle" fill="#333" font-size="10">Boiler Room Access</text>
+
+                  <!-- Fresh Water Tanks -->
+                  <rect id="fresh_water_tanks" x="650" y="180" width="100" height="60" class="room room-crew" data-room-id="fresh_water_tanks"/>
+                  <text x="700" y="210" text-anchor="middle" fill="#333" font-size="8">Fresh Water Tanks</text>
+
+                  <!-- Deck label -->
+                  <text x="400" y="270" text-anchor="middle" fill="#333" font-size="12" font-weight="bold">G Deck (Lower Deck)</text>
+              </svg>
+          `,
+        };
+
+        // Initialize application
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set up initial variables
+            let currentDeck = "boat";
+            let currentZoom = 1;
+            let panOffset = {
+                x: 0,
+                y: 0,
+            };
+            let isDragging = false;
+            let lastMousePosition = {
+                x: 0,
+                y: 0,
+            };
+            const shipView = document.getElementById("ship-view");
+
+            // Initialize the view with the Boat Deck
+            renderDeck(currentDeck);
+
+            // Deck selection event listeners
+            document.querySelectorAll(".deck-btn").forEach((btn) => {
+                btn.addEventListener("click", function() {
+                    const deck = this.getAttribute("data-deck");
+                    currentDeck = deck;
+
+                    // Update active button
+                    document
+                        .querySelectorAll(".deck-btn")
+                        .forEach((b) => b.classList.remove("active"));
+                    this.classList.add("active");
+
+                    // Reset zoom and pan
+                    currentZoom = 1;
+                    panOffset = {
+                        x: 0,
+                        y: 0,
+                    };
+
+                    // Render the selected deck
+                    renderDeck(deck);
+
+                    // Update UI
+                    document.getElementById("deck-name").textContent =
+                        shipData.decks[deck].name;
+                    document.getElementById("room-info").style.display = "none";
+                });
+            });
+
+            // Zoom controls
+            document
+                .getElementById("zoom-in")
+                .addEventListener("click", function() {
+                    if (currentZoom < 3) {
+                        currentZoom += 0.25;
+                        applyTransform();
+                    }
+                });
+
+            document
+                .getElementById("zoom-out")
+                .addEventListener("click", function() {
+                    if (currentZoom > 0.5) {
+                        currentZoom -= 0.25;
+                        applyTransform();
+                    }
+                });
+
+            document
+                .getElementById("zoom-reset")
+                .addEventListener("click", function() {
+                    currentZoom = 1;
+                    panOffset = {
+                        x: 0,
+                        y: 0,
+                    };
+                    applyTransform();
+                });
+
+            // Pan functionality
+            shipView.addEventListener("mousedown", function(e) {
+                if (
+                    e.target.classList.contains("ship-view") ||
+                    e.target.tagName === "svg"
+                ) {
+                    isDragging = true;
+                    lastMousePosition = {
+                        x: e.clientX,
+                        y: e.clientY,
+                    };
+                }
+            });
+
+            document.addEventListener("mousemove", function(e) {
+                if (isDragging) {
+                    const dx = e.clientX - lastMousePosition.x;
+                    const dy = e.clientY - lastMousePosition.y;
+
+                    panOffset.x += dx;
+                    panOffset.y += dy;
+
+                    lastMousePosition = {
+                        x: e.clientX,
+                        y: e.clientY,
+                    };
+                    applyTransform();
+                }
+            });
+
+            document.addEventListener("mouseup", function() {
+                isDragging = false;
+            });
+
+            // Apply zoom and pan transformations
+            function applyTransform() {
+                const svg = shipView.querySelector("svg");
+                if (svg) {
+                    svg.style.transform = `scale(${currentZoom}) translate(${
+              panOffset.x / currentZoom
+            }px, ${panOffset.y / currentZoom}px)`;
+                }
+            }
+
+            // Tooltip functionality
+            const tooltip = document.getElementById("tooltip");
+
+            // Handle manifest button click
+            document
+                .getElementById("view-manifest")
+                .addEventListener("click", function() {
+                    alert(
+                        "Passenger manifest feature is under development. The full list of over 2,200 passengers will be available in a future update."
+                    );
+                });
+
+            // Handle journey timeline button click
+            document
+                .getElementById("view-journey")
+                .addEventListener("click", function() {
+                    alert(
+                        "Journey timeline feature is under development. A detailed timeline of Titanic's voyage from Southampton to the sinking will be available in a future update."
+                    );
+                });
+
+            // Handle 3D view button click
+            document
+                .getElementById("view-3d")
+                .addEventListener("click", function() {
+                    alert(
+                        "3D view feature is under development. A virtual 3D tour of the Titanic will be available in a future update."
+                    );
+                });
+
+            // Render the specified deck
+            function renderDeck(deck) {
+                // Get deck data
+                const deckData = shipData.decks[deck];
+                if (!deckData) return;
+
+                // Update title
+                document.getElementById("deck-name").textContent = deckData.name;
+
+                // Render SVG
+                shipView.innerHTML = deckSvgTemplates[deck];
+
+                // Attach room event listeners
+                attachRoomListeners();
+            }
+
+            function attachRoomListeners() {
+                document.querySelectorAll(".room").forEach((room) => {
+                    room.addEventListener("click", function() {
+                        const roomId = this.getAttribute("data-room-id");
+                        const roomData = findRoomById(roomId);
+                        if (roomData) {
+                            displayRoomInfo(roomData);
+                        }
+                    });
+
+                    room.addEventListener("mousemove", function(e) {
+                        const roomId = this.getAttribute("data-room-id");
+                        const roomData = findRoomById(roomId);
+                        if (roomData) {
+                            tooltip.style.opacity = 1;
+                            tooltip.style.left = `${e.pageX + 10}px`;
+                            tooltip.style.top = `${e.pageY + 10}px`;
+                            tooltip.textContent = roomData.name;
+                        }
+                    });
+
+                    room.addEventListener("mouseout", function() {
+                        tooltip.style.opacity = 0;
+                    });
+                });
+            }
+
+            function findRoomById(roomId) {
+                const deck = shipData.decks[currentDeck];
+                return deck.rooms.find((room) => room.id === roomId);
+            }
+
+            function displayRoomInfo(roomData) {
+                const roomInfoSection = document.getElementById("room-info");
+                const roomTitle = document.getElementById("room-title");
+                const roomDetails = document.getElementById("room-details");
+                const passengersList = document.getElementById("passengers-list");
+
+                roomInfoSection.style.display = "block";
+                roomTitle.textContent = roomData.name;
+
+                // Set room details
+                let detailsHTML = `
+                  <p><strong>Location:</strong> ${
+                    shipData.decks[currentDeck].name
+                  }</p>
+                  <p><strong>Class:</strong> ${
+                    roomData.class === "first"
+                      ? "First Class"
+                      : roomData.class === "second"
+                      ? "Second Class"
+                      : roomData.class === "third"
+                      ? "Third Class"
+                      : "Crew Area"
+                  }</p>
+                  <p><strong>Description:</strong> ${roomData.description}</p>
+              `;
+
+                if (roomData.features && roomData.features.length > 0) {
+                    detailsHTML += `<p><strong>Features:</strong> ${roomData.features.join(
+              ", "
+            )}</p>`;
+                }
+
+                if (roomData.capacity > 0) {
+                    detailsHTML += `<p><strong>Capacity:</strong> ${roomData.capacity} persons</p>`;
+                }
+
+                if (roomData.historical_note) {
+                    detailsHTML += `
+                      <div class="historical-note">
+                          <strong>Historical Note:</strong> ${roomData.historical_note}
+                      </div>
+                  `;
+                }
+
+                roomDetails.innerHTML = detailsHTML;
+
+                // Display passengers
+                passengersList.innerHTML = "";
+
+                if (roomData.passengers && roomData.passengers.length > 0) {
+                    // Sort passengers: women first, then by age
+                    const sortedPassengers = [...roomData.passengers].sort((a, b) => {
+                        if (a.gender === "Female" && b.gender === "Male") return -1;
+                        if (a.gender === "Male" && b.gender === "Female") return 1;
+                        return a.age - b.age;
+                    });
+
+                    sortedPassengers.forEach((passenger) => {
+                        const cardEl = document.createElement("div");
+                        cardEl.className = `passenger-card ${
+                passenger.survived ? "passenger-survived" : "passenger-deceased"
+              }`;
+
+                        let passHTML = `
+                          <div class="passenger-header">
+                              <div class="passenger-name">${
+                                passenger.name
+                              }</div>
+                              <div class="survival-status ${
+                                passenger.survived
+                                  ? "status-survived"
+                                  : "status-deceased"
+                              }">
+                                  ${
+                                    passenger.survived ? "Survived" : "Deceased"
+                                  }
+                              </div>
+                          </div>
+                          <div class="passenger-details">
+                              <div><strong>Age:</strong> ${passenger.age}</div>
+                              <div><strong>Gender:</strong> ${
+                                passenger.gender
+                              }</div>
+                      `;
+
+                        if (passenger.position) {
+                            passHTML += `<div><strong>Position:</strong> ${passenger.position}</div>`;
+                        }
+
+                        if (
+                            passenger.ticket &&
+                            passenger.ticket !== "Staff" &&
+                            passenger.ticket !== "Officer"
+                        ) {
+                            passHTML += `<div><strong>Ticket No:</strong> ${passenger.ticket}</div>`;
+                        }
+
+                        if (passenger.cabin) {
+                            passHTML += `<div><strong>Cabin:</strong> ${passenger.cabin}</div>`;
+                        }
+
+                        if (passenger.fare) {
+                            passHTML += `<div><strong>Fare:</strong> ${passenger.fare}</div>`;
+                        }
+
+                        if (passenger.biography) {
+                            passHTML += `<div class="passenger-bio"><em>${passenger.biography}</em></div>`;
+                        }
+
+                        passHTML += `</div>`;
+                        cardEl.innerHTML = passHTML;
+                        passengersList.appendChild(cardEl);
+                    });
+                } else {
+                    passengersList.innerHTML =
+                        "<p>No specific passenger information available for this location.</p>";
+                }
+
+                // Scroll to the room info
+                roomInfoSection.scrollIntoView({
+                    behavior: "smooth",
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,967 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coral Reef Segmentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/marked@4.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#34D399',
+                        'coral-red': '#FF6B6B',
+                        'coral-blue': '#4EA8DE',
+                        'coral-green': '#34D399',
+                        'dark-bg': '#181818',
+                        'light-bg': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'slide-in': 'slideIn 0.8s ease-out',
+                        'scale-in': 'scaleIn 0.5s ease-out',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                    },
+                    boxShadow: {
+                        'subtle': '0 5px 15px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 5px 15px rgba(255, 255, 255, 0.03)',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #5D5CDE 0%, #7879F1 100%);
+        }
+        
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(90deg, #5D5CDE, #7879F1);
+        }
+        
+        .dark .text-gradient {
+            background-image: linear-gradient(90deg, #7879F1, #A5A6FF);
+        }
+        
+        .section-transition {
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+        
+        .scroll-element {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .scroll-element.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .sticky-nav {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .hero-image-mask {
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0));
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0));
+        }
+        
+        .metric-card {
+            transition: all 0.3s ease-out;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .dark .bg-white/10 {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark .border-gray-200 {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .perspective-container {
+            perspective: 1000px;
+        }
+        
+        .card-3d {
+            transition: transform 0.5s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .dark .shadow-xl {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-output-container {
+            min-height: 200px;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(to right, #f6f6f6 8%, #f0f0f0 18%, #f6f6f6 33%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        
+        .dark .loading-shimmer {
+            background: linear-gradient(to right, #262626 8%, #303030 18%, #262626 33%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+    </style>
+</head>
+<body class="bg-light-bg dark:bg-dark-bg text-slate-800 dark:text-slate-200 antialiased">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 sticky-nav bg-white/80 dark:bg-dark-bg/80 border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex-shrink-0 flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="font-display font-bold text-lg">Coral Reef AI</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#about" class="px-3 py-2 font-medium text-sm hover:text-primary dark:hover:text-primary transition-colors">About</a>
+                    <a href="#technology" class="px-3 py-2 font-medium text-sm hover:text-primary dark:hover:text-primary transition-colors">Technology</a>
+                    <a href="#results" class="px-3 py-2 font-medium text-sm hover:text-primary dark:hover:text-primary transition-colors">Results</a>
+                    <a href="#demo" class="px-3 py-2 font-medium text-sm hover:text-primary dark:hover:text-primary transition-colors">Demo</a>
+                    <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <!-- Sun icon for dark mode -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <!-- Moon icon for light mode -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center">
+        <div class="absolute inset-0 overflow-hidden z-0">
+            <div class="hero-image-mask absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/5 dark:from-primary/5 dark:to-secondary/5"></div>
+            <div class="absolute inset-0 opacity-30 dark:opacity-20 hero-image-mask" id="particleCanvas"></div>
+        </div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6 space-y-8 animate-fade-in">
+                    <h1 class="text-4xl md:text-6xl font-display font-bold tracking-tight">
+                        Advanced <span class="text-gradient">Coral Reef</span> Segmentation
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Preserving marine biodiversity through AI-powered image segmentation and analysis.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#technology" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium text-center transition-colors shadow-lg shadow-primary/20 hover:shadow-primary/30">
+                            Explore Technology
+                        </a>
+                        <a href="#demo" class="px-8 py-3 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-gray-200 dark:border-gray-700 rounded-lg font-medium text-center transition-colors">
+                            Try Demo
+                        </a>
+                    </div>
+                    <div class="flex flex-wrap gap-4 pt-6">
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-coral-red/10 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-coral-red" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">SAM2 Architecture</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-coral-blue/10 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-coral-blue" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">98% Accuracy</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="h-10 w-10 rounded-full bg-coral-green/10 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-coral-green" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">Automated Analysis</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-6 perspective-container">
+                    <div class="w-full h-[500px] bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-2xl overflow-hidden card-3d animate-scale-in relative">
+                        <img src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?q=80&amp;w=1000" alt="Coral Reef" class="w-full h-full object-cover" id="heroImage">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                            <div class="text-white">
+                                <div class="text-xs font-semibold uppercase tracking-wider mb-2">Case Study</div>
+                                <h3 class="text-2xl font-bold mb-2">Florida Keys Reef Monitoring</h3>
+                                <p class="text-white/90 text-sm">Advanced segmentation for identifying and tracking coral species diversity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-element">
+                <h2 class="text-3xl font-display font-bold mb-6">About the Project</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Our coral reef segmentation project leverages advanced computer vision techniques to identify, track, and analyze coral species in the Florida Keys. This data is crucial for marine conservation efforts and monitoring reef health over time.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-8 scroll-element">
+                    <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Computer Vision</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Using state-of-the-art segmentation models to detect and isolate individual coral specimens within complex underwater imagery.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-8 scroll-element">
+                    <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Data Collection</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Gathering and preprocessing high-quality underwater imagery from various locations throughout the Florida Keys marine sanctuary.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-8 scroll-element">
+                    <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Analysis</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Transforming visual data into ecological insights through metrics like species diversity, coverage area, and health indicators.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="scroll-element">
+                    <img src="https://images.unsplash.com/photo-1621902898703-e057568dc0f9?q=80&amp;w=1000" alt="Coral Reef Research" class="w-full h-auto rounded-xl shadow-xl">
+                </div>
+                <div class="space-y-6 scroll-element">
+                    <h3 class="text-2xl font-bold">Conservation Impact</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Coral reefs are among the most biodiverse and economically valuable ecosystems on Earth, but they face unprecedented threats from climate change, pollution, and physical damage.
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Our AI-powered segmentation tools enable researchers and conservation organizations to:
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mt-0.5 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Monitor changes in reef structure and composition over time</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mt-0.5 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Track coral bleaching events and recovery patterns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mt-0.5 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Identify priority areas for conservation intervention</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary mt-0.5 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Measure the effectiveness of restoration projects</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology" class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-element">
+                <h2 class="text-3xl font-display font-bold mb-6">Our Technology</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    We've implemented a cutting-edge computer vision pipeline based on the Segment Anything Model 2 (SAM2) to achieve high-precision coral identification and segmentation.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                <div class="lg:col-span-1 space-y-6 self-center scroll-element">
+                    <h3 class="text-2xl font-bold">SAM2 Architecture</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Our implementation utilizes the Segment Anything Model 2 (SAM2) with a Hiera Large backbone, pretrained on diverse image datasets and fine-tuned for underwater imagery.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span>Real-time segmentation capability</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span>Multi-mask output for ambiguous regions</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13 7H7v6h6V7z"></path>
+                                    <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <span>Prompt-guided segmentation for precision</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 scroll-element">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <h4 class="text-lg font-semibold">SAM2 Inference Pipeline</h4>
+                        </div>
+                        <div class="p-6">
+                            <div class="w-full overflow-x-auto">
+                                <img src="https://raw.githubusercontent.com/facebookresearch/segment-anything/main/assets/pipeline.jpg" alt="SAM Pipeline" class="w-full h-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 scroll-element">
+                    <h4 class="text-lg font-bold mb-4">Image Preprocessing</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Our pipeline enhances underwater imagery through histogram equalization, color normalization, and noise reduction to improve segmentation accuracy.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 scroll-element">
+                    <h4 class="text-lg font-bold mb-4">Data Augmentation</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        We employ multiple augmentation techniques including flips, rotations, and contrast adjustments to improve model robustness to varied conditions.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 scroll-element">
+                    <h4 class="text-lg font-bold mb-4">Bounding Box Detection</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Initial bounding boxes are provided as prompts for the SAM2 model to generate precise segmentation masks for each coral specimen.
+                    </p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 scroll-element">
+                    <h4 class="text-lg font-bold mb-4">Post-processing</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Advanced contour refinement and noise filtering ensure accurate boundary detection and eliminate segmentation artifacts in the final output.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-element">
+                <h2 class="text-3xl font-display font-bold mb-6">Results &amp; Metrics</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Our segmentation model achieves state-of-the-art performance on coral identification, with detailed quantitative metrics showcasing accuracy across diverse species.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 metric-card scroll-element">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M14.243 5.757a6 6 0 10-.986 9.284 1 1 0 111.087 1.678A8 8 0 1118 10a3 3 0 01-4.8 2.401A4 4 0 1114 10a1 1 0 102 0c0-1.537-.586-3.07-1.757-4.243zM12 10a2 2 0 10-4 0 2 2 0 004 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="text-4xl font-bold mb-2">98.2%</div>
+                        <div class="text-gray-600 dark:text-gray-400 text-sm">Mean Intersection over Union (mIoU)</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 metric-card scroll-element">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="text-4xl font-bold mb-2">96.7%</div>
+                        <div class="text-gray-600 dark:text-gray-400 text-sm">Mean Average Precision (mAP)</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 metric-card scroll-element">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="text-4xl font-bold mb-2">94.3%</div>
+                        <div class="text-gray-600 dark:text-gray-400 text-sm">F1 Score</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden scroll-element">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h4 class="text-lg font-semibold">Segmentation Visualization</h4>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <img src="https://images.unsplash.com/photo-1590132289059-b92b8c20bd88?q=80&amp;w=500" alt="Original Image" class="w-full h-auto rounded-lg">
+                                <p class="text-center text-sm mt-2 text-gray-600 dark:text-gray-400">Original</p>
+                            </div>
+                            <div>
+                                <img src="https://cdn.jsdelivr.net/gh/facebookresearch/segment-anything@main/assets/masks1.png" alt="Segmented Image" class="w-full h-auto rounded-lg">
+                                <p class="text-center text-sm mt-2 text-gray-600 dark:text-gray-400">Segmented</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="scroll-element">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold mb-6">Performance by Category</h3>
+                        <div class="h-64">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">Brain Coral</span>
+                                <span class="text-sm font-medium">98.5%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: 98.5%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">Staghorn Coral</span>
+                                <span class="text-sm font-medium">96.2%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: 96.2%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">Elkhorn Coral</span>
+                                <span class="text-sm font-medium">94.7%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: 94.7%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium">Fire Coral</span>
+                                <span class="text-sm font-medium">92.5%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-primary h-2 rounded-full" style="width: 92.5%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 scroll-element">
+                <h2 class="text-3xl font-display font-bold mb-6">Interactive Demo</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Experience the power of our coral reef segmentation technology with this interactive demo. Upload an image or use one of our samples to see the model in action.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-subtle dark:shadow-subtle-dark p-6 scroll-element">
+                    <h3 class="text-xl font-bold mb-6">Configuration</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="sampleImage" class="block text-sm font-medium mb-2">Sample Image</label>
+                            <select id="sampleImage" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-900 text-base">
+                                <option value="sample1">Florida Keys - Sample 1</option>
+                                <option value="sample2">Florida Keys - Sample 2</option>
+                                <option value="sample3">Florida Keys - Sample 3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="modelType" class="block text-sm font-medium mb-2">Model Type</label>
+                            <select id="modelType" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-900 text-base">
+                                <option value="large">SAM2 Hiera Large (Default)</option>
+                                <option value="base">SAM2 Hiera Base</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="predictionThreshold" class="block text-sm font-medium mb-2">
+                                Prediction Threshold: <span id="thresholdValue">0.5</span>
+                            </label>
+                            <input type="range" id="predictionThreshold" min="0.1" max="0.9" step="0.1" value="0.5" class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" id="showBoundingBoxes" class="rounded text-primary focus:ring-primary">
+                                <span>Show Bounding Boxes</span>
+                            </label>
+                        </div>
+                        <button id="runSegmentation" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-colors shadow-lg shadow-primary/20">
+                            Run Segmentation
+                        </button>
+                        <div class="text-center">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">or</span>
+                        </div>
+                        <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                            <input type="file" id="uploadImage" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <div class="space-y-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <div class="text-sm font-medium">Upload your own image</div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 scroll-element">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden h-full">
+                        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <h4 class="text-lg font-semibold">Segmentation Results</h4>
+                            <div id="processingStatus" class="text-sm font-medium text-gray-500 dark:text-gray-400">Ready</div>
+                        </div>
+                        <div class="p-6 demo-output-container">
+                            <div id="resultContainer" class="grid grid-cols-1 gap-4">
+                                <div id="imagePreview" class="relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-lg flex items-center justify-center">
+                                    <div class="text-gray-400 dark:text-gray-600 text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p>Select a sample or upload an image to begin</p>
+                                    </div>
+                                </div>
+                                <div id="segmentationResult" class="hidden relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-lg"></div>
+                                <div id="detectedSpecies" class="hidden p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                    <h5 class="font-medium mb-2">Detected Species</h5>
+                                    <div id="speciesList" class="space-y-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 dark:bg-gray-900 py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="font-display font-bold text-lg">Coral Reef AI</span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4 max-w-sm">
+                        Advancing marine conservation through AI-powered coral reef segmentation and analysis.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="font-bold text-lg mb-6">Resources</h5>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">GitHub Repository</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Research Papers</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Tutorials</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold text-lg mb-6">Contact</h5>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Email Us</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Twitter</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">LinkedIn</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-800 pt-8 text-center">
+                <p class="text-gray-600 dark:text-gray-400 text-sm">
+                    © 2023 Coral Reef AI. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // Scroll animation
+        function handleScrollAnimation() {
+            const elements = document.querySelectorAll('.scroll-element');
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                // If element is in viewport
+                if(position.top < window.innerHeight - 100) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', handleScrollAnimation);
+        window.addEventListener('load', handleScrollAnimation);
+        
+        // 3D card effect
+        const card3d = document.querySelector('.card-3d');
+        
+        if (card3d) {
+            card3d.addEventListener('mousemove', e => {
+                const cardRect = card3d.getBoundingClientRect();
+                const x = e.clientX - cardRect.left;
+                const y = e.clientY - cardRect.top;
+                
+                const rotateY = (x / cardRect.width - 0.5) * 10;
+                const rotateX = (y / cardRect.height - 0.5) * -10;
+                
+                card3d.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card3d.addEventListener('mouseleave', () => {
+                card3d.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        }
+        
+        // Threshold value display
+        const thresholdSlider = document.getElementById('predictionThreshold');
+        const thresholdDisplay = document.getElementById('thresholdValue');
+        
+        thresholdSlider.addEventListener('input', () => {
+            thresholdDisplay.textContent = thresholdSlider.value;
+        });
+        
+        // Sample image selection
+        const sampleSelector = document.getElementById('sampleImage');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        function updateSampleImage() {
+            const selectedSample = sampleSelector.value;
+            let imageUrl;
+            
+            // These are placeholder URLs - in a real implementation,
+            // you would have actual sample images hosted somewhere
+            switch(selectedSample) {
+                case 'sample1':
+                    imageUrl = 'https://images.unsplash.com/photo-1590132289059-b92b8c20bd88?q=80&w=500';
+                    break;
+                case 'sample2':
+                    imageUrl = 'https://images.unsplash.com/photo-1622481886447-3b953b2e99ab?q=80&w=500';
+                    break;
+                case 'sample3':
+                    imageUrl = 'https://images.unsplash.com/photo-1546026423-cc4642628d2b?q=80&w=500';
+                    break;
+                default:
+                    imageUrl = 'https://images.unsplash.com/photo-1590132289059-b92b8c20bd88?q=80&w=500';
+            }
+            
+            imagePreview.innerHTML = `<img src="${imageUrl}" alt="Coral Reef Sample" class="w-full h-full object-cover rounded-lg">`;
+            document.getElementById('segmentationResult').classList.add('hidden');
+            document.getElementById('detectedSpecies').classList.add('hidden');
+        }
+        
+        sampleSelector.addEventListener('change', updateSampleImage);
+        
+        // File upload handler
+        const uploadInput = document.getElementById('uploadImage');
+        
+        uploadInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image" class="w-full h-full object-cover rounded-lg">`;
+                    document.getElementById('segmentationResult').classList.add('hidden');
+                    document.getElementById('detectedSpecies').classList.add('hidden');
+                };
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // Run segmentation
+        const runButton = document.getElementById('runSegmentation');
+        const processingStatus = document.getElementById('processingStatus');
+        const segmentationResult = document.getElementById('segmentationResult');
+        const detectedSpecies = document.getElementById('detectedSpecies');
+        const speciesList = document.getElementById('speciesList');
+        
+        runButton.addEventListener('click', async () => {
+            // This is a simulation of the segmentation process
+            processingStatus.textContent = 'Processing...';
+            processingStatus.classList.add('text-primary');
+            
+            // Simulate loading time
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Show results
+            const currentImage = imagePreview.querySelector('img')?.src || '';
+            
+            if (!currentImage) {
+                processingStatus.textContent = 'Error: No image selected';
+                processingStatus.classList.add('text-red-500');
+                return;
+            }
+            
+            segmentationResult.innerHTML = `
+                <img src="https://cdn.jsdelivr.net/gh/facebookresearch/segment-anything@main/assets/masks3.png" alt="Segmentation Result" class="w-full h-full object-cover rounded-lg">
+            `;
+            segmentationResult.classList.remove('hidden');
+            
+            // Display detected species
+            detectedSpecies.classList.remove('hidden');
+            
+            // Sample species data
+            const sampleSpecies = [
+                { name: 'Brain Coral', confidence: 0.97, color: '#FF6B6B' },
+                { name: 'Staghorn Coral', confidence: 0.95, color: '#4EA8DE' },
+                { name: 'Elkhorn Coral', confidence: 0.89, color: '#34D399' },
+                { name: 'Fire Coral', confidence: 0.82, color: '#F59E0B' }
+            ];
+            
+            // Populate species list
+            speciesList.innerHTML = '';
+            sampleSpecies.forEach(species => {
+                const listItem = document.createElement('div');
+                listItem.className = 'flex items-center space-x-2';
+                listItem.innerHTML = `
+                    <div class="h-4 w-4 rounded-full" style="background-color: ${species.color}"></div>
+                    <span class="flex-1">${species.name}</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">${(species.confidence * 100).toFixed(1)}%</span>
+                `;
+                speciesList.appendChild(listItem);
+            });
+            
+            processingStatus.textContent = 'Complete';
+            processingStatus.classList.remove('text-primary');
+            processingStatus.classList.add('text-green-500');
+            
+            // Reset status after a delay
+            setTimeout(() => {
+                processingStatus.textContent = 'Ready';
+                processingStatus.classList.remove('text-green-500');
+                processingStatus.classList.add('text-gray-500', 'dark:text-gray-400');
+            }, 3000);
+        });
+        
+        // Particle animation for hero background
+        function createParticleCanvas() {
+            const canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 5 + 1,
+                    speedX: Math.random() * 1 - 0.5,
+                    speedY: Math.random() * 1 - 0.5
+                });
+            }
+            
+            function updateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(particle => {
+                    // Update position
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+                    
+                    // Wrap around edges
+                    if (particle.x < 0) particle.x = canvas.width;
+                    if (particle.x > canvas.width) particle.x = 0;
+                    if (particle.y < 0) particle.y = canvas.height;
+                    if (particle.y > canvas.height) particle.y = 0;
+                    
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#5D5CDE';
+                    ctx.fill();
+                });
+                
+                requestAnimationFrame(updateParticles);
+            }
+            
+            updateParticles();
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Initialize Category Chart
+        function initCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+            
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Brain Coral', 'Staghorn Coral', 'Elkhorn Coral', 'Fire Coral', 'Soft Coral', 'Sea Fan'],
+                    datasets: [{
+                        label: 'Accuracy by Category',
+                        data: [98.5, 96.2, 94.7, 92.5, 91.8, 88.9],
+                        backgroundColor: '#5D5CDE',
+                        borderColor: '#5D5CDE',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            // Set initial sample image
+            updateSampleImage();
+            
+            // Initialize charts
+            initCategoryChart();
+            
+            // Grab hero image
+            const heroImageElement = document.getElementById('heroImage');
+            if (heroImageElement) {
+                heroImageElement.addEventListener('load', () => {
+                    createParticleCanvas();
+                });
+            } else {
+                createParticleCanvas();
+            }
+        });
+    </script>
+
+
+</body></html>
