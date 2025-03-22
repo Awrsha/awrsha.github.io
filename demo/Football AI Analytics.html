@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football AI Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#FFC300',
+                        team1: '#00BFFF',
+                        team2: '#FF1493',
+                        dark: '#181818',
+                        neutral: '#F6F6F6'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+    <link rel="stylesheet" href="https://unpkg.com/ionicons@5.5.2/dist/css/ionicons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass {
+            background: rgba(24, 24, 24, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(90deg, #5D5CDE 0%, #7877E6 100%);
+        }
+        
+        .dark .header-gradient {
+            background: linear-gradient(90deg, #4A49B0 0%, #6463C0 100%);
+        }
+        
+        .football-field {
+            background-image: url("data:image/svg+xml,%3Csvg width='800' height='500' viewBox='0 0 800 500' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='500' fill='%2357A647'/%3E%3Crect x='10' y='10' width='780' height='480' stroke='white' stroke-width='2'/%3E%3Ccircle cx='400' cy='250' r='90' stroke='white' stroke-width='2'/%3E%3Cline x1='400' y1='10' x2='400' y2='490' stroke='white' stroke-width='2'/%3E%3Crect x='10' y='170' width='100' height='160' stroke='white' stroke-width='2'/%3E%3Crect x='690' y='170' width='100' height='160' stroke='white' stroke-width='2'/%3E%3Crect x='10' y='200' width='40' height='100' stroke='white' stroke-width='2'/%3E%3Crect x='750' y='200' width='40' height='100' stroke='white' stroke-width='2'/%3E%3Ccircle cx='400' cy='250' r='5' fill='white'/%3E%3Ccircle cx='110' cy='250' r='5' fill='white'/%3E%3Ccircle cx='690' cy='250' r='5' fill='white'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .dark .football-field {
+            background-image: url("data:image/svg+xml,%3Csvg width='800' height='500' viewBox='0 0 800 500' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='500' fill='%2339702F'/%3E%3Crect x='10' y='10' width='780' height='480' stroke='white' stroke-width='2'/%3E%3Ccircle cx='400' cy='250' r='90' stroke='white' stroke-width='2'/%3E%3Cline x1='400' y1='10' x2='400' y2='490' stroke='white' stroke-width='2'/%3E%3Crect x='10' y='170' width='100' height='160' stroke='white' stroke-width='2'/%3E%3Crect x='690' y='170' width='100' height='160' stroke='white' stroke-width='2'/%3E%3Crect x='10' y='200' width='40' height='100' stroke='white' stroke-width='2'/%3E%3Crect x='750' y='200' width='40' height='100' stroke='white' stroke-width='2'/%3E%3Ccircle cx='400' cy='250' r='5' fill='white'/%3E%3Ccircle cx='110' cy='250' r='5' fill='white'/%3E%3Ccircle cx='690' cy='250' r='5' fill='white'/%3E%3C/svg%3E");
+        }
+        
+        .player-dot {
+            transition: all 0.3s ease;
+        }
+        
+        .player-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 2s linear forwards;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .voronoi-cell {
+            transition: fill 0.3s ease;
+            opacity: 0.6;
+        }
+        
+        .voronoi-cell:hover {
+            opacity: 0.8;
+        }
+        
+        .custom-file-upload {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .custom-file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark .stat-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-indicator {
+            transition: transform 0.3s ease;
+        }
+
+        /* Modal styles */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-sans bg-white dark:bg-dark text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Header -->
+    <header class="header-gradient text-white py-4 px-6 shadow-lg relative z-10">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        <path d="M2 12h20"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold">Football AI Analytics</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block dark:hidden">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <button id="helpButton" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Upload Section -->
+        <section class="mb-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-24 -mr-24 w-64 h-64 bg-primary opacity-10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-24 -ml-24 w-64 h-64 bg-secondary opacity-10 rounded-full blur-3xl"></div>
+            
+            <div class="relative glass rounded-2xl p-8 shadow-xl animate-fade-in">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="md:w-1/2 mb-6 md:mb-0">
+                        <h2 class="text-3xl font-bold mb-3">Football Match Analysis</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Upload a football match video to analyze player positions, team formations, ball possession, and more using advanced AI.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <label class="custom-file-upload inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary font-medium rounded-xl hover:bg-primary hover:text-white transition-colors duration-300">
+                                <input type="file" id="videoUpload" accept="video/mp4,video/avi,video/mov" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                Upload Video
+                            </label>
+                            <button id="demoButton" class="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-opacity-90 transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Run Demo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="md:w-5/12">
+                        <div id="uploadPreview" class="bg-gray-200 dark:bg-gray-700 rounded-xl h-60 flex items-center justify-center overflow-hidden">
+                            <div id="previewPlaceholder" class="text-center p-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                                </svg>
+                                <p class="mt-4 text-gray-500 dark:text-gray-400">Upload a video or run the demo to start</p>
+                            </div>
+                            <video id="previewVideo" class="hidden w-full h-full object-cover" controls></video>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar (Initially Hidden) -->
+                <div id="progressContainer" class="mt-6 hidden">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium" id="progressStatus">Processing...</span>
+                        <span class="text-sm font-medium" id="progressPercentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Analysis Tabs -->
+        <section id="analysisSection" class="mb-12 hidden animate-slide-up">
+            <div class="relative">
+                <div class="flex overflow-x-auto py-2 space-x-4 border-b border-gray-200 dark:border-gray-700 mb-6">
+                    <button class="tab-button px-4 py-2 text-primary font-medium relative flex-shrink-0" data-tab="playerTracking">
+                        Player Tracking
+                    </button>
+                    <button class="tab-button px-4 py-2 text-gray-500 dark:text-gray-400 font-medium relative flex-shrink-0" data-tab="heatmap">
+                        Team Control
+                    </button>
+                    <button class="tab-button px-4 py-2 text-gray-500 dark:text-gray-400 font-medium relative flex-shrink-0" data-tab="ballPath">
+                        Ball Tracking
+                    </button>
+                    <button class="tab-button px-4 py-2 text-gray-500 dark:text-gray-400 font-medium relative flex-shrink-0" data-tab="statistics">
+                        Statistics
+                    </button>
+                    <div class="tab-indicator absolute bottom-0 left-0 h-0.5 bg-primary transition-transform" style="width: 115px; transform: translateX(0px);"></div>
+                </div>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Player Tracking Tab -->
+                <div id="playerTracking" class="tab-pane">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="lg:w-8/12">
+                            <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                                <div class="aspect-video relative" id="playerTrackingVideo">
+                                    <img src="data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450' fill='none' preserveAspectRatio='none'%3e%3crect width='800' height='450' fill='%23333'/%3e%3c/svg%3e" alt="Player tracking" class="w-full h-full object-cover">
+                                    
+                                    <!-- Overlay with animation -->
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="animate-pulse-slow text-white text-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p class="text-lg font-medium">Run the analysis to view player tracking</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex gap-2">
+                                            <div class="flex items-center">
+                                                <span class="w-3 h-3 rounded-full bg-team1 inline-block mr-1"></span>
+                                                <span class="text-sm">Team 1</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="w-3 h-3 rounded-full bg-team2 inline-block mr-1"></span>
+                                                <span class="text-sm">Team 2</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="w-3 h-3 rounded-full bg-secondary inline-block mr-1"></span>
+                                                <span class="text-sm">Referee</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button class="p-2 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                            </button>
+                                            <button class="p-2 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lg:w-4/12">
+                            <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 h-full">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                    <h3 class="font-bold">2D Pitch View</h3>
+                                </div>
+                                <div class="p-4 flex-grow">
+                                    <div class="football-field w-full h-64 md:h-80 rounded-lg overflow-hidden relative">
+                                        <!-- Player dots would be rendered here dynamically -->
+                                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center h-full w-full">
+                                            <p class="text-sm text-white text-center bg-black bg-opacity-40 p-2 rounded">
+                                                Run analysis to view player positions
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between">
+                                        <div class="text-sm flex items-center">
+                                            <span class="font-medium mr-1">Time:</span>
+                                            <span id="currentTime">00:00</span>
+                                        </div>
+                                        <div class="text-sm flex items-center">
+                                            <span class="font-medium mr-1">Frame:</span>
+                                            <span id="currentFrame">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Team Control (Voronoi) Tab -->
+                <div id="heatmap" class="tab-pane hidden">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="lg:w-full">
+                            <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                                <div class="aspect-video relative" id="heatmapVideo">
+                                    <div class="football-field w-full h-full relative">
+                                        <!-- Voronoi diagram would be rendered here dynamically -->
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="animate-pulse-slow text-white text-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                                </svg>
+                                                <p class="text-lg font-medium">Run the analysis to view team control areas</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex gap-6">
+                                            <div class="flex items-center">
+                                                <span class="w-8 h-3 bg-gradient-to-r from-team1 to-transparent rounded inline-block mr-2"></span>
+                                                <span class="text-sm">Team 1 Control</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="w-8 h-3 bg-gradient-to-r from-team2 to-transparent rounded inline-block mr-2"></span>
+                                                <span class="text-sm">Team 2 Control</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-sm font-medium mr-2">Control Intensity:</span>
+                                            <input type="range" min="1" max="100" value="60" class="w-24">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ball Tracking Tab -->
+                <div id="ballPath" class="tab-pane hidden">
+                    <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                        <div class="aspect-video relative" id="ballPathVideo">
+                            <div class="football-field w-full h-full relative">
+                                <!-- Ball path would be rendered here dynamically -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="animate-pulse-slow text-white text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        <p class="text-lg font-medium">Run the analysis to view ball movement tracking</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sample Ball Path (would be rendered dynamically) -->
+                                <svg class="absolute inset-0 w-full h-full" style="display: none;">
+                                    <path class="player-path" d="M100,250 C150,180 200,300 250,250 S350,180 400,250 S500,320 550,250 S650,180 700,250" fill="none" stroke="#FFC300" stroke-width="3" />
+                                    <circle class="ball-marker" cx="700" cy="250" r="6" fill="white" stroke="#FFC300" stroke-width="2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <div class="flex gap-4">
+                                    <div class="flex items-center">
+                                        <span class="inline-block w-4 h-0.5 bg-secondary mr-2"></span>
+                                        <span class="text-sm">Ball Path</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="inline-block w-3 h-3 rounded-full bg-white border-2 border-secondary mr-2"></span>
+                                        <span class="text-sm">Current Position</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <button class="p-2 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 mr-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
+                                    <span id="ballSpeed" class="text-sm font-medium">Speed: 0 km/h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics Tab -->
+                <div id="statistics" class="tab-pane hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg">Possession</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 1</span>
+                                <span class="font-bold">58%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                                <div class="bg-team1 h-2.5 rounded-full" style="width: 58%"></div>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 2</span>
+                                <span class="font-bold">42%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-team2 h-2.5 rounded-full" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg">Territory</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 1</span>
+                                <span class="font-bold">53%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                                <div class="bg-team1 h-2.5 rounded-full" style="width: 53%"></div>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 2</span>
+                                <span class="font-bold">47%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-team2 h-2.5 rounded-full" style="width: 47%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg">Distance (km)</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 1</span>
+                                <span class="font-bold">42.8</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                                <div class="bg-team1 h-2.5 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 2</span>
+                                <span class="font-bold">39.3</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-team2 h-2.5 rounded-full" style="width: 69%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-lg">Average Speed</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 1</span>
+                                <span class="font-bold">8.6 km/h</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                                <div class="bg-team1 h-2.5 rounded-full" style="width: 63%"></div>
+                            </div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Team 2</span>
+                                <span class="font-bold">7.9 km/h</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-team2 h-2.5 rounded-full" style="width: 58%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="font-bold">Player Heatmap</h3>
+                            </div>
+                            <div class="aspect-video p-4">
+                                <div class="football-field w-full h-full flex items-center justify-center">
+                                    <p class="text-sm text-white text-center bg-black bg-opacity-40 p-2 rounded">
+                                        Run analysis to view player heatmap
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-800">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="font-bold">Player Statistics</h3>
+                            </div>
+                            <div class="p-4 max-h-[300px] overflow-y-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-100 dark:bg-gray-700">
+                                        <tr>
+                                            <th class="py-2 px-3 text-left">Player</th>
+                                            <th class="py-2 px-3 text-right">Dist. (km)</th>
+                                            <th class="py-2 px-3 text-right">Avg. Speed</th>
+                                            <th class="py-2 px-3 text-right">Max Speed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="py-2 px-3 flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-team1 inline-block mr-2"></span>
+                                                Player #12
+                                            </td>
+                                            <td class="py-2 px-3 text-right">5.4</td>
+                                            <td class="py-2 px-3 text-right">9.3 km/h</td>
+                                            <td class="py-2 px-3 text-right">28.7 km/h</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="py-2 px-3 flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-team1 inline-block mr-2"></span>
+                                                Player #7
+                                            </td>
+                                            <td class="py-2 px-3 text-right">4.9</td>
+                                            <td class="py-2 px-3 text-right">8.7 km/h</td>
+                                            <td class="py-2 px-3 text-right">27.2 km/h</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="py-2 px-3 flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-team2 inline-block mr-2"></span>
+                                                Player #9
+                                            </td>
+                                            <td class="py-2 px-3 text-right">5.1</td>
+                                            <td class="py-2 px-3 text-right">8.9 km/h</td>
+                                            <td class="py-2 px-3 text-right">29.1 km/h</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="py-2 px-3 flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-team2 inline-block mr-2"></span>
+                                                Player #11
+                                            </td>
+                                            <td class="py-2 px-3 text-right">4.8</td>
+                                            <td class="py-2 px-3 text-right">8.5 km/h</td>
+                                            <td class="py-2 px-3 text-right">26.8 km/h</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                                            <td class="py-2 px-3 flex items-center">
+                                                <span class="w-2 h-2 rounded-full bg-team1 inline-block mr-2"></span>
+                                                Player #4
+                                            </td>
+                                            <td class="py-2 px-3 text-right">4.5</td>
+                                            <td class="py-2 px-3 text-right">7.9 km/h</td>
+                                            <td class="py-2 px-3 text-right">24.5 km/h</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold">Football AI Analytics Help</h3>
+                <button id="closeHelpModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Getting Started</h4>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Upload a football match video or use the demo to analyze player positions, team formations, ball possession, and more.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Analysis Features</h4>
+                        <ul class="list-disc pl-5 text-gray-600 dark:text-gray-300 space-y-2">
+                            <li><strong>Player Tracking:</strong> View the real-time positions of players, goalkeepers, and referees on the field with team identification.</li>
+                            <li><strong>Team Control:</strong> Visualize the areas of the pitch controlled by each team using Voronoi diagrams.</li>
+                            <li><strong>Ball Tracking:</strong> Follow the ball's movement patterns and speed throughout the match.</li>
+                            <li><strong>Statistics:</strong> View detailed stats about possession, territory, player speed, and distances covered.</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Technologies Used</h4>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            This application uses computer vision and artificial intelligence to track players, determine which team they belong to, and calculate various metrics. The system is powered by object detection, keypoint detection, and sophisticated tracking algorithms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-gray-800 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+                Football AI Analytics | Powered by Advanced Computer Vision & Machine Learning
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Dark mode toggle
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Check for user preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Listen for changes in user preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        // Toggle theme manually
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const tabIndicator = document.querySelector('.tab-indicator');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+                
+                // Update active tab button
+                tabButtons.forEach(btn => {
+                    if (btn.dataset.tab === targetTab) {
+                        btn.classList.add('text-primary');
+                        btn.classList.remove('text-gray-500', 'dark:text-gray-400');
+                    } else {
+                        btn.classList.remove('text-primary');
+                        btn.classList.add('text-gray-500', 'dark:text-gray-400');
+                    }
+                });
+                
+                // Update tab content visibility
+                tabPanes.forEach(pane => {
+                    if (pane.id === targetTab) {
+                        pane.classList.remove('hidden');
+                    } else {
+                        pane.classList.add('hidden');
+                    }
+                });
+                
+                // Move indicator
+                const buttonRect = button.getBoundingClientRect();
+                const containerRect = button.parentElement.getBoundingClientRect();
+                tabIndicator.style.width = `${buttonRect.width}px`;
+                tabIndicator.style.transform = `translateX(${buttonRect.left - containerRect.left}px)`;
+            });
+        });
+        
+        // Initialize first tab as active
+        if (tabButtons.length > 0) {
+            tabButtons[0].click();
+        }
+        
+        // Demo button functionality
+        const demoButton = document.getElementById('demoButton');
+        const analysisSection = document.getElementById('analysisSection');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const previewVideo = document.getElementById('previewVideo');
+        
+        demoButton.addEventListener('click', () => {
+            // Show progress
+            progressContainer.classList.remove('hidden');
+            previewPlaceholder.classList.add('hidden');
+            previewVideo.classList.remove('hidden');
+            previewVideo.src = "https://pfst.cf2.poecdn.net/random_placeholder_video.mp4";  // This URL is a placeholder
+            previewVideo.load();
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                progressBar.style.width = `${progress}%`;
+                progressPercentage.textContent = `${progress}%`;
+                
+                if (progress < 30) {
+                    progressStatus.textContent = "Detecting players and ball...";
+                } else if (progress < 60) {
+                    progressStatus.textContent = "Identifying teams...";
+                } else if (progress < 90) {
+                    progressStatus.textContent = "Tracking movements...";
+                } else {
+                    progressStatus.textContent = "Calculating statistics...";
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressStatus.textContent = "Analysis complete!";
+                        
+                        // Show analysis section
+                        analysisSection.classList.remove('hidden');
+                        
+                        // Hide progress after a delay
+                        setTimeout(() => {
+                            progressContainer.classList.add('hidden');
+                        }, 1000);
+                        
+                        // Initialize visualization
+                        initializeVisualization();
+                    }, 500);
+                }
+            }, 100);
+        });
+        
+        // Video upload handling
+        const videoUpload = document.getElementById('videoUpload');
+        
+        videoUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // Show the video preview
+                previewPlaceholder.classList.add('hidden');
+                previewVideo.classList.remove('hidden');
+                previewVideo.src = URL.createObjectURL(file);
+                previewVideo.load();
+                
+                // Show progress container
+                progressContainer.classList.remove('hidden');
+                
+                // Simulate upload and processing
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 1;
+                    progressBar.style.width = `${progress}%`;
+                    progressPercentage.textContent = `${progress}%`;
+                    
+                    if (progress < 20) {
+                        progressStatus.textContent = "Uploading video...";
+                    } else if (progress < 30) {
+                        progressStatus.textContent = "Detecting players and ball...";
+                    } else if (progress < 60) {
+                        progressStatus.textContent = "Identifying teams...";
+                    } else if (progress < 90) {
+                        progressStatus.textContent = "Tracking movements...";
+                    } else {
+                        progressStatus.textContent = "Calculating statistics...";
+                    }
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            progressStatus.textContent = "Analysis complete!";
+                            
+                            // Show analysis section
+                            analysisSection.classList.remove('hidden');
+                            
+                            // Hide progress after a delay
+                            setTimeout(() => {
+                                progressContainer.classList.add('hidden');
+                            }, 1000);
+                            
+                            // Initialize visualization
+                            initializeVisualization();
+                        }, 500);
+                    }
+                }, 50);
+            }
+        });
+        
+        // Help modal
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpModal = document.getElementById('closeHelpModal');
+        
+        helpButton.addEventListener('click', () => {
+            helpModal.classList.add('active');
+        });
+        
+        closeHelpModal.addEventListener('click', () => {
+            helpModal.classList.remove('active');
+        });
+        
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('active');
+            }
+        });
+        
+        // Initialize visualization (placeholder)
+        function initializeVisualization() {
+            // This would be implemented with actual data visualization
+            // For now, we'll just add a note that it was triggered
+            console.log('Visualization initialized');
+            
+            // Update the time and frame counters as a sample
+            document.getElementById('currentTime').textContent = '00:05';
+            document.getElementById('currentFrame').textContent = '150';
+            document.getElementById('ballSpeed').textContent = 'Speed: 24.8 km/h';
+        }
+        
+        // Hide the help modal on initial load
+        helpModal.classList.remove('active');
+    </script>
+</body>
+</html>
