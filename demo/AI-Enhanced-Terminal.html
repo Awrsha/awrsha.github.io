@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enhanced Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        terminal: {
+                            bg: '#1E1E1E',
+                            text: '#F0F0F0',
+                            prompt: '#5D5CDE',
+                            output: '#CCCCCC',
+                            error: '#FF6B6B',
+                            success: '#6BFF6B',
+                            analysis: '#FFA500'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Monaco', 'Menlo', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+         :root {
+            --scrollbar-thumb: rgba(255, 255, 255, 0.3);
+            --scrollbar-track: rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark {
+            --scrollbar-thumb: rgba(255, 255, 255, 0.3);
+            --scrollbar-track: rgba(0, 0, 0, 0.5);
+        }
+        /* Custom scrollbar */
+        
+        .terminal-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .terminal-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+        
+        .terminal-scrollbar::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        /* Blinking cursor animation */
+        
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+        
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        /* Terminal output formatting */
+        
+        .cmd-output {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        /* Terminal loading spinner */
+        
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .loading-spinner {
+            animation: spinner 1s linear infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <div class="container mx-auto p-4 max-w-6xl">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">AI-Enhanced Terminal</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Execute Windows CMD commands with real-time AI analysis</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Terminal Section -->
+            <div class="lg:col-span-3 bg-terminal-bg rounded-lg shadow-lg overflow-hidden">
+                <div class="flex items-center bg-gray-800 p-2 border-b border-gray-700">
+                    <div class="flex space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span class="ml-4 text-white">Command Terminal</span>
+                </div>
+
+                <div id="terminal-output" class="h-[500px] overflow-y-auto bg-terminal-bg text-terminal-text p-4 font-mono text-sm terminal-scrollbar">
+                    <div class="welcome-message text-terminal-prompt mb-4">
+                        <p>Welcome to AI-Enhanced Terminal</p>
+                        <p>Type commands to execute in Windows CMD</p>
+                        <p>Type 'clear' to reset the terminal</p>
+                        <p>------------------------------------------</p>
+                    </div>
+                    <div id="command-history"></div>
+                    <div id="current-line" class="flex">
+                        <span class="text-terminal-prompt mr-2">C:\Users\pc\Desktop\&gt;</span>
+                        <span id="current-command" class="text-terminal-text"></span>
+                        <span class="cursor-blink text-terminal-text">▌</span>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 p-2 border-t border-gray-700">
+                    <div class="flex">
+                        <input id="command-input" type="text" placeholder="Enter command..." class="flex-grow bg-gray-700 text-white px-3 py-2 rounded-l text-base font-mono focus:outline-none focus:ring-2 focus:ring-primary">
+                        <button id="execute-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r font-medium transition-colors">
+                            Execute
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analysis Section -->
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-gray-100 dark:bg-gray-700 p-2 border-b border-gray-200 dark:border-gray-600">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">AI Analysis</h2>
+                </div>
+
+                <div id="ai-analysis" class="h-[500px] overflow-y-auto p-4 text-gray-700 dark:text-gray-300 terminal-scrollbar">
+                    <div class="initial-message mb-4">
+                        <p class="text-gray-500 dark:text-gray-400">AI will analyze your commands and their outputs here.</p>
+                        <p class="text-gray-500 dark:text-gray-400 mt-2">Execute a command to get started.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 dark:bg-gray-700 p-2 border-t border-gray-200 dark:border-gray-600 flex items-center">
+                    <div class="flex-grow">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Powered by GROQ API</span>
+                    </div>
+                    <button id="copy-analysis-btn" class="text-primary hover:text-primary/90 px-2 py-1 text-sm transition-colors">
+                        Copy Last Analysis
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <div class="mt-6 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+            <h3 class="font-medium text-gray-800 dark:text-white mb-2">Command History</h3>
+            <div id="history-list" class="space-y-2 max-h-40 overflow-y-auto terminal-scrollbar">
+                <p class="text-gray-500 dark:text-gray-400 text-sm">No commands executed yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize dark mode based on user preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Global variables
+        const GROQ_API_KEY = "empty";
+        const HUGGINGFACE_TOKEN = "empty";
+        const API_BASE_URL = "http://localhost:5000/api"; // Base URL for our Flask API
+        let commandHistory = [];
+        let currentHistoryIndex = -1;
+
+        // DOM Elements
+        const terminalOutput = document.getElementById('terminal-output');
+        const commandInput = document.getElementById('command-input');
+        const executeBtn = document.getElementById('execute-btn');
+        const currentCommand = document.getElementById('current-command');
+        const commandHistoryDiv = document.getElementById('command-history');
+        const aiAnalysis = document.getElementById('ai-analysis');
+        const historyList = document.getElementById('history-list');
+        const copyAnalysisBtn = document.getElementById('copy-analysis-btn');
+
+        // Terminal functionality
+        function focusCommandInput() {
+            commandInput.focus();
+        }
+
+        function scrollToBottom() {
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function clearTerminal() {
+            commandHistoryDiv.innerHTML = '';
+            updateCommandLine();
+            scrollToBottom();
+        }
+
+        function updateCommandLine() {
+            currentCommand.textContent = commandInput.value;
+        }
+
+        function addToHistory(command) {
+            // Skip adding if it's the same as the last command
+            if (commandHistory.length > 0 && commandHistory[commandHistory.length - 1].command === command) {
+                return;
+            }
+
+            const timestamp = new Date().toLocaleTimeString();
+            const historyItem = {
+                command,
+                timestamp
+            };
+            commandHistory.push(historyItem);
+
+            // Update history UI
+            updateHistoryList();
+
+            // Reset history navigation index
+            currentHistoryIndex = commandHistory.length;
+        }
+
+        function updateHistoryList() {
+            if (commandHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No commands executed yet.</p>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+
+            // Show only the last 10 commands
+            const startIndex = Math.max(0, commandHistory.length - 10);
+            for (let i = startIndex; i < commandHistory.length; i++) {
+                const item = commandHistory[i];
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'flex justify-between items-center text-sm p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded';
+
+                const cmdText = document.createElement('span');
+                cmdText.className = 'font-mono text-gray-800 dark:text-gray-300';
+                cmdText.textContent = item.command;
+
+                const timeText = document.createElement('span');
+                timeText.className = 'text-gray-500 dark:text-gray-400 text-xs ml-2';
+                timeText.textContent = item.timestamp;
+
+                historyEntry.appendChild(cmdText);
+                historyEntry.appendChild(timeText);
+
+                // Add click to reuse command
+                historyEntry.addEventListener('click', () => {
+                    commandInput.value = item.command;
+                    updateCommandLine();
+                    focusCommandInput();
+                });
+
+                historyList.appendChild(historyEntry);
+            }
+        }
+
+        // Execute command using the Flask API
+        async function executeCommand() {
+            const command = commandInput.value.trim();
+            if (!command) return;
+
+            // Clear the input field
+            commandInput.value = '';
+            updateCommandLine();
+
+            // Add command to history
+            addToHistory(command);
+
+            // Display the command in the terminal
+            const commandBlock = document.createElement('div');
+            commandBlock.className = 'mb-4';
+            commandBlock.innerHTML = `
+                <div class="flex mb-1">
+                    <span class="text-terminal-prompt mr-2">C:\\Users\\pc\\Desktop\\&gt;</span>
+                    <span class="text-terminal-text">${escapeHtml(command)}</span>
+                </div>
+            `;
+
+            // Add a loading indicator
+            const outputBlock = document.createElement('div');
+            outputBlock.className = 'cmd-output pl-5 mb-2 text-terminal-output';
+            outputBlock.innerHTML = `
+                <div class="flex items-center text-terminal-output">
+                    <svg class="loading-spinner w-4 h-4 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Executing command...</span>
+                </div>
+            `;
+
+            commandBlock.appendChild(outputBlock);
+            commandHistoryDiv.appendChild(commandBlock);
+            scrollToBottom();
+
+            // Handle clear command
+            if (command.toLowerCase() === 'clear') {
+                setTimeout(() => {
+                    clearTerminal();
+                }, 500);
+                return;
+            }
+
+            try {
+                // Show loading in AI analysis panel
+                const aiLoadingIndicator = document.createElement('div');
+                aiLoadingIndicator.className = 'ai-loading flex items-center text-gray-500 dark:text-gray-400 mb-4';
+                aiLoadingIndicator.innerHTML = `
+                    <svg class="loading-spinner w-4 h-4 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Preparing AI analysis...</span>
+                `;
+                aiAnalysis.appendChild(aiLoadingIndicator);
+
+                // Execute the command via our Flask API
+                const response = await fetch(`${API_BASE_URL}/execute`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to execute command');
+                }
+
+                // Update the terminal with the result
+                outputBlock.innerHTML = `<span>${escapeHtml(data.output)}</span>`;
+
+                // Get the AI analysis from our Flask API
+                const analysisResponse = await fetch(`${API_BASE_URL}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        output: data.output,
+                    }),
+                });
+
+                const analysisData = await analysisResponse.json();
+
+                if (!analysisResponse.ok) {
+                    throw new Error(analysisData.error || 'Failed to get AI analysis');
+                }
+
+                // Remove the loading indicator
+                const loadingElement = aiAnalysis.querySelector('.ai-loading');
+                if (loadingElement) {
+                    aiAnalysis.removeChild(loadingElement);
+                }
+
+                // Add the analysis to the AI panel
+                const analysisBlock = document.createElement('div');
+                analysisBlock.className = 'analysis-block mb-6 p-3 bg-gray-50 dark:bg-gray-750 rounded-lg';
+
+                const analysisHeader = document.createElement('div');
+                analysisHeader.className = 'flex justify-between items-center mb-2';
+                analysisHeader.innerHTML = `
+                    <h3 class="font-medium text-gray-800 dark:text-white">Analysis of: <span class="font-mono">${escapeHtml(command)}</span></h3>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">${new Date().toLocaleTimeString()}</span>
+                `;
+
+                const analysisContent = document.createElement('div');
+                analysisContent.className = 'text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line';
+                analysisContent.textContent = analysisData.analysis;
+
+                analysisBlock.appendChild(analysisHeader);
+                analysisBlock.appendChild(analysisContent);
+                aiAnalysis.appendChild(analysisBlock);
+                aiAnalysis.scrollTop = aiAnalysis.scrollHeight;
+            } catch (error) {
+                console.error("Error executing command:", error);
+                outputBlock.innerHTML = `<span class="text-terminal-error">Error: ${escapeHtml(error.message || 'An unknown error occurred')}</span>`;
+
+                // Remove any loading indicators in AI panel
+                const loadingElement = aiAnalysis.querySelector('.ai-loading');
+                if (loadingElement) {
+                    aiAnalysis.removeChild(loadingElement);
+                }
+
+                // Add error to AI panel
+                const errorBlock = document.createElement('div');
+                errorBlock.className = 'error-block mb-6 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg';
+                errorBlock.innerHTML = `
+                    <h3 class="font-medium text-red-700 dark:text-red-400 mb-1">Error Executing Command</h3>
+                    <p class="text-sm text-red-600 dark:text-red-300">${escapeHtml(error.message || 'An unknown error occurred')}</p>
+                `;
+                aiAnalysis.appendChild(errorBlock);
+                aiAnalysis.scrollTop = aiAnalysis.scrollHeight;
+            }
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Event Listeners
+        window.addEventListener('load', focusCommandInput);
+
+        executeBtn.addEventListener('click', executeCommand);
+
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand();
+            } else if (e.key === 'ArrowUp') {
+                // Navigate command history (up)
+                if (commandHistory.length > 0) {
+                    currentHistoryIndex = Math.max(0, currentHistoryIndex - 1);
+                    commandInput.value = commandHistory[currentHistoryIndex].command;
+                    updateCommandLine();
+                    // Move cursor to end of input
+                    setTimeout(() => {
+                        commandInput.selectionStart = commandInput.selectionEnd = commandInput.value.length;
+                    }, 0);
+                }
+                e.preventDefault();
+            } else if (e.key === 'ArrowDown') {
+                // Navigate command history (down)
+                if (currentHistoryIndex < commandHistory.length - 1) {
+                    currentHistoryIndex++;
+                    commandInput.value = commandHistory[currentHistoryIndex].command;
+                } else {
+                    currentHistoryIndex = commandHistory.length;
+                    commandInput.value = '';
+                }
+                updateCommandLine();
+                e.preventDefault();
+            }
+        });
+
+        commandInput.addEventListener('input', updateCommandLine);
+
+        terminalOutput.addEventListener('click', focusCommandInput);
+
+        copyAnalysisBtn.addEventListener('click', () => {
+            const lastAnalysis = aiAnalysis.querySelector('.analysis-block:last-child .text-sm');
+            if (lastAnalysis) {
+                navigator.clipboard.writeText(lastAnalysis.textContent)
+                    .then(() => {
+                        const originalText = copyAnalysisBtn.textContent;
+                        copyAnalysisBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyAnalysisBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            }
+        });
+
+        // Initialize with a welcome message in the AI panel
+        const welcomeAnalysis = document.createElement('div');
+        welcomeAnalysis.className = 'welcome-analysis p-3 bg-primary/10 rounded-lg mb-6';
+        welcomeAnalysis.innerHTML = `
+            <h3 class="font-medium text-primary mb-2">Welcome to AI-Enhanced Terminal</h3>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+                This application allows you to execute Windows CMD commands and receive AI-powered analysis of the results.
+            </p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                Try running commands like <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">dir</span>, 
+                <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">ipconfig</span>, or 
+                <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">systeminfo</span> to get started.
+            </p>
+        `;
+        aiAnalysis.querySelector('.initial-message').remove();
+        aiAnalysis.appendChild(welcomeAnalysis);
+    </script>
+</body>
+
+</html>
