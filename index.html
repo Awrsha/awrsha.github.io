@@ -2,7 +2,8 @@
 <html lang="en" class="scroll-smooth">
 
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amir Mohammad Parvizi</title>
@@ -39,77 +40,82 @@
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html {
             scroll-behavior: smooth;
         }
-        
+
         .parallax-bg {
             transform: translateZ(-1px) scale(2);
             z-index: -1;
         }
-        
+
         .parallax-wrapper {
             height: 100vh;
             overflow-x: hidden;
             overflow-y: auto;
             perspective: 2px;
         }
-        
+
         .parallax-content {
             transform: translateZ(0);
         }
-        
+
         .section-transition {
             position: relative;
             transition: all 0.4s ease-out;
         }
-        
+
         .hover-lift {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .hover-lift:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         }
+
         /* Ensure text is visible in dark mode */
-        
+
         .dark .text-light-text {
             color: theme('colors.dark.text');
         }
-        
+
         .dark .bg-light-card {
             background-color: theme('colors.dark.card');
         }
+
         /* Apple-inspired blur effects */
-        
+
         .apple-blur {
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
+
         /* Custom scrollbar */
-        
-         ::-webkit-scrollbar {
+
+        ::-webkit-scrollbar {
             width: 8px;
         }
-        
-         ::-webkit-scrollbar-track {
+
+        ::-webkit-scrollbar-track {
             background: transparent;
         }
-        
-         ::-webkit-scrollbar-thumb {
+
+        ::-webkit-scrollbar-thumb {
             background: rgba(93, 92, 222, 0.5);
             border-radius: 10px;
         }
-        
-         ::-webkit-scrollbar-thumb:hover {
+
+        ::-webkit-scrollbar-thumb:hover {
             background: rgba(93, 92, 222, 0.8);
         }
+
         /* Magic cursor effect */
-        
+
         .magic-cursor {
             position: fixed;
             width: 30px;
@@ -122,18 +128,19 @@
             transition: transform 0.1s ease;
             opacity: 0;
         }
-        
+
         @media (pointer: fine) {
             .magic-cursor {
                 opacity: 1;
             }
         }
+
         /* Portfolio filter transitions */
-        
+
         .portfolio-item {
             transition: all 0.5s ease;
         }
-        
+
         .portfolio-item.hidden {
             opacity: 0;
             transform: scale(0.8);
@@ -142,7 +149,7 @@
             padding: 0;
             overflow: hidden;
         }
-        
+
         .filter-btn.active {
             background-color: var(--active-color, #5D5CDE);
             color: white;
@@ -161,14 +168,19 @@
 
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="index.html" class="nav-link font-medium text-primary transition-colors">Home</a>
-                <a href="Certificates.html" class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
+                <a href="Certificates.html"
+                    class="nav-link font-medium hover:text-primary transition-colors">Certificates</a>
                 <a href="Teaching.html" class="nav-link font-medium hover:text-primary transition-colors">Teaching</a>
                 <a href="#" class="nav-link font-medium hover:text-primary transition-colors">Articles</a>
                 <a href="#" class="nav-link font-medium hover:text-primary transition-colors">Competitions</a>
-                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global Network</a>
-                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Professional Network</a>
-                <a href="Contracts.html" class="nav-link font-medium hover:text-primary transition-colors">Contract Projects</a>
-                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in Touch</a>
+                <a href="Network.html" class="nav-link font-medium hover:text-primary transition-colors">Global
+                    Network</a>
+                <a href="Colleagues.html" class="nav-link font-medium hover:text-primary transition-colors">Professional
+                    Network</a>
+                <a href="Contracts.html" class="nav-link font-medium hover:text-primary transition-colors">Contract
+                    Projects</a>
+                <a href="Contact.html" class="nav-link font-medium hover:text-primary transition-colors">Get in
+                    Touch</a>
                 <button id="theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
                     <i class="fas fa-moon dark:hidden"></i>
                     <i class="fas fa-sun hidden dark:block"></i>
@@ -183,15 +195,27 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dark-bg apple-blur absolute w-full">
             <div class="container mx-auto px-6 py-4 flex flex-col space-y-4">
-                <a href="index.html" class="font-medium p-2 rounded-oneui bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
-                <a href="Certificates.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
-                <a href="Teaching.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
-                <a href="#" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
-                <a href="#" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
-                <a href="Network.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global Network</a>
-                <a href="Colleagues.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Professional Network</a>
-                <a href="Contracts.html" class="font-medium p-2 rounded-oneui hover:bg-primary text-white">Contract Projects</a>
-                <a href="Contact.html" class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get in Touch</a>
+                <a href="index.html"
+                    class="font-medium p-2 rounded-oneui bg-light-card dark:hover:bg-dark-card transition-colors">Home</a>
+                <a href="Certificates.html"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Certificates</a>
+                <a href="Teaching.html"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Teaching</a>
+                <a href="#"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Articles</a>
+                <a href="#"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Competitions</a>
+                <a href="Network.html"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Global
+                    Network</a>
+                <a href="Colleagues.html"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Professional
+                    Network</a>
+                <a href="Contracts.html" class="font-medium p-2 rounded-oneui hover:bg-primary text-white">Contract
+                    Projects</a>
+                <a href="Contact.html"
+                    class="font-medium p-2 rounded-oneui hover:bg-light-card dark:hover:bg-dark-card transition-colors">Get
+                    in Touch</a>
                 <div class="flex justify-between items-center p-2">
                     <span>Theme</span>
                     <button id="mobile-theme-toggle" class="p-2 rounded-full bg-light-card dark:bg-dark-card">
@@ -216,14 +240,16 @@
                 <div class="md:w-2/3 space-y-6">
                     <h1 class="text-4xl md:text-6xl font-bold">
                         <span class="block">Amir M. Parvizi</span>
-                        <span class="text-primary">Research And Development Specialist</span>
+                        <span class="text-primary">Research and Development (R&D) Specialist</span>
                     </h1>
-                    <p class="text-xl md:text-2xl">Building intelligent solutions for tomorrow's challenges</p>
+                    <p class="text-xl md:text-2xl">Tehran, Tehran Province, Iran Country</p>
                     <div class="pt-6 flex space-x-4">
-                        <a href="#about" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
+                        <a href="#about"
+                            class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
                             About Me
                         </a>
-                        <a href="Contact.html" class="px-6 py-3 bg-light-card dark:bg-dark-card rounded-oneui hover:bg-light-bg dark:hover:bg-dark-bg transition-colors shadow-lg">
+                        <a href="Contact.html"
+                            class="px-6 py-3 bg-light-card dark:bg-dark-card rounded-oneui hover:bg-light-bg dark:hover:bg-dark-bg transition-colors shadow-lg">
                             Contact Me
                         </a>
                     </div>
@@ -253,7 +279,8 @@
                 <div class="flex flex-col md:flex-row gap-12 items-center">
                     <div class="md:w-1/2 section-transition">
                         <div class="rounded-oneui overflow-hidden bg-light-card dark:bg-dark-card p-2 shadow-xl">
-                            <div class="aspect-square rounded-oneui overflow-hidden bg-gradient-to-br from-primary/40 to-secondary/40">
+                            <div
+                                class="aspect-square rounded-oneui overflow-hidden bg-gradient-to-br from-primary/40 to-secondary/40">
                                 <!-- Profile Image -->
                                 <img src="assets/img/about.jpg" alt="Profile Image">
                             </div>
@@ -263,27 +290,40 @@
 
 
                     <div class="md:w-1/2 section-transition">
-                        <h3 class="text-2xl font-bold mb-4">AI & Machine Learning Researcher | Computer Vision & Deep Learning Specialist | AI System Architect | Full-Stack Developer (Django, Flask, FastAPI)</h3>
+                        <h3 class="text-2xl font-bold mb-4">Research and Development (R&D) Specialist | Software
+                            Engineer | Artificial Intelligence (AI) Programmer</h3>
                         <p class="mb-6 text-lg">
-                            I am holding a Bachelor's degree in Software Engineering from QIAU. My professional journey includes developing AI-driven solutions for healthcare, manufacturing, and autonomous systems while collaborating with international companies like BeeHouse Foundation
-                            (Canada) and Software Motion (china). I contributed to creating Iran's first AI-powered prescription recognition system. With expertise spanning web development, ML/DL and Computer Vision, I am passionate about advancing biomedical
-                            AI and intelligent automation. My goal is to pursue higher education with a scholarship at a top university to develop cutting-edge solutions in healthcare, autonomous vehicles, and robotics.
+                            I am an AI researcher and software developer with a strong foundation in computer vision,
+                            embedded systems, and machine learning, holding a Bachelor's in Software Engineering from
+                            QIAU. My work spans advanced AI solutions in healthcare, robotics, and autonomous systems,
+                            including research on brain tumor detection using multi-modality MRI data and techniques
+                            like Multiple Instance Learning, attention mechanisms, and LSTMs. I’ve developed full-stack
+                            applications (Django, FastAPI), optimized neural networks (quantization, pruning,
+                            distillation), and deployed models on edge devices (Jetson, FPGA) with a focus on
+                            neuromorphic computing and hardware-aware design. As a robotics competitor representing
+                            Qazvin University globally and a contributor to national projects like AI-powered
+                            prescription systems and ADAS for Mammut, I bridge AI research with real-world deployment. I
+                            am now seeking fully funded Master’s or Ph.D. opportunities abroad in AI, computer vision,
+                            or hardware-software co-design, while remaining open to global research-driven migration
+                            pathways.
                         </p>
                         <div class="grid grid-cols-2 gap-4 mb-6">
                             <div>
-                                <p><strong>Name:</strong> Amir Mohammad /ˈæmɪər məˈhæməd/ (Arsha /ˈɑːrʃə/ (for foreigners))</p>
+                                <p><strong>Name:</strong> Amir Mohammad /ˈæmɪər məˈhæməd/ (Arsha /ˈɑːrʃə/ (for
+                                    foreigners))</p>
                             </div>
                             <div>
                                 <p><strong>Experience:</strong> 5+ Years</p>
                             </div>
                             <div>
-                                <p><strong>Speciality:</strong> R&D Specialist</p>
+                                <p><strong>Speciality:</strong> Research and Development (R&D) Specialist</p>
                             </div>
                             <div>
                                 <p><strong>Available:</strong> Remote Jobs with Sponsorship Visa</p>
                             </div>
                         </div>
-                        <a href="Contact.html" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg inline-block">
+                        <a href="Contact.html"
+                            class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg inline-block">
                             Contact Me
                         </a>
                     </div>
@@ -313,23 +353,26 @@
 
                         <div class="space-y-6">
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">High School Diploma, Mathematics & Physics</h4>
-                                <p class="text-tertiary mb-2">Oct 2016 - Jul 2020</p>
-                                <p>Aqmashe State Model High School. In Iran, government exemplary schools are prestigious educational institutions that have been awarded a "model" license by the Ministry of Education, signifying their commitment to providing
-                                    superior education. These schools are public institutions that admit students through highly competitive entrance exams. The teachers at these schools are dedicated to academic excellence, creating an environment of
-                                    healthy competition among both faculty and students. Students at exemplary schools benefit from extended class hours, contributing to a rigorous academic environment. While tuition fees remain reasonable, the quality
-                                    of education provided is exceptional. Admission to these schools is determined through entrance exams, typically held at the end of each academic year, with students entering from the ninth to tenth grade based on their
-                                    exam performance. Those who do not pass the entrance exam may be placed on a waiting list for potential admission.</p>
+                                <h4 class="text-xl font-bold">Master's degree, Artificial Intelligence Engineering</h4>
+                                <p class="text-tertiary mb-2">Oct 2020 - Jan 2024</p>
+                                <p>Qazvin Azad University (QIAU)
+                                </p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">High School Diploma, Mathematics & Physics</h4>
+                                <p class="text-tertiary mb-2">Oct 2016 - Jul 2020</p>
                                 <h4 class="text-xl font-bold">Bachelor's degree, Computer Software Engineering</h4>
                                 <p class="text-tertiary mb-2">Oct 2020 - Jan 2024</p>
-                                <p>Qazvin Azad University(QIAU) follows an industry-oriented mission of which education, research ,and training are the main components. QIAU was established with the aim of producing and developing knowledge in society as
-                                    well as educating the experts and specialists dedicated to Islamic, ethical virtues. Striving to educate the professional experts as well as taking advantage of country’s prominent professors, QIAU has made enormous
-                                    progress. This has opened many opportunities for alumni recruitment in scientific institutions and industrial companies, serving as senior managers and experts. Obviously, encouraging students to undertake higher levels
-                                    of education to meet academic, executive, and educational needs counts as an indicator of improved educational process. To this end, many students of QIAU have been admitted at graduate programs and accredited international
-                                    universities, such as Canada, England, Sweden, and U.S.A.</p>
+                                <p>Qazvin Azad University (QIAU)
+                                </p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">High School Diploma, Mathematics & Physics</h4>
+                                <p class="text-tertiary mb-2">Oct 2016 - Jul 2020</p>
+                                <p>Aqmashe State Model High School
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -343,19 +386,14 @@
                         <div class="space-y-6">
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <h4 class="text-xl font-bold">Research And Development Specialist</h4>
-                                <p class="text-accent1 mb-2">Mar 2025 - Present | Suzhou, Jiangsu, China · Remote</p>
-                                <p>Software Motion Engineering Services Co.,Ltd</p>
-                            </div>
-
-                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Deep Learning & Computer Vision Specialist</h4>
-                                <p class="text-accent1 mb-2">Jan 2025 - Present | Tehran Province, Iran · Remote</p>
-                                <p>Hoopad Sanaat Karmania Company</p>
+                                <p class="text-accent1 mb-2">Jun 2025 - Present | Tehran Province, Iran · On-Site</p>
+                                <p>TOSAN TECHNO</p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <h4 class="text-xl font-bold">Research And Development Specialist</h4>
-                                <p class="text-accent1 mb-2">Jun 2024 - Feb 2025 | Karaj, Alborz Province, Iran · Remote</p>
+                                <p class="text-accent1 mb-2">Jun 2024 - Feb 2025 | Karaj, Alborz Province, Iran · Remote
+                                </p>
                                 <p>Mammut World Group</p>
                             </div>
 
@@ -379,7 +417,8 @@
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <h4 class="text-xl font-bold">Junior Software Engineer</h4>
-                                <p class="text-accent1 mb-2">Jan 2021 - Dec 2021 | Vancouver, British Columbia, Canada · Remote</p>
+                                <p class="text-accent1 mb-2">Jan 2021 - Dec 2021 | Vancouver, British Columbia, Canada ·
+                                    Remote</p>
                                 <p>BeeHouse Foundation</p>
                             </div>
                         </div>
@@ -395,7 +434,8 @@
                             <div class="space-y-4">
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">ML, DL, NLP(NLTK), LLM(LangChain, CrewAI, llamaIndex, ...), Speech Recognition</span>
+                                        <span class="font-medium">ML, DL, NLP(NLTK), LLM(LangChain, CrewAI, llamaIndex,
+                                            ...), Speech Recognition</span>
                                         <span>70%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -405,7 +445,7 @@
 
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">TensorFlow, PyTorch, Keras, CUDA C, Triton, GPU Programming, Parallel Computing</span>
+                                        <span class="font-medium">TensorFlow, PyTorch, Keras, CUDA C, Triton, Parallel Computing</span>
                                         <span>75%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -415,7 +455,8 @@
 
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">Computer Vision, Image Processing (OpenCV&OpenGL), YOLO(3,5,8,9,10,11,12,NAS)</span>
+                                        <span class="font-medium">Computer Vision, Image Processing (OpenCV & OpenGL),
+                                            YOLO</span>
                                         <span>80%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -427,7 +468,8 @@
                             <div class="space-y-4">
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">Python, R, C, C++, VHDL & Verilog, SQL, JavaScript, Java, AJAX, FastAPI</span>
+                                        <span class="font-medium">Python, R, C, C++, SQL, JavaScript,
+                                            Java, AJAX,</span>
                                         <span>70%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -437,7 +479,8 @@
 
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">Flask, Django , Redis, Celery, Kubernetes, Docker, Ansible, NginX, RabbitMQ, GraphQL</span>
+                                        <span class="font-medium">Flask, Django, NodeJS , Redis, Celery, Kubernetes, Docker,
+                                            NginX, RabbitMQ, GraphQL</span>
                                         <span>70%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -447,7 +490,7 @@
 
                                 <div>
                                     <div class="flex justify-between mb-1">
-                                        <span class="font-medium">HTML5, CSS3, BootStrap, tailwind CSS, QT&PYQT, JQuery, FlexBox, Responsive Design</span>
+                                        <span class="font-medium">HTML5, CSS3, BootStrap, tailwind CSS, PYQT</span>
                                         <span>80%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -476,23 +519,28 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                             <i class="fas fa-brain text-2xl text-primary"></i>
                         </div>
                         <h3 class="text-xl font-bold mb-4">Machine Learning Development</h3>
-                        <p>Custom machine learning solutions tailored to your specific business needs and challenges.</p>
+                        <p>Custom machine learning solutions tailored to your specific business needs and challenges.
+                        </p>
                     </div>
 
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
                             <i class="fas fa-chart-line text-2xl text-secondary"></i>
                         </div>
                         <h3 class="text-xl font-bold mb-4">Data Analysis &amp; Visualization</h3>
-                        <p>Transform raw data into actionable insights with comprehensive analysis and visualization.</p>
+                        <p>Transform raw data into actionable insights with comprehensive analysis and visualization.
+                        </p>
                     </div>
 
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-tertiary/20 flex items-center justify-center mb-6">
                             <i class="fas fa-robot text-2xl text-tertiary"></i>
                         </div>
@@ -500,7 +548,8 @@
                         <p>Strategic guidance on implementing AI solutions to enhance your business operations.</p>
                     </div>
 
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-accent1/20 flex items-center justify-center mb-6">
                             <i class="fas fa-code text-2xl text-accent1"></i>
                         </div>
@@ -508,7 +557,8 @@
                         <p>Custom algorithm design and implementation for complex computational challenges.</p>
                     </div>
 
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-accent2/20 flex items-center justify-center mb-6">
                             <i class="fas fa-image text-2xl text-accent2"></i>
                         </div>
@@ -516,12 +566,14 @@
                         <p>Advanced image and video analysis solutions for object detection and recognition.</p>
                     </div>
 
-                    <div class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
+                    <div
+                        class="p-6 bg-light-card dark:bg-dark-card rounded-oneui shadow-lg hover-lift section-transition">
                         <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                             <i class="fas fa-comments text-2xl text-primary"></i>
                         </div>
                         <h3 class="text-xl font-bold mb-4">NLP Solutions</h3>
-                        <p>Natural Language Processing applications including chatbots, sentiment analysis, and text classification.</p>
+                        <p>Natural Language Processing applications including chatbots, sentiment analysis, and text
+                            classification.</p>
                     </div>
                 </div>
             </div>
@@ -542,25 +594,31 @@
 
                 <!-- Portfolio Filters -->
                 <div class="flex flex-wrap justify-center gap-4 mb-12">
-                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
+                    <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all"
+                        style="--active-color: #5D5CDE">
                         All
                     </button>
-                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="computer-vision" style="--active-color: #FF6B6B">
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg"
+                        data-filter="computer-vision" style="--active-color: #FF6B6B">
                         Computer Vision
                     </button>
-                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai" style="--active-color: #4ECDC4">
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai"
+                        style="--active-color: #4ECDC4">
                         AI
                     </button>
-                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml" style="--active-color: #FFD166">
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml"
+                        style="--active-color: #FFD166">
                         Machine Learning
                     </button>
-                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="full-stack" style="--active-color: #06D6A0">
+                    <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="full-stack"
+                        style="--active-color: #06D6A0">
                         Full Stack
                     </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 portfolio-grid">
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-secondary/30 to-primary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-robot text-5xl text-white/70"></i>
@@ -568,20 +626,25 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Face Verification with MTCNN and InceptionResnetV1</h3>
-                            <p class="mb-4">A deep learning-based face verification system using MTCNN for face detection and InceptionResnetV1 for face recognition.</p>
+                            <p class="mb-4">A deep learning-based face verification system using MTCNN for face
+                                detection and InceptionResnetV1 for face recognition.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial
+                                    Intelligence</span>
                             </div>
                             </br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Face-Recognition-and-Registration.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Face-Recognition-and-Registration.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="ai">
                         <div class="h-48 bg-gradient-to-br from-tertiary/30 to-accent1/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-comments text-5xl text-white/70"></i>
@@ -589,7 +652,8 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">AI-Powered Medical Assistant Chatbot</h3>
-                            <p class="mb-4">An intelligent chatbot system providing medical information and health guidance in Persian</p>
+                            <p class="mb-4">An intelligent chatbot system providing medical information and health
+                                guidance in Persian</p>
                             <div class="flex flex-wrap gap-2">
                                 <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">NLP</span>
                                 <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">LLM</span>
@@ -597,12 +661,14 @@
                             </br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2023 - Present</span>
-                                <a href="demo/Medical-Assistant-Chatbot.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Medical-Assistant-Chatbot.html" class="text-primary hover:underline">Demo
+                                    (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="full-stack">
                         <div class="h-48 bg-gradient-to-br from-accent1/30 to-accent2/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-chart-bar text-5xl text-white/70"></i>
@@ -610,31 +676,38 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Medical Appointment Reservation System</h3>
-                            <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era</p>
+                            <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the
+                                modern era</p>
                             <div class="flex flex-wrap gap-2">
                                 <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Base</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack
+                                    Programming</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/Medical-Appointment-Reservation-System.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Medical-Appointment-Reservation-System.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-primary/30 to-tertiary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-microchip text-5xl text-white/70"></i>
                             </div>
                         </div>
                         <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Smart Dermatological Analysis & Prescription System (SDAPS)</h3>
+                            <h3 class="text-xl font-bold mb-2">Smart Dermatological Analysis & Prescription System
+                                (SDAPS)</h3>
                             <p class="mb-4">Advanced AI-powered Dermatological Analysis Platform</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Artificial Intelligence</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Artificial
+                                    Intelligence</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
@@ -644,7 +717,8 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="full-stack">
                         <div class="h-48 bg-gradient-to-br from-accent2/30 to-accent1/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-brain text-5xl text-white/70"></i>
@@ -652,20 +726,25 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Advanced Github Manager</h3>
-                            <p class="mb-4">Python script for managing GitHub repositories and related operations using the GitHub API.</p>
+                            <p class="mb-4">Python script for managing GitHub repositories and related operations using
+                                the GitHub API.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Full Stack Programming</span>
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">API Development</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Full Stack
+                                    Programming</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">API
+                                    Development</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/Advanced-GitHub-Manager.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Advanced-GitHub-Manager.html" class="text-primary hover:underline">Demo
+                                    (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-secondary/30 to-accent2/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-heartbeat text-5xl text-white/70"></i>
@@ -675,39 +754,22 @@
                             <h3 class="text-xl font-bold mb-2">Tello Drone Object Following with Color Detection</h3>
                             <p class="mb-4">How to use a Tello drone for object following using color detection.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Cmputer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligece</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Cmputer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial
+                                    Intelligece</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2021</span>
-                                <a href="demo/Tello-Drone-Object-Following.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Tello-Drone-Object-Following.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai full-stack">
-                        <div class="h-48 bg-gradient-to-br from-primary/30 to-secondary/30 relative">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-globe text-5xl text-white/70"></i>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Vacuum Cleaner Algorithm in AI</h3>
-                            <p class="mb-4">Python code for a vacuum cleaner algorithm implemented using reinforcement learning, specifically Deep Q-Networks (DQN).</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full Stack</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Algorithms</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2023</span>
-                                <a href="demo/Vacuum-Cleaner-Algorithm.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-tertiary/30 to-primary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-camera text-5xl text-white/70"></i>
@@ -715,20 +777,26 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Persian Car License Plate Recognition</h3>
-                            <p class="mb-4">The project is focused on the detection and registration of vehicle license plates, along with the identification of the vehicle's make, color, and direction, while tracking entry and exit times.</p>
+                            <p class="mb-4">The project is focused on the detection and registration of vehicle license
+                                plates, along with the identification of the vehicle's make, color, and direction, while
+                                tracking entry and exit times.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep Learning</span>
+                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep
+                                    Learning</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Car-License-Plate-Recognition.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Car-License-Plate-Recognition.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="full-stack">
                         <div class="h-48 bg-gradient-to-br from-accent2/30 to-secondary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-code-branch text-5xl text-white/70"></i>
@@ -736,64 +804,26 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Advanced System Information Checker</h3>
-                            <p class="mb-4">It provides detailed information about the system, CPU, memory, disk, and network. It utilizes the psutil library to gather system information and platform, datetime, cpuinfo, socket, and uuid modules for additional system
+                            <p class="mb-4">It provides detailed information about the system, CPU, memory, disk, and
+                                network. It utilizes the psutil library to gather system information and platform,
+                                datetime, cpuinfo, socket, and uuid modules for additional system
                                 details.
                             </p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Full Stack Programming</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Full Stack
+                                    Programming</span>
                                 <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2023</span>
-                                <a href="demo/System-Information-Checker.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/System-Information-Checker.html" class="text-primary hover:underline">Demo
+                                    (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
-                        <div class="h-48 bg-gradient-to-br from-primary/30 to-secondary/30 relative">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-globe text-5xl text-white/70"></i>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">FountainPlayer - Music & Fountain Control system</h3>
-                            <p class="mb-4">A Qt-based application for synchronized music playback and fountain control</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full Stack</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Signal-Slots</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2022</span>
-                                <a href="demo/Modern-Music-Player-with-Fountain-Control.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
-                        <div class="h-48 bg-gradient-to-br from-tertiary/30 to-primary/30 relative">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-camera text-5xl text-white/70"></i>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Genetic Algorithm with Mutation and Crossover for New Generation Generation</h3>
-                            <p class="mb-4">This project implements a genetic algorithm in both Python and C++ to generate a new generation of solutions through a combination of mutation and crossover operations. Genetic algorithms are a powerful optimization technique
-                                inspired by the process of natural selection, allowing for the evolution of potential solutions to a problem over multiple generations.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Full Stack Programming</span>
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Algorithms</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2023</span>
-                                <a href="demo/Genetic-Algorithm.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-accent2/30 to-secondary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-code-branch text-5xl text-white/70"></i>
@@ -801,18 +831,23 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Secure your PC with Face Recognition Technology</h3>
-                            <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial recognition security that's both powerful and easy to use.</p>
+                            <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial
+                                recognition security that's both powerful and easy to use.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Computer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial
+                                    Intelligence</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Secure-PC-with-Face-Recognition-Technology.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Secure-PC-with-Face-Recognition-Technology.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="computer-vision ai">
                         <div class="h-48 bg-gradient-to-br from-primary/30 to-secondary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-globe text-5xl text-white/70"></i>
@@ -820,62 +855,25 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Coral Reef Segmentation</h3>
-                            <p class="mb-4">An integrated suite for coral reef research combining Meta AI's SAM2 and automated annotation tools.</p>
+                            <p class="mb-4">An integrated suite for coral reef research combining Meta AI's SAM2 and
+                                automated annotation tools.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer
+                                    Vision</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial
+                                    Intelligence</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Coral-Reef-Segmentation.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Coral-Reef-Segmentation.html" class="text-primary hover:underline">Demo
+                                    (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
-                        <div class="h-48 bg-gradient-to-br from-tertiary/30 to-primary/30 relative">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-camera text-5xl text-white/70"></i>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Advanced Quantum Computing Simulation</h3>
-                            <p class="mb-4">A Quantum Computing Simulation Framework with Advanced Task Scheduling and Visualization</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Full Stack Programming</span>
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Algorithms</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/Advanced-Quantum-Computing-Simulation.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack ml">
-                        <div class="h-48 bg-gradient-to-br from-accent2/30 to-secondary/30 relative">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-code-branch text-5xl text-white/70"></i>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">RMS Titanic Interactive Simulation</h3>
-                            <p class="mb-4">Note: This simulation contains historically accurate layouts and passenger information based on available records. Some minor details may vary due to limitations in historical documentation.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">MLOps</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/RMS-Titanic-Interactive-Simulation.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="full-stack">
                         <div class="h-48 bg-gradient-to-br from-accent1/30 to-accent2/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-chart-bar text-5xl text-white/70"></i>
@@ -883,20 +881,25 @@
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">Farsco Aircraft Repair Engineering Company</h3>
-                            <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance services with more than two decades of experience in the aviation industry.</p>
+                            <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance
+                                services with more than two decades of experience in the aviation industry.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Science</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time Series</span>
+                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data
+                                    Science</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time
+                                    Series</span>
                             </div>
                             <br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/Farsco-Aircraft-Repair-Company.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/Farsco-Aircraft-Repair-Company.html"
+                                    class="text-primary hover:underline">Demo (just UI)</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack ai">
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition"
+                        data-category="full-stack ai">
                         <div class="h-48 bg-gradient-to-br from-secondary/30 to-primary/30 relative">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <i class="fas fa-robot text-5xl text-white/70"></i>
@@ -906,106 +909,18 @@
                             <h3 class="text-xl font-bold mb-2">AI-Enhanced Terminal</h3>
                             <p class="mb-4">Execute Windows CMD commands with real-time AI analysis.</p>
                             <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full-Stack Programming</span>
+                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial
+                                    Intelligence</span>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full-Stack
+                                    Programming</span>
                             </div>
                             </br>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/AI-Enhanced-Terminal.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                <a href="demo/AI-Enhanced-Terminal.html" class="text-primary hover:underline">Demo (just
+                                    UI)</a>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="py-24 relative">
-            <div class="absolute inset-0 overflow-hidden z-0">
-                <div class="parallax-bg absolute inset-0"></div>
-                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-tertiary/10 rounded-full blur-3xl"></div>
-            </div>
-
-            <div class="container mx-auto px-6 z-10 parallax-content">
-                <div class="section-title mb-12 text-center">
-                    <h2 class="text-3xl md:text-4xl font-bold">Contact Me</span>
-                    </h2>
-                    <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    <div class="space-y-8 section-transition">
-                        <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-map-marker-alt text-primary"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold mb-2">Location</h3>
-                                <p>Qazvin, Iran</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-envelope text-secondary"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold mb-2">Email</h3>
-                                <p>official.parvizi@gmail.com</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-phone text-tertiary"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold mb-2">Phone</h3>
-                                <p>+98 901 132 5118</p>
-                            </div>
-                        </div>
-
-                        <div class="flex space-x-4 pt-4">
-                            <a href="https://github.com/awrsha" target="_blank" class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                                <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://www.linkedin.com/in/awrsha" target="_blank" class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            <a href="#" target="_blank" class="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center hover:bg-tertiary hover:text-white transition-colors">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="https://www.instagram.com/arsha._.pa" target="_blank" class="w-12 h-12 rounded-full bg-accent1/20 flex items-center justify-center hover:bg-accent1 hover:text-white transition-colors">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="section-transition">
-                        <form class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="name" class="block mb-2 font-medium">Your Name</label>
-                                    <input type="text" id="name" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
-                                </div>
-                                <div>
-                                    <label for="email" class="block mb-2 font-medium">Your Email</label>
-                                    <input type="email" id="email" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="subject" class="block mb-2 font-medium">Subject</label>
-                                <input type="text" id="subject" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
-                            </div>
-                            <div>
-                                <label for="message" class="block mb-2 font-medium">Message</label>
-                                <textarea id="message" rows="5" class="w-full p-4 text-base bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-700 rounded-oneui focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"></textarea>
-                            </div>
-                            <button type="submit" class="px-8 py-4 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
-                                Send Message
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -1014,7 +929,8 @@
         <!-- Footer -->
         <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
             <div class="container mx-auto px-6">
-                <p class="mb-4">© Copyright 2025<span class="text-primary">Amir M. Parvizi</span>. All Rights Reserved</p>
+                <p class="mb-4">© Copyright 2025.<span class="text-primary"> Amir M. Parvizi</span>. All Rights Reserved.
+                </p>
             </div>
         </footer>
     </div>
@@ -1201,7 +1117,7 @@
 
             // Fix navigation links to work properly with smooth scrolling
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
+                anchor.addEventListener('click', function (e) {
                     e.preventDefault();
 
                     const targetId = this.getAttribute('href');
