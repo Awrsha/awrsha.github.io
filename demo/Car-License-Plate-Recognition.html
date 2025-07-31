@@ -1,258 +1,1556 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم تشخیص پلاک خودرو</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <title>Advanced License Plate Recognition System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#1E40AF',
+                        accent: '#F59E0B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        dark: {
+                            100: '#1F2937',
+                            200: '#374151',
+                            300: '#4B5563',
+                            400: '#6B7280',
+                            500: '#9CA3AF'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @font-face {
-            font-family: 'Vazir';
-            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Regular.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body {
-            font-family: 'Vazir', sans-serif;
-            background-color: #f0f4f8;
+            font-family: 'Inter', sans-serif;
         }
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            font-weight: bold;
-            cursor: pointer;
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-hover {
             transition: all 0.3s ease;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .btn-edit {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-        }
-        .btn-backup {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-reset {
-            background-color: #dc3545;
-            color: white;
-        }
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
+        
+        .scanning-animation {
+            position: relative;
             overflow: hidden;
         }
-        th, td {
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem;
-            text-align: right;
+        
+        .scanning-animation::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            animation: scan 2s infinite;
         }
-        th {
-            background-color: #edf2f7;
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-indicator {
+            position: relative;
+        }
+        
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online::before {
+            background: rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-offline::before {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .table-row-animation {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .license-plate-box {
+            border: 2px solid #3B82F6;
+            border-radius: 8px;
+            padding: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            font-family: monospace;
             font-weight: bold;
-            text-transform: uppercase;
-        }
-        tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-        tr:hover {
-            background-color: #e2e8f0;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .action-buttons .btn i {
-            margin-left: 0.5rem;
-        }
-        .nav-menu {
-            background: linear-gradient(45deg, #3498db, #8e44ad);
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-        .nav-logo i {
-            margin-left: 0.5rem;
-        }
-        .nav-links {
-            display: flex;
-            gap: 1rem;
-        }
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-        }
-        .nav-link i {
-            margin-left: 0.5rem;
-        }
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .stat-card {
-            border-radius: 0.5rem;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            letter-spacing: 2px;
             text-align: center;
-            transition: all 0.3s ease;
         }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .real-time-feed {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        .stat-card i {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+        
+        .detection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: linear-gradient(45deg, #3498db, #8e44ad);
-                padding: 1rem;
-            }
-            .nav-links.show {
-                display: flex;
-            }
-            .nav-toggle {
-                display: block;
-            }
+        
+        .detection-box {
+            position: absolute;
+            border: 3px solid #10B981;
+            border-radius: 4px;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .confidence-badge {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: #10B981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <nav class="nav-menu">
-        <div class="container mx-auto nav-container">
-            <a href="#" class="nav-logo"><i class="fas fa-car"></i> سیستم تشخیص پلاک خودرو</a>
-            <button class="nav-toggle" onclick="toggleMenu()">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="nav-links" id="navLinks">
-                <a href="{{ url_for('home') }}" class="nav-link active"><i class="fas fa-home"></i> خانه</a>
-                <a href="{{ url_for('backup') }}" class="nav-link"><i class="fas fa-chart-bar"></i> گزارش‌ها</a>
-                <a href="{{ url_for('settings') }}" class="nav-link"><i class="fas fa-cog"></i> تنظیمات</a>
-                <a href="{{ url_for('service') }}" class="nav-link"><i class="fas fa-headset"></i> پشتیبانی</a>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                <i data-lucide="car" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <span class="text-xl font-bold gradient-text">ALPR System</span>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#dashboard" class="nav-link bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="#analytics" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Analytics</a>
+                            <a href="#settings" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Settings</a>
+                            <a href="#alerts" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Alerts</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                    </button>
+                    
+                    <div class="relative">
+                        <button id="notifications-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span id="notification-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center hidden"></span>
+                        </button>
+                    </div>
+                    
+                    <button class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+                <a href="#dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900">Dashboard</a>
+                <a href="#analytics" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Analytics</a>
+                <a href="#settings" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Settings</a>
+                <a href="#alerts" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Alerts</a>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto mt-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInLeft">
-                <h2 id="دوربین-زنده" class="text-xl font-semibold mb-4"><i class="fas fa-video"></i> دوربین زنده</h2>
-                <div class="bg-gray-300 h-64 flex items-center justify-center rounded-lg overflow-hidden">
-                    <img src="/api/placeholder/400/320" alt="Live Camera Feed" class="w-full h-full object-cover">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div id="dashboard-section">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8">
+                <div class="mb-4 lg:mb-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">License Plate Recognition Dashboard</h1>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Real-time monitoring and analytics for vehicle license plate detection</p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full status-indicator status-online"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">System Online</span>
+                    </div>
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button id="start-detection" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            <span>Start Detection</span>
+                        </button>
+                        <button id="stop-detection" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm hidden">
+                            <i data-lucide="square" class="w-4 h-4"></i>
+                            <span>Stop Detection</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInRight">
-                <h2 id="آمار-پلاکها" class="text-xl font-semibold mb-4"><i class="fas fa-chart-pie"></i> آمار پلاک‌ها</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="stat-card bg-blue-100">
-                        <i class="fas fa-car-side text-blue-500"></i>
-                        <h3 id="تعداد-کل" class="font-semibold">تعداد کل</h3>
-                        <p class="text-2xl font-bold">0</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Detections</p>
+                            <p id="total-detections" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                            <p class="text-sm text-green-600 dark:text-green-400">+12% from yesterday</p>
+                        </div>
+                        <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3">
+                            <i data-lucide="car" class="w-5 sm:w-6 h-5 sm:h-6 text-blue-600 dark:text-blue-400"></i>
+                        </div>
                     </div>
-                    <div class="stat-card bg-green-100">
-                        <i class="fas fa-sign-in-alt text-green-500"></i>
-                        <h3 id="ورودی-امروز" class="font-semibold">ورودی امروز</h3>
-                        <p class="text-2xl font-bold">0</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Today's Entries</p>
+                            <p id="today-entries" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                            <p class="text-sm text-green-600 dark:text-green-400">Real-time</p>
+                        </div>
+                        <div class="bg-green-100 dark:bg-green-900 rounded-full p-3">
+                            <i data-lucide="log-in" class="w-5 sm:w-6 h-5 sm:h-6 text-green-600 dark:text-green-400"></i>
+                        </div>
                     </div>
-                    <div class="stat-card bg-yellow-100">
-                        <i class="fas fa-sign-out-alt text-yellow-500"></i>
-                        <h3 id="خروجی-امروز" class="font-semibold">خروجی امروز</h3>
-                        <p class="text-2xl font-bold">0</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Today's Exits</p>
+                            <p id="today-exits" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                            <p class="text-sm text-blue-600 dark:text-blue-400">Real-time</p>
+                        </div>
+                        <div class="bg-yellow-100 dark:bg-yellow-900 rounded-full p-3">
+                            <i data-lucide="log-out" class="w-5 sm:w-6 h-5 sm:h-6 text-yellow-600 dark:text-yellow-400"></i>
+                        </div>
                     </div>
-                    <div class="stat-card bg-red-100">
-                        <i class="fas fa-exclamation-triangle text-red-500"></i>
-                        <h3 id="هشدارها" class="font-semibold">هشدارها</h3>
-                        <p class="text-2xl font-bold">0</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 card-hover transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Alerts</p>
+                            <p id="active-alerts" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                            <p class="text-sm text-red-600 dark:text-red-400">Requires attention</p>
+                        </div>
+                        <div class="bg-red-100 dark:bg-red-900 rounded-full p-3">
+                            <i data-lucide="alert-triangle" class="w-5 sm:w-6 h-5 sm:h-6 text-red-600 dark:text-red-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                <div class="lg:col-span-3">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-0">Live Camera Feed</h2>
+                            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                                <select id="camera-select" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1 text-sm flex-1 sm:flex-none">
+                                    <option value="0">Camera 1</option>
+                                    <option value="1">Camera 2</option>
+                                    <option value="2">Camera 3</option>
+                                </select>
+                                <button id="fullscreen-btn" class="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="real-time-feed">
+                            <video id="camera-feed" class="w-full h-48 sm:h-64 lg:h-80 bg-gray-900 rounded-lg object-cover" autoplay muted></video>
+                            <div id="detection-overlay" class="detection-overlay"></div>
+                            <div id="scanning-indicator" class="scanning-animation absolute inset-0 hidden"></div>
+                        </div>
+                        
+                        <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button id="capture-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
+                                    <i data-lucide="camera" class="w-4 h-4"></i>
+                                    <span>Capture</span>
+                                </button>
+                                <button id="record-btn" class="bg-purple-500 hover:bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
+                                    <i data-lucide="video" class="w-4 h-4"></i>
+                                    <span>Record</span>
+                                </button>
+                                <input type="file" id="upload-image" accept="image/*" class="hidden">
+                                <button id="upload-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm" onclick="document.getElementById('upload-image').click()">
+                                    <i data-lucide="upload" class="w-4 h-4"></i>
+                                    <span>Upload</span>
+                                </button>
+                            </div>
+                            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                FPS: <span id="fps-counter">0</span> | Resolution: <span id="resolution">1920x1080</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Latest Detections</h3>
+                        <div id="latest-detections" class="space-y-3 max-h-60 sm:max-h-80 overflow-y-auto custom-scrollbar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 lg:mb-0">License Plate Records</h2>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Search license plates..." class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 text-sm w-full sm:w-64 text-base">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select id="filter-type" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-base">
+                            <option value="all">All Types</option>
+                            <option value="entry">Entry Only</option>
+                            <option value="exit">Exit Only</option>
+                            <option value="blacklisted">Blacklisted</option>
+                        </select>
+                        <button id="export-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Export</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">License Plate</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vehicle Type</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Entry Time</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Exit Time</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Duration</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Confidence</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="records-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 space-y-3 sm:space-y-0">
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing <span id="showing-start">1</span> to <span id="showing-end">10</span> of <span id="total-records">0</span> records
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="prev-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled>Previous</button>
+                        <span id="page-info" class="px-3 py-1 text-sm text-gray-600 dark:text-gray-400">Page 1 of 1</span>
+                        <button id="next-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hourly Detection Trends</h3>
+                    <canvas id="hourly-chart" class="w-full h-48 sm:h-64"></canvas>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vehicle Type Distribution</h3>
+                    <canvas id="vehicle-chart" class="w-full h-48 sm:h-64"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics-section" class="hidden">
+            <div class="mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Analytics Dashboard</h1>
+                <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Comprehensive insights and reports for license plate detection system</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-0">Weekly Detection Report</h2>
+                            <select id="report-period" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-base">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30">Last 30 Days</option>
+                                <option value="90">Last 3 Months</option>
+                            </select>
+                        </div>
+                        <canvas id="weekly-chart" class="w-full h-64 sm:h-80"></canvas>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Peak Hours</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Morning Rush</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">8:00 - 9:00 AM</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Lunch Time</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">12:00 - 1:00 PM</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Evening Rush</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">5:00 - 6:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detection Accuracy</h3>
+                        <div class="text-center">
+                            <div class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mb-2">97.3%</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Overall Accuracy</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-		
-        <div class="bg-white rounded-lg shadow-md p-6 animate__animated animate__fadeInUp">
-            <h2 id="جدول-پلاکها" class="text-xl font-semibold mb-4"><i class="fas fa-table"></i> جدول پلاک‌ها</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th>ردیف</th>
-                            <th>شماره پلاک</th>
-                            <th>نوع پلاک</th>
-                            <th>استان</th>
-                            <th>تاریخ ورود</th>
-                            <th>ساعت ورود</th>
-                            <th>تاریخ خروج</th>
-                            <th>ساعت خروج</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="plateTableBody">
-                        <!-- Table rows will be populated dynamically -->
-                    </tbody>
-                </table>
+
+        <div id="settings-section" class="hidden">
+            <div class="mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">System Settings</h1>
+                <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Configure detection parameters and system preferences</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Detection Settings</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confidence Threshold</label>
+                            <input type="range" id="confidence-threshold" min="50" max="100" value="85" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <span>50%</span>
+                                <span id="confidence-value">85%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detection Region</label>
+                            <select id="detection-region" class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-base">
+                                <option value="full">Full Frame</option>
+                                <option value="top">Top Half</option>
+                                <option value="bottom">Bottom Half</option>
+                                <option value="center">Center Region</option>
+                                <option value="custom">Custom Region</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="auto-save" class="rounded">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Auto-save detections</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="flex items-center space-x-3">
+                                <input type="checkbox" id="real-time-alerts" class="rounded">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Real-time alerts</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Camera Settings</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Camera Resolution</label>
+                            <select id="camera-resolution" class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-base">
+                                <option value="1920x1080">1920x1080 (Full HD)</option>
+                                <option value="1280x720">1280x720 (HD)</option>
+                                <option value="640x480">640x480 (SD)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frame Rate</label>
+                            <select id="frame-rate" class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-base">
+                                <option value="30">30 FPS</option>
+                                <option value="25">25 FPS</option>
+                                <option value="15">15 FPS</option>
+                                <option value="10">10 FPS</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Brightness</label>
+                            <input type="range" id="brightness" min="0" max="100" value="50" class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contrast</label>
+                            <input type="range" id="contrast" min="0" max="100" value="50" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+                <button id="reset-settings" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors">Reset to Default</button>
+                <button id="save-settings" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">Save Settings</button>
             </div>
         </div>
 
-        <div class="action-buttons animate__animated animate__fadeInUp mt-4">
-            <button class="btn btn-backup" onclick="backupData()">
-                <i class="fas fa-download"></i> پشتیبان‌گیری
-            </button>
-            <button class="btn btn-reset" onclick="resetTable()">
-                <i class="fas fa-trash-alt"></i> بازنشانی جدول
-            </button>
+        <div id="alerts-section" class="hidden">
+            <div class="mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Alert Management</h1>
+                <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Configure and manage system alerts and notifications</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-0">Alert Rules</h2>
+                    <button id="add-alert-rule" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add Rule</span>
+                    </button>
+                </div>
+
+                <div id="alert-rules" class="space-y-4">
+                    
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Recent Alerts</h2>
+                <div id="recent-alerts" class="space-y-4">
+                    
+                </div>
+            </div>
         </div>
     </main>
+
+    <div id="notification-panel" class="fixed top-20 right-4 w-80 max-w-[calc(100vw-2rem)] max-h-96 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
+        </div>
+        <div id="notifications-list" class="p-4 space-y-3">
+            
+        </div>
+    </div>
+
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        class LicensePlateRecognition {
+            constructor() {
+                this.isDetecting = false;
+                this.detections = [];
+                this.currentStream = null;
+                this.charts = {};
+                this.settings = {
+                    confidenceThreshold: 85,
+                    autoSave: true,
+                    realTimeAlerts: true
+                };
+                this.alertRules = [];
+                this.notifications = [];
+                this.currentPage = 1;
+                this.recordsPerPage = 10;
+
+                this.initializeSystem();
+                this.setupEventListeners();
+                this.initializeCharts();
+                this.loadSampleData();
+            }
+
+            initializeSystem() {
+                lucide.createIcons();
+                this.setupThemeToggle();
+                this.setupNavigation();
+                this.initializeCamera();
+            }
+
+            setupThemeToggle() {
+                const themeToggle = document.getElementById('theme-toggle');
+                themeToggle.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    lucide.createIcons();
+                });
+            }
+
+            setupNavigation() {
+                const navLinks = document.querySelectorAll('.nav-link');
+                const sections = ['dashboard', 'analytics', 'settings', 'alerts'];
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = link.getAttribute('href').substring(1);
+                        
+                        sections.forEach(section => {
+                            const element = document.getElementById(`${section}-section`);
+                            if (element) {
+                                element.classList.toggle('hidden', section !== target);
+                            }
+                        });
+
+                        navLinks.forEach(navLink => {
+                            navLink.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+                            navLink.classList.add('text-gray-600', 'dark:text-gray-300');
+                        });
+
+                        link.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+                        link.classList.remove('text-gray-600', 'dark:text-gray-300');
+                    });
+                });
+            }
+
+            setupEventListeners() {
+                document.getElementById('start-detection').addEventListener('click', () => this.startDetection());
+                document.getElementById('stop-detection').addEventListener('click', () => this.stopDetection());
+                document.getElementById('capture-btn').addEventListener('click', () => this.captureImage());
+                document.getElementById('upload-image').addEventListener('change', (e) => this.handleImageUpload(e));
+                document.getElementById('search-input').addEventListener('input', (e) => this.searchRecords(e.target.value));
+                document.getElementById('export-btn').addEventListener('click', () => this.exportData());
+                document.getElementById('notifications-btn').addEventListener('click', () => this.toggleNotifications());
+                document.getElementById('confidence-threshold').addEventListener('input', (e) => this.updateConfidence(e.target.value));
+                document.getElementById('save-settings').addEventListener('click', () => this.saveSettings());
+                document.getElementById('reset-settings').addEventListener('click', () => this.resetSettings());
+                document.getElementById('add-alert-rule').addEventListener('click', () => this.addAlertRule());
+
+                document.addEventListener('click', (e) => {
+                    const notificationPanel = document.getElementById('notification-panel');
+                    const notificationBtn = document.getElementById('notifications-btn');
+                    if (!notificationPanel.contains(e.target) && !notificationBtn.contains(e.target)) {
+                        notificationPanel.classList.add('hidden');
+                    }
+                });
+            }
+
+            async initializeCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 1920, height: 1080 }
+                    });
+                    const video = document.getElementById('camera-feed');
+                    video.srcObject = stream;
+                    this.currentStream = stream;
+                } catch (error) {
+                    console.error('Camera initialization failed:', error);
+                    this.showNotification('Camera access denied or not available', 'error');
+                }
+            }
+
+            startDetection() {
+                this.isDetecting = true;
+                document.getElementById('start-detection').classList.add('hidden');
+                document.getElementById('stop-detection').classList.remove('hidden');
+                document.getElementById('scanning-indicator').classList.remove('hidden');
+                
+                this.detectionInterval = setInterval(() => {
+                    this.simulateDetection();
+                }, 3000);
+
+                this.showNotification('License plate detection started', 'success');
+            }
+
+            stopDetection() {
+                this.isDetecting = false;
+                document.getElementById('start-detection').classList.remove('hidden');
+                document.getElementById('stop-detection').classList.add('hidden');
+                document.getElementById('scanning-indicator').classList.add('hidden');
+                
+                if (this.detectionInterval) {
+                    clearInterval(this.detectionInterval);
+                }
+
+                this.showNotification('License plate detection stopped', 'info');
+            }
+
+            simulateDetection() {
+                const licensePlates = [
+                    'ABC-1234', 'XYZ-5678', 'DEF-9012', 'GHI-3456', 'JKL-7890',
+                    'MNO-2468', 'PQR-1357', 'STU-9753', 'VWX-8642', 'YZA-0246'
+                ];
+
+                const vehicleTypes = ['Car', 'Truck', 'Motorcycle', 'Van', 'Bus'];
+                const states = ['CA', 'NY', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI'];
+
+                const plate = licensePlates[Math.floor(Math.random() * licensePlates.length)];
+                const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+                const state = states[Math.floor(Math.random() * states.length)];
+                const confidence = Math.floor(Math.random() * 15) + 85;
+
+                const detection = {
+                    id: Date.now(),
+                    licensePlate: plate,
+                    vehicleType: vehicleType,
+                    state: state,
+                    entryTime: new Date(),
+                    exitTime: null,
+                    confidence: confidence,
+                    status: 'Active',
+                    image: null
+                };
+
+                this.detections.unshift(detection);
+                this.updateUI();
+                this.addLatestDetection(detection);
+                this.updateStatistics();
+
+                if (confidence < this.settings.confidenceThreshold) {
+                    this.showNotification(`Low confidence detection: ${plate} (${confidence}%)`, 'warning');
+                }
+
+                this.simulateDetectionBox();
+            }
+
+            simulateDetectionBox() {
+                const overlay = document.getElementById('detection-overlay');
+                overlay.innerHTML = '';
+
+                const box = document.createElement('div');
+                box.className = 'detection-box';
+                box.style.left = Math.random() * 60 + 20 + '%';
+                box.style.top = Math.random() * 40 + 30 + '%';
+                box.style.width = '150px';
+                box.style.height = '40px';
+
+                const badge = document.createElement('div');
+                badge.className = 'confidence-badge';
+                badge.textContent = Math.floor(Math.random() * 15) + 85 + '%';
+                box.appendChild(badge);
+
+                overlay.appendChild(box);
+
+                setTimeout(() => {
+                    overlay.innerHTML = '';
+                }, 2000);
+            }
+
+            addLatestDetection(detection) {
+                const container = document.getElementById('latest-detections');
+                const detectionElement = document.createElement('div');
+                detectionElement.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border-l-4 border-blue-500';
+                detectionElement.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="license-plate-box text-sm">${detection.licensePlate}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">${detection.vehicleType} • ${detection.state}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">${detection.entryTime.toLocaleTimeString()}</div>
+                            <div class="text-xs text-green-600 dark:text-green-400">${detection.confidence}%</div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(detectionElement, container.firstChild);
+
+                if (container.children.length > 10) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+
+            updateStatistics() {
+                const today = new Date().toDateString();
+                const todayDetections = this.detections.filter(d => d.entryTime.toDateString() === today);
+
+                document.getElementById('total-detections').textContent = this.detections.length;
+                document.getElementById('today-entries').textContent = todayDetections.length;
+                document.getElementById('today-exits').textContent = this.detections.filter(d => d.exitTime).length;
+                document.getElementById('active-alerts').textContent = this.notifications.filter(n => n.type === 'error').length;
+            }
+
+            updateUI() {
+                this.renderRecordsTable();
+                this.updateCharts();
+            }
+
+            renderRecordsTable() {
+                const tbody = document.getElementById('records-table');
+                const startIndex = (this.currentPage - 1) * this.recordsPerPage;
+                const endIndex = startIndex + this.recordsPerPage;
+                const pageRecords = this.detections.slice(startIndex, endIndex);
+
+                tbody.innerHTML = '';
+
+                pageRecords.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-animation hover:bg-gray-50 dark:hover:bg-gray-700';
+                    
+                    const duration = record.exitTime ? 
+                        this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
+
+                    const statusColor = record.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                                      record.status === 'Exited' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+
+                    row.innerHTML = `
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="license-plate-box text-sm">${record.licensePlate}</div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.vehicleType}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.entryTime.toLocaleString()}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.exitTime ? record.exitTime.toLocaleString() : '-'}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${duration}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-12 sm:w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${record.confidence}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-900 dark:text-gray-100">${record.confidence}%</span>
+                            </div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${record.status}</span>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-1 sm:space-x-2">
+                                <button onclick="lpr.viewRecord(${record.id})" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="lpr.editRecord(${record.id})" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="lpr.deleteRecord(${record.id})" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+
+                lucide.createIcons();
+                this.updatePagination();
+            }
+
+            calculateDuration(entryTime, exitTime) {
+                const diff = exitTime - entryTime;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                return `${hours}h ${minutes}m`;
+            }
+
+            updatePagination() {
+                const totalPages = Math.ceil(this.detections.length / this.recordsPerPage);
+                const startRecord = (this.currentPage - 1) * this.recordsPerPage + 1;
+                const endRecord = Math.min(this.currentPage * this.recordsPerPage, this.detections.length);
+
+                document.getElementById('showing-start').textContent = startRecord;
+                document.getElementById('showing-end').textContent = endRecord;
+                document.getElementById('total-records').textContent = this.detections.length;
+                document.getElementById('page-info').textContent = `Page ${this.currentPage} of ${totalPages}`;
+
+                document.getElementById('prev-page').disabled = this.currentPage === 1;
+                document.getElementById('next-page').disabled = this.currentPage === totalPages;
+            }
+
+            initializeCharts() {
+                this.createHourlyChart();
+                this.createVehicleChart();
+                this.createWeeklyChart();
+            }
+
+            createHourlyChart() {
+                const ctx = document.getElementById('hourly-chart').getContext('2d');
+                this.charts.hourly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                        datasets: [{
+                            label: 'Hourly Detections',
+                            data: Array.from({length: 24}, () => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: '#3B82F6',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            createVehicleChart() {
+                const ctx = document.getElementById('vehicle-chart').getContext('2d');
+                this.charts.vehicle = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Cars', 'Trucks', 'Motorcycles', 'Vans', 'Buses'],
+                        datasets: [{
+                            data: [45, 25, 15, 10, 5],
+                            backgroundColor: [
+                                '#3B82F6',
+                                '#10B981',
+                                '#F59E0B',
+                                '#EF4444',
+                                '#8B5CF6'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            createWeeklyChart() {
+                const ctx = document.getElementById('weekly-chart').getContext('2d');
+                this.charts.weekly = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'This Week',
+                            data: [120, 150, 180, 200, 170, 90, 80],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Last Week',
+                            data: [100, 140, 160, 180, 150, 80, 70],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateCharts() {
+                Object.values(this.charts).forEach(chart => {
+                    if (chart) chart.update();
+                });
+            }
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.processUploadedImage(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            async processUploadedImage(imageSrc) {
+                this.showNotification('Processing uploaded image...', 'info');
+                
+                try {
+                    const result = await Tesseract.recognize(imageSrc, 'eng', {
+                        logger: m => console.log(m)
+                    });
+                    
+                    const text = result.data.text.trim();
+                    const platePattern = /[A-Z0-9]{2,3}-[A-Z0-9]{3,4}/;
+                    const match = text.match(platePattern);
+                    
+                    if (match) {
+                        const detection = {
+                            id: Date.now(),
+                            licensePlate: match[0],
+                            vehicleType: 'Unknown',
+                            state: 'Unknown',
+                            entryTime: new Date(),
+                            exitTime: null,
+                            confidence: Math.floor(Math.random() * 20) + 70,
+                            status: 'Manual',
+                            image: imageSrc
+                        };
+                        
+                        this.detections.unshift(detection);
+                        this.updateUI();
+                        this.showNotification(`License plate detected: ${match[0]}`, 'success');
+                    } else {
+                        this.showNotification('No license plate detected in image', 'warning');
+                    }
+                } catch (error) {
+                    console.error('OCR processing failed:', error);
+                    this.showNotification('Failed to process image', 'error');
+                }
+            }
+
+            captureImage() {
+                const video = document.getElementById('camera-feed');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                const dataURL = canvas.toDataURL('image/png');
+                this.downloadImage(dataURL, `capture_${Date.now()}.png`);
+                this.showNotification('Image captured successfully', 'success');
+            }
+
+            downloadImage(dataURL, filename) {
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            searchRecords(query) {
+                const filteredRecords = this.detections.filter(record =>
+                    record.licensePlate.toLowerCase().includes(query.toLowerCase()) ||
+                    record.vehicleType.toLowerCase().includes(query.toLowerCase()) ||
+                    record.state.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                this.currentPage = 1;
+                this.renderFilteredRecords(filteredRecords);
+            }
+
+            renderFilteredRecords(records) {
+                const tbody = document.getElementById('records-table');
+                tbody.innerHTML = '';
+
+                records.slice(0, this.recordsPerPage).forEach(record => {
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-animation hover:bg-gray-50 dark:hover:bg-gray-700';
+                    
+                    const duration = record.exitTime ? 
+                        this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
+
+                    const statusColor = record.status === 'Active' ? 'bg-green-100 text-green-800' :
+                                      record.status === 'Exited' ? 'bg-blue-100 text-blue-800' :
+                                      'bg-red-100 text-red-800';
+
+                    row.innerHTML = `
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="license-plate-box text-sm">${record.licensePlate}</div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.vehicleType}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.entryTime.toLocaleString()}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${record.exitTime ? record.exitTime.toLocaleString() : '-'}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${duration}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-12 sm:w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${record.confidence}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-900 dark:text-gray-100">${record.confidence}%</span>
+                            </div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">${record.status}</span>
+                        </td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-1 sm:space-x-2">
+                                <button onclick="lpr.viewRecord(${record.id})" class="text-blue-600 hover:text-blue-900">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="lpr.editRecord(${record.id})" class="text-green-600 hover:text-green-900">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="lpr.deleteRecord(${record.id})" class="text-red-600 hover:text-red-900">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+
+                lucide.createIcons();
+            }
+
+            exportData() {
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + "License Plate,Vehicle Type,Entry Time,Exit Time,Duration,Confidence,Status\n"
+                    + this.detections.map(record => {
+                        const duration = record.exitTime ? this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
+                        return `${record.licensePlate},${record.vehicleType},${record.entryTime.toLocaleString()},${record.exitTime ? record.exitTime.toLocaleString() : ''},${duration},${record.confidence}%,${record.status}`;
+                    }).join("\n");
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `license_plate_records_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                this.showNotification('Data exported successfully', 'success');
+            }
+
+            viewRecord(id) {
+                const record = this.detections.find(r => r.id === id);
+                if (record) {
+                    Swal.fire({
+                        title: 'License Plate Details',
+                        html: `
+                            <div class="text-left">
+                                <p><strong>License Plate:</strong> ${record.licensePlate}</p>
+                                <p><strong>Vehicle Type:</strong> ${record.vehicleType}</p>
+                                <p><strong>State:</strong> ${record.state}</p>
+                                <p><strong>Entry Time:</strong> ${record.entryTime.toLocaleString()}</p>
+                                <p><strong>Exit Time:</strong> ${record.exitTime ? record.exitTime.toLocaleString() : 'Still Active'}</p>
+                                <p><strong>Confidence:</strong> ${record.confidence}%</p>
+                                <p><strong>Status:</strong> ${record.status}</p>
+                            </div>
+                        `,
+                        confirmButtonColor: '#3B82F6'
+                    });
+                }
+            }
+
+            editRecord(id) {
+                const record = this.detections.find(r => r.id === id);
+                if (record) {
+                    Swal.fire({
+                        title: 'Edit Record',
+                        html: `
+                            <div class="space-y-4">
+                                <input id="edit-plate" class="swal2-input" placeholder="License Plate" value="${record.licensePlate}">
+                                <select id="edit-vehicle" class="swal2-input">
+                                    <option value="Car" ${record.vehicleType === 'Car' ? 'selected' : ''}>Car</option>
+                                    <option value="Truck" ${record.vehicleType === 'Truck' ? 'selected' : ''}>Truck</option>
+                                    <option value="Motorcycle" ${record.vehicleType === 'Motorcycle' ? 'selected' : ''}>Motorcycle</option>
+                                    <option value="Van" ${record.vehicleType === 'Van' ? 'selected' : ''}>Van</option>
+                                    <option value="Bus" ${record.vehicleType === 'Bus' ? 'selected' : ''}>Bus</option>
+                                </select>
+                                <input id="edit-state" class="swal2-input" placeholder="State" value="${record.state}">
+                            </div>
+                        `,
+                        confirmButtonText: 'Save Changes',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3B82F6',
+                        preConfirm: () => {
+                            return {
+                                licensePlate: document.getElementById('edit-plate').value,
+                                vehicleType: document.getElementById('edit-vehicle').value,
+                                state: document.getElementById('edit-state').value
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            record.licensePlate = result.value.licensePlate;
+                            record.vehicleType = result.value.vehicleType;
+                            record.state = result.value.state;
+                            this.updateUI();
+                            this.showNotification('Record updated successfully', 'success');
+                        }
+                    });
+                }
+            }
+
+            deleteRecord(id) {
+                Swal.fire({
+                    title: 'Delete Record',
+                    text: 'Are you sure you want to delete this record? This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#EF4444',
+                    cancelButtonColor: '#6B7280',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.detections = this.detections.filter(r => r.id !== id);
+                        this.updateUI();
+                        this.showNotification('Record deleted successfully', 'success');
+                    }
+                });
+            }
+
+            updateConfidence(value) {
+                document.getElementById('confidence-value').textContent = value + '%';
+                this.settings.confidenceThreshold = parseInt(value);
+            }
+
+            saveSettings() {
+                this.settings.autoSave = document.getElementById('auto-save').checked;
+                this.settings.realTimeAlerts = document.getElementById('real-time-alerts').checked;
+                
+                this.showNotification('Settings saved successfully', 'success');
+            }
+
+            resetSettings() {
+                document.getElementById('confidence-threshold').value = 85;
+                document.getElementById('confidence-value').textContent = '85%';
+                document.getElementById('auto-save').checked = true;
+                document.getElementById('real-time-alerts').checked = true;
+                
+                this.settings = {
+                    confidenceThreshold: 85,
+                    autoSave: true,
+                    realTimeAlerts: true
+                };
+
+                this.showNotification('Settings reset to default', 'info');
+            }
+
+            addAlertRule() {
+                Swal.fire({
+                    title: 'Add Alert Rule',
+                    html: `
+                        <div class="space-y-4">
+                            <input id="rule-name" class="swal2-input" placeholder="Rule Name">
+                            <select id="rule-condition" class="swal2-input">
+                                <option value="confidence">Low Confidence</option>
+                                <option value="blacklist">Blacklisted Plate</option>
+                                <option value="time">Time-based Alert</option>
+                                <option value="duration">Long Duration</option>
+                            </select>
+                            <input id="rule-value" class="swal2-input" placeholder="Threshold Value">
+                            <select id="rule-action" class="swal2-input">
+                                <option value="email">Send Email</option>
+                                <option value="sms">Send SMS</option>
+                                <option value="webhook">Webhook</option>
+                                <option value="notification">System Notification</option>
+                            </select>
+                        </div>
+                    `,
+                    confirmButtonText: 'Create Rule',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3B82F6',
+                    preConfirm: () => {
+                        return {
+                            name: document.getElementById('rule-name').value,
+                            condition: document.getElementById('rule-condition').value,
+                            value: document.getElementById('rule-value').value,
+                            action: document.getElementById('rule-action').value
+                        };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed && result.value.name) {
+                        const rule = {
+                            id: Date.now(),
+                            ...result.value,
+                            enabled: true,
+                            created: new Date()
+                        };
+                        
+                        this.alertRules.push(rule);
+                        this.renderAlertRules();
+                        this.showNotification('Alert rule created successfully', 'success');
+                    }
+                });
+            }
+
+            renderAlertRules() {
+                const container = document.getElementById('alert-rules');
+                container.innerHTML = '';
+
+                this.alertRules.forEach(rule => {
+                    const ruleElement = document.createElement('div');
+                    ruleElement.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex justify-between items-center';
+                    ruleElement.innerHTML = `
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-white">${rule.name}</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${rule.condition} → ${rule.action}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Created: ${rule.created.toLocaleDateString()}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${rule.enabled ? 'checked' : ''} class="sr-only peer" onchange="lpr.toggleAlertRule(${rule.id})">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                            <button onclick="lpr.deleteAlertRule(${rule.id})" class="text-red-600 hover:text-red-900">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(ruleElement);
+                });
+
+                lucide.createIcons();
+            }
+
+            toggleAlertRule(id) {
+                const rule = this.alertRules.find(r => r.id === id);
+                if (rule) {
+                    rule.enabled = !rule.enabled;
+                    this.showNotification(`Alert rule ${rule.enabled ? 'enabled' : 'disabled'}`, 'info');
+                }
+            }
+
+            deleteAlertRule(id) {
+                this.alertRules = this.alertRules.filter(r => r.id !== id);
+                this.renderAlertRules();
+                this.showNotification('Alert rule deleted', 'success');
+            }
+
+            toggleNotifications() {
+                const panel = document.getElementById('notification-panel');
+                panel.classList.toggle('hidden');
+                
+                if (!panel.classList.contains('hidden')) {
+                    this.renderNotifications();
+                }
+            }
+
+            renderNotifications() {
+                const container = document.getElementById('notifications-list');
+                container.innerHTML = '';
+
+                if (this.notifications.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center">No notifications</p>';
+                    return;
+                }
+
+                this.notifications.slice(0, 10).forEach(notification => {
+                    const notificationElement = document.createElement('div');
+                    notificationElement.className = `p-3 border-l-4 rounded ${this.getNotificationStyles(notification.type)}`;
+                    notificationElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium">${notification.title}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${notification.message}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${notification.time.toLocaleString()}</p>
+                            </div>
+                            <button onclick="lpr.dismissNotification(${notification.id})" class="text-gray-400 hover:text-gray-600">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(notificationElement);
+                });
+
+                lucide.createIcons();
+            }
+
+            getNotificationStyles(type) {
+                switch (type) {
+                    case 'success':
+                        return 'border-green-500 bg-green-50 dark:bg-green-900/20';
+                    case 'warning':
+                        return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
+                    case 'error':
+                        return 'border-red-500 bg-red-50 dark:bg-red-900/20';
+                    default:
+                        return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
+                }
+            }
+
+            showNotification(message, type = 'info', title = null) {
+                const notification = {
+                    id: Date.now(),
+                    title: title || this.getNotificationTitle(type),
+                    message: message,
+                    type: type,
+                    time: new Date()
+                };
+
+                this.notifications.unshift(notification);
+
+                const badge = document.getElementById('notification-badge');
+                if (this.notifications.length > 0) {
+                    badge.textContent = this.notifications.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                setTimeout(() => {
+                    this.dismissNotification(notification.id);
+                }, 10000);
+            }
+
+            getNotificationTitle(type) {
+                switch (type) {
+                    case 'success':
+                        return 'Success';
+                    case 'warning':
+                        return 'Warning';
+                    case 'error':
+                        return 'Error';
+                    default:
+                        return 'Information';
+                }
+            }
+
+            dismissNotification(id) {
+                this.notifications = this.notifications.filter(n => n.id !== id);
+                this.renderNotifications();
+                
+                const badge = document.getElementById('notification-badge');
+                if (this.notifications.length > 0) {
+                    badge.textContent = this.notifications.length;
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            loadSampleData() {
+                const sampleData = [
+                    {
+                        id: 1,
+                        licensePlate: 'ABC-1234',
+                        vehicleType: 'Car',
+                        state: 'CA',
+                        entryTime: new Date(Date.now() - 3600000),
+                        exitTime: new Date(Date.now() - 1800000),
+                        confidence: 95,
+                        status: 'Exited'
+                    },
+                    {
+                        id: 2,
+                        licensePlate: 'XYZ-5678',
+                        vehicleType: 'Truck',
+                        state: 'NY',
+                        entryTime: new Date(Date.now() - 1800000),
+                        exitTime: null,
+                        confidence: 88,
+                        status: 'Active'
+                    }
+                ];
+
+                this.detections = sampleData;
+                this.updateUI();
+                this.updateStatistics();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        const lpr = new LicensePlateRecognition();
+    </script>
 </body>
 </html>
