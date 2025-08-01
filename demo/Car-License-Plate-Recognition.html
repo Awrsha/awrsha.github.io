@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +42,6 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -94,13 +94,21 @@
         }
         
         @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
         
         @keyframes slideUp {
@@ -204,6 +212,7 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -226,27 +235,27 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
                     <button id="theme-toggle" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                         <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
                     </button>
-                    
+
                     <div class="relative">
                         <button id="notifications-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
                             <i data-lucide="bell" class="w-5 h-5"></i>
                             <span id="notification-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center hidden"></span>
                         </button>
                     </div>
-                    
+
                     <button class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <div id="mobile-menu" class="md:hidden hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
                 <a href="#dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900">Dashboard</a>
@@ -352,13 +361,13 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="real-time-feed">
                             <video id="camera-feed" class="w-full h-48 sm:h-64 lg:h-80 bg-gray-900 rounded-lg object-cover" autoplay muted></video>
                             <div id="detection-overlay" class="detection-overlay"></div>
                             <div id="scanning-indicator" class="scanning-animation absolute inset-0 hidden"></div>
                         </div>
-                        
+
                         <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <button id="capture-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm">
@@ -386,7 +395,7 @@
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Latest Detections</h3>
                         <div id="latest-detections" class="space-y-3 max-h-60 sm:max-h-80 overflow-y-auto custom-scrollbar">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -428,11 +437,11 @@
                             </tr>
                         </thead>
                         <tbody id="records-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            
+
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 space-y-3 sm:space-y-0">
                     <div class="text-sm text-gray-600 dark:text-gray-400">
                         Showing <span id="showing-start">1</span> to <span id="showing-end">10</span> of <span id="total-records">0</span> records
@@ -442,18 +451,6 @@
                         <span id="page-info" class="px-3 py-1 text-sm text-gray-600 dark:text-gray-400">Page 1 of 1</span>
                         <button id="next-page" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled>Next</button>
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hourly Detection Trends</h3>
-                    <canvas id="hourly-chart" class="w-full h-48 sm:h-64"></canvas>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vehicle Type Distribution</h3>
-                    <canvas id="vehicle-chart" class="w-full h-48 sm:h-64"></canvas>
                 </div>
             </div>
         </div>
@@ -613,14 +610,14 @@
                 </div>
 
                 <div id="alert-rules" class="space-y-4">
-                    
+
                 </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
                 <h2 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Recent Alerts</h2>
                 <div id="recent-alerts" class="space-y-4">
-                    
+
                 </div>
             </div>
         </div>
@@ -631,7 +628,7 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
         </div>
         <div id="notifications-list" class="p-4 space-y-3">
-            
+
         </div>
     </div>
 
@@ -693,7 +690,7 @@
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const target = link.getAttribute('href').substring(1);
-                        
+
                         sections.forEach(section => {
                             const element = document.getElementById(`${section}-section`);
                             if (element) {
@@ -737,7 +734,10 @@
             async initializeCamera() {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { width: 1920, height: 1080 }
+                        video: {
+                            width: 1920,
+                            height: 1080
+                        }
                     });
                     const video = document.getElementById('camera-feed');
                     video.srcObject = stream;
@@ -753,7 +753,7 @@
                 document.getElementById('start-detection').classList.add('hidden');
                 document.getElementById('stop-detection').classList.remove('hidden');
                 document.getElementById('scanning-indicator').classList.remove('hidden');
-                
+
                 this.detectionInterval = setInterval(() => {
                     this.simulateDetection();
                 }, 3000);
@@ -766,7 +766,7 @@
                 document.getElementById('start-detection').classList.remove('hidden');
                 document.getElementById('stop-detection').classList.add('hidden');
                 document.getElementById('scanning-indicator').classList.add('hidden');
-                
+
                 if (this.detectionInterval) {
                     clearInterval(this.detectionInterval);
                 }
@@ -885,13 +885,13 @@
                 pageRecords.forEach(record => {
                     const row = document.createElement('tr');
                     row.className = 'table-row-animation hover:bg-gray-50 dark:hover:bg-gray-700';
-                    
-                    const duration = record.exitTime ? 
+
+                    const duration = record.exitTime ?
                         this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
 
                     const statusColor = record.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                                      record.status === 'Exited' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                        record.status === 'Exited' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
 
                     row.innerHTML = `
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
@@ -956,69 +956,7 @@
             }
 
             initializeCharts() {
-                this.createHourlyChart();
-                this.createVehicleChart();
                 this.createWeeklyChart();
-            }
-
-            createHourlyChart() {
-                const ctx = document.getElementById('hourly-chart').getContext('2d');
-                this.charts.hourly = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-                        datasets: [{
-                            label: 'Hourly Detections',
-                            data: Array.from({length: 24}, () => Math.floor(Math.random() * 30)),
-                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                            borderColor: '#3B82F6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-
-            createVehicleChart() {
-                const ctx = document.getElementById('vehicle-chart').getContext('2d');
-                this.charts.vehicle = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Cars', 'Trucks', 'Motorcycles', 'Vans', 'Buses'],
-                        datasets: [{
-                            data: [45, 25, 15, 10, 5],
-                            backgroundColor: [
-                                '#3B82F6',
-                                '#10B981',
-                                '#F59E0B',
-                                '#EF4444',
-                                '#8B5CF6'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
             }
 
             createWeeklyChart() {
@@ -1074,16 +1012,16 @@
 
             async processUploadedImage(imageSrc) {
                 this.showNotification('Processing uploaded image...', 'info');
-                
+
                 try {
                     const result = await Tesseract.recognize(imageSrc, 'eng', {
                         logger: m => console.log(m)
                     });
-                    
+
                     const text = result.data.text.trim();
                     const platePattern = /[A-Z0-9]{2,3}-[A-Z0-9]{3,4}/;
                     const match = text.match(platePattern);
-                    
+
                     if (match) {
                         const detection = {
                             id: Date.now(),
@@ -1096,7 +1034,7 @@
                             status: 'Manual',
                             image: imageSrc
                         };
-                        
+
                         this.detections.unshift(detection);
                         this.updateUI();
                         this.showNotification(`License plate detected: ${match[0]}`, 'success');
@@ -1114,10 +1052,10 @@
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                
+
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0);
-                
+
                 const dataURL = canvas.toDataURL('image/png');
                 this.downloadImage(dataURL, `capture_${Date.now()}.png`);
                 this.showNotification('Image captured successfully', 'success');
@@ -1138,7 +1076,7 @@
                     record.vehicleType.toLowerCase().includes(query.toLowerCase()) ||
                     record.state.toLowerCase().includes(query.toLowerCase())
                 );
-                
+
                 this.currentPage = 1;
                 this.renderFilteredRecords(filteredRecords);
             }
@@ -1150,13 +1088,13 @@
                 records.slice(0, this.recordsPerPage).forEach(record => {
                     const row = document.createElement('tr');
                     row.className = 'table-row-animation hover:bg-gray-50 dark:hover:bg-gray-700';
-                    
-                    const duration = record.exitTime ? 
+
+                    const duration = record.exitTime ?
                         this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
 
                     const statusColor = record.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                      record.status === 'Exited' ? 'bg-blue-100 text-blue-800' :
-                                      'bg-red-100 text-red-800';
+                        record.status === 'Exited' ? 'bg-blue-100 text-blue-800' :
+                        'bg-red-100 text-red-800';
 
                     row.innerHTML = `
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
@@ -1199,9 +1137,9 @@
             }
 
             exportData() {
-                const csvContent = "data:text/csv;charset=utf-8," 
-                    + "License Plate,Vehicle Type,Entry Time,Exit Time,Duration,Confidence,Status\n"
-                    + this.detections.map(record => {
+                const csvContent = "data:text/csv;charset=utf-8," +
+                    "License Plate,Vehicle Type,Entry Time,Exit Time,Duration,Confidence,Status\n" +
+                    this.detections.map(record => {
                         const duration = record.exitTime ? this.calculateDuration(record.entryTime, record.exitTime) : 'Active';
                         return `${record.licensePlate},${record.vehicleType},${record.entryTime.toLocaleString()},${record.exitTime ? record.exitTime.toLocaleString() : ''},${duration},${record.confidence}%,${record.status}`;
                     }).join("\n");
@@ -1304,7 +1242,7 @@
             saveSettings() {
                 this.settings.autoSave = document.getElementById('auto-save').checked;
                 this.settings.realTimeAlerts = document.getElementById('real-time-alerts').checked;
-                
+
                 this.showNotification('Settings saved successfully', 'success');
             }
 
@@ -1313,7 +1251,7 @@
                 document.getElementById('confidence-value').textContent = '85%';
                 document.getElementById('auto-save').checked = true;
                 document.getElementById('real-time-alerts').checked = true;
-                
+
                 this.settings = {
                     confidenceThreshold: 85,
                     autoSave: true,
@@ -1363,7 +1301,7 @@
                             enabled: true,
                             created: new Date()
                         };
-                        
+
                         this.alertRules.push(rule);
                         this.renderAlertRules();
                         this.showNotification('Alert rule created successfully', 'success');
@@ -1417,7 +1355,7 @@
             toggleNotifications() {
                 const panel = document.getElementById('notification-panel');
                 panel.classList.toggle('hidden');
-                
+
                 if (!panel.classList.contains('hidden')) {
                     this.renderNotifications();
                 }
@@ -1506,7 +1444,7 @@
             dismissNotification(id) {
                 this.notifications = this.notifications.filter(n => n.id !== id);
                 this.renderNotifications();
-                
+
                 const badge = document.getElementById('notification-badge');
                 if (this.notifications.length > 0) {
                     badge.textContent = this.notifications.length;
@@ -1516,28 +1454,25 @@
             }
 
             loadSampleData() {
-                const sampleData = [
-                    {
-                        id: 1,
-                        licensePlate: 'ABC-1234',
-                        vehicleType: 'Car',
-                        state: 'CA',
-                        entryTime: new Date(Date.now() - 3600000),
-                        exitTime: new Date(Date.now() - 1800000),
-                        confidence: 95,
-                        status: 'Exited'
-                    },
-                    {
-                        id: 2,
-                        licensePlate: 'XYZ-5678',
-                        vehicleType: 'Truck',
-                        state: 'NY',
-                        entryTime: new Date(Date.now() - 1800000),
-                        exitTime: null,
-                        confidence: 88,
-                        status: 'Active'
-                    }
-                ];
+                const sampleData = [{
+                    id: 1,
+                    licensePlate: 'ABC-1234',
+                    vehicleType: 'Car',
+                    state: 'CA',
+                    entryTime: new Date(Date.now() - 3600000),
+                    exitTime: new Date(Date.now() - 1800000),
+                    confidence: 95,
+                    status: 'Exited'
+                }, {
+                    id: 2,
+                    licensePlate: 'XYZ-5678',
+                    vehicleType: 'Truck',
+                    state: 'NY',
+                    entryTime: new Date(Date.now() - 1800000),
+                    exitTime: null,
+                    confidence: 88,
+                    status: 'Active'
+                }];
 
                 this.detections = sampleData;
                 this.updateUI();
@@ -1553,4 +1488,5 @@
         const lpr = new LicensePlateRecognition();
     </script>
 </body>
+
 </html>

@@ -127,6 +127,26 @@
         
         .portfolio-item {
             transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .portfolio-item .portfolio-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+        
+        .portfolio-item .portfolio-info {
+            flex: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .portfolio-item .portfolio-footer {
+            margin-top: auto;
+            padding-top: 1rem;
         }
         
         .portfolio-item.hidden {
@@ -213,6 +233,213 @@
         .upload-area.dragover {
             border-color: #4ECDC4;
             background-color: rgba(78, 205, 196, 0.1);
+        }
+        
+        .company-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .company-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .company-modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        .dark .company-modal-content {
+            background: #232323;
+            color: #E0E0E0;
+        }
+        
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .company-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .company-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: white;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .company-info h4 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0 0 0.25rem 0;
+            color: #1f2937;
+        }
+        
+        .company-info p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .company-details {
+            margin-top: 1rem;
+        }
+        
+        .company-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .company-details .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .company-website {
+            color: #5D5CDE;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .company-website:hover {
+            text-decoration: underline;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        .dark .company-card {
+            background: #374151;
+            border-color: #4b5563;
+        }
+        
+        .dark .company-info h4 {
+            color: #f9fafb;
+        }
+        
+        .dark .company-info p {
+            color: #d1d5db;
+        }
+        
+        .dark .company-logo {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+        
+        .dark .company-details .detail-row {
+            border-color: #4b5563;
+        }
+        
+        .dark .close-modal {
+            color: #d1d5db;
+        }
+        
+        .dark .close-modal:hover {
+            background: #4b5563;
+            color: #f9fafb;
+        }
+        
+        .about-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .dark .about-card {
+            background: #232323;
+        }
+        
+        .about-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 1rem;
+            object-fit: cover;
+            border: 3px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .about-image {
+            border-color: #334155;
+        }
+        
+        .about-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .about-info-item {
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border-left: 4px solid #5D5CDE;
+        }
+        
+        .dark .about-info-item {
+            background: #1e293b;
         }
     </style>
 </head>
@@ -303,7 +530,7 @@
             </div>
         </section>
 
-        <section id="about" class="py-24 relative">
+        <section id="about" class="py-16 relative">
             <div class="absolute inset-0 overflow-hidden z-0">
                 <div class="parallax-bg absolute inset-0"></div>
             </div>
@@ -314,41 +541,46 @@
                     <div class="w-16 h-1 bg-primary mx-auto mt-4"></div>
                 </div>
 
-                <div class="flex flex-col md:flex-row gap-12 items-center">
-                    <div class="md:w-1/2 section-transition">
-                        <div class="rounded-oneui overflow-hidden bg-light-card dark:bg-dark-card p-2 shadow-xl">
-                            <div class="aspect-square rounded-oneui overflow-hidden bg-gradient-to-br from-primary/40 to-secondary/40">
-                                <img src="assets/img/about.jpg" alt="Profile Image">
+                <div class="max-w-5xl mx-auto">
+                    <div class="about-card section-transition">
+                        <div class="flex flex-col lg:flex-row gap-8 items-start">
+                            <div class="flex-shrink-0 mx-auto lg:mx-0">
+                                <img src="assets/img/about.jpg" alt="Profile Image" class="about-image">
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="md:w-1/2 section-transition">
-                        <h3 class="text-2xl font-bold mb-4">Research and Development (R&D) Specialist | Software Engineer | Artificial Intelligence (AI) Programmer</h3>
-                        <p class="mb-6 text-lg">
-                            I am an AI researcher and software developer with a strong foundation in computer vision, embedded systems, and machine learning, holding a Bachelor's in Software Engineering from QIAU. My work spans advanced AI solutions in healthcare, robotics, and
-                            autonomous systems, including research on brain tumor detection using multi-modality MRI data and techniques like Multiple Instance Learning, attention mechanisms, and LSTMs. I've developed full-stack applications (Django,
-                            FastAPI), optimized neural networks (quantization, pruning, distillation), and deployed models on edge devices (Jetson, FPGA) with a focus on neuromorphic computing and hardware-aware design. As a robotics competitor representing
-                            Qazvin University globally and a contributor to national projects like AI-powered prescription systems and ADAS for Mammut, I bridge AI research with real-world deployment. I am now seeking fully funded Master's or Ph.D. opportunities
-                            abroad in AI, computer vision, or hardware-software co-design, while remaining open to global research-driven migration pathways.
-                        </p>
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <p><strong>Name:</strong> Amir Mohammad /ˈæmɪər məˈhæməd/ (Arsha /ˈɑːrʃə/ (for foreigners))</p>
-                            </div>
-                            <div>
-                                <p><strong>Experience:</strong> 5+ Years</p>
-                            </div>
-                            <div>
-                                <p><strong>Speciality:</strong> Research and Development (R&D) Specialist</p>
-                            </div>
-                            <div>
-                                <p><strong>Available:</strong> Remote Jobs with Sponsorship Visa</p>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold mb-3 text-primary">Research and Development (R&D) Specialist | Software Engineer | AI Programmer</h3>
+                                <p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                                    AI researcher and software developer with expertise in computer vision, embedded systems, and machine learning. Bachelor's in Software Engineering from QIAU. Specialized in brain tumor detection using multi-modality MRI data, Multiple Instance Learning,
+                                    and LSTMs. Experienced in full-stack development, neural network optimization, and edge deployment.
+                                </p>
+
+                                <div class="about-info-grid">
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Name:</strong>
+                                        <span class="text-sm">Amir Mohammad (Arsha for foreigners)</span>
+                                    </div>
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Experience:</strong>
+                                        <span class="text-sm">5+ Years</span>
+                                    </div>
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Speciality:</strong>
+                                        <span class="text-sm">R&D Specialist</span>
+                                    </div>
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Available:</strong>
+                                        <span class="text-sm">Remote Jobs with Sponsorship Visa</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <a href="Contact.html" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg inline-block">
+                                        Contact Me
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        <a href="Contact.html" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg inline-block">
-                            Contact Me
-                        </a>
                     </div>
                 </div>
             </div>
@@ -622,29 +854,20 @@
 
                 <div class="flex flex-wrap justify-center gap-4 mb-12">
                     <button class="filter-btn active px-6 py-2 rounded-full bg-primary text-white" data-filter="all" style="--active-color: #5D5CDE">
-                        All
+                        <i class="fas fa-th mr-2"></i>All
                     </button>
                     <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="computer-vision" style="--active-color: #FF6B6B">
-                        Computer Vision
+                        <i class="fas fa-eye mr-2"></i>Computer Vision
                     </button>
                     <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ai" style="--active-color: #4ECDC4">
-                        AI
+                        <i class="fas fa-brain mr-2"></i>AI
                     </button>
                     <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="ml" style="--active-color: #FFD166">
-                        Machine Learning
+                        <i class="fas fa-chart-line mr-2"></i>Machine Learning
                     </button>
                     <button class="filter-btn px-6 py-2 rounded-full bg-white dark:bg-dark-bg" data-filter="full-stack" style="--active-color: #06D6A0">
-                        Full Stack
+                        <i class="fas fa-code mr-2"></i>Full Stack
                     </button>
-                </div>
-
-                <div class="mb-8">
-                    <div class="upload-area" id="upload-area">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-primary mb-4"></i>
-                        <p class="text-lg mb-2">Upload Portfolio Images</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Drag and drop images or click to browse</p>
-                        <input type="file" id="image-upload" multiple accept="image/*" class="hidden">
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 portfolio-grid">
@@ -653,37 +876,25 @@
                             <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=200&fit=crop" alt="Face Recognition" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Face Verification with MTCNN and InceptionResnetV1</h3>
-                            <p class="mb-4">A deep learning-based face verification system using MTCNN for face detection and InceptionResnetV1 for face recognition.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Face Verification with MTCNN and InceptionResnetV1</h3>
+                                <p class="mb-4">A deep learning-based face verification system using MTCNN for face detection and InceptionResnetV1 for face recognition.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Face-Recognition-and-Registration.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai">
-                        <div class="h-48 relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop" alt="Medical Chatbot" class="portfolio-image">
-                            <div class="absolute inset-0 bg-gradient-to-t from-tertiary/20 to-transparent"></div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">AI-Powered Medical Assistant Chatbot</h3>
-                            <p class="mb-4">An intelligent chatbot system providing medical information and health guidance in Persian</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">NLP</span>
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">LLM</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2023 - Present</span>
-                                <a href="demo/Medical-Assistant-Chatbot.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="face-recognition">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Face-Recognition-and-Registration.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -693,17 +904,25 @@
                             <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=200&fit=crop" alt="Medical Appointment" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent1/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Medical Appointment Reservation System</h3>
-                            <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Medical Appointment Reservation System</h3>
+                                <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/Medical-Appointment-Reservation-System.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="medical-appointment">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Medical-Appointment-Reservation-System.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -713,17 +932,25 @@
                             <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=200&fit=crop" alt="Medical Appointment" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent1/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">NMA</h3>
-                            <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Advanced Synaptic Symphony Platform</h3>
+                                <p class="mb-4">Real-time analysis of neural activity modulation by prior expectations</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/NMA.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="synaptic-symphony">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/NMA.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -733,17 +960,25 @@
                             <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&h=200&fit=crop" alt="Dermatological Analysis" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Smart Dermatological Analysis & Prescription System (SDAPS)</h3>
-                            <p class="mb-4">Advanced AI-powered Dermatological Analysis Platform</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Artificial Intelligence</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Smart Dermatological Analysis & Prescription System (SDAPS)</h3>
+                                <p class="mb-4">Advanced AI-powered Dermatological Analysis Platform</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Artificial Intelligence</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/SDAPS.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="sdaps">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/SDAPS.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -753,37 +988,25 @@
                             <img src="https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=400&h=200&fit=crop" alt="GitHub Manager" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent2/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Advanced Github Manager</h3>
-                            <p class="mb-4">Python script for managing GitHub repositories and related operations using the GitHub API.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Full Stack Programming</span>
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">API Development</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Advanced Github Manager</h3>
+                                <p class="mb-4">Python script for managing GitHub repositories and related operations using the GitHub API.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Full Stack Programming</span>
+                                    <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">API Development</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
-                                <a href="demo/Advanced-GitHub-Manager.html" class="text-primary hover:underline">Demo (just UI)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision ai">
-                        <div class="h-48 relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400&h=200&fit=crop" alt="Drone Object Following" class="portfolio-image">
-                            <div class="absolute inset-0 bg-gradient-to-t from-secondary/20 to-transparent"></div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Tello Drone Object Following with Color Detection</h3>
-                            <p class="mb-4">How to use a Tello drone for object following using color detection.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
-                            </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2021</span>
-                                <a href="demo/Tello-Drone-Object-Following.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024 - Present</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="github-manager">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Advanced-GitHub-Manager.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -793,17 +1016,25 @@
                             <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=200&fit=crop" alt="License Plate Recognition" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-tertiary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Persian Car License Plate Recognition</h3>
-                            <p class="mb-4">The project is focused on the detection and registration of vehicle license plates, along with the identification of the vehicle's make, color, and direction, while tracking entry and exit times.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep Learning</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Persian Car License Plate Recognition</h3>
+                                <p class="mb-4">The project is focused on the detection and registration of vehicle license plates, along with the identification of the vehicle's make, color, and direction, while tracking entry and exit times.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep Learning</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Car-License-Plate-Recognition.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="license-plate">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Car-License-Plate-Recognition.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -813,17 +1044,26 @@
                             <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=200&fit=crop" alt="System Information" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent2/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Advanced System Information Checker</h3>
-                            <p class="mb-4">It provides detailed information about the system, CPU, memory, disk, and network. It utilizes the psutil library to gather system information and platform, datetime, cpuinfo, socket, and uuid modules for additional system
-                                details.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Full Stack Programming</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Advanced System Information Checker</h3>
+                                <p class="mb-4">It provides detailed information about the system, CPU, memory, disk, and network. It utilizes the psutil library to gather system information and platform, datetime, cpuinfo, socket, and uuid modules for additional system
+                                    details.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Full Stack Programming</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2023</span>
-                                <a href="demo/System-Information-Checker.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2023</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="system-info">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/System-Information-Checker.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -833,16 +1073,25 @@
                             <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=200&fit=crop" alt="Face Recognition Security" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent2/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Secure your PC with Face Recognition Technology</h3>
-                            <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial recognition security that's both powerful and easy to use.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Secure your PC with Face Recognition Technology</h3>
+                                <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial recognition security that's both powerful and easy to use.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Secure-PC-with-Face-Recognition-Technology.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="face-guard">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Secure-PC-with-Face-Recognition-Technology.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -852,17 +1101,25 @@
                             <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=200&fit=crop" alt="Coral Reef Segmentation" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Coral Reef Segmentation</h3>
-                            <p class="mb-4">An integrated suite for coral reef research combining Meta AI's SAM2 and automated annotation tools.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Coral Reef Segmentation</h3>
+                                <p class="mb-4">An integrated suite for coral reef research combining Meta AI's SAM2 and automated annotation tools.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2024</span>
-                                <a href="demo/Coral-Reef-Segmentation.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2024</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="coral-reef">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Coral-Reef-Segmentation.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -872,17 +1129,25 @@
                             <img src="https://images.unsplash.com/photo-1540962351504-03099e0a754b?w=400&h=200&fit=crop" alt="Aircraft Repair" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent1/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Farsco Aircraft Repair Engineering Company</h3>
-                            <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance services with more than two decades of experience in the aviation industry.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Science</span>
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time Series</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Farsco Aircraft Repair Engineering Company</h3>
+                                <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance services with more than two decades of experience in the aviation industry.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Science</span>
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time Series</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/Farsco-Aircraft-Repair-Company.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2025</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="farsco">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Farsco-Aircraft-Repair-Company.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -892,17 +1157,25 @@
                             <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=200&fit=crop" alt="Surveillance Dashboard" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-secondary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Sabznegar | Surveillance Dashboard</h3>
-                            <p class="mb-4">Real-time monitoring of Shiraz municipality - Ghasr Dasht district.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">Sabznegar | Surveillance Dashboard</h3>
+                                <p class="mb-4">Real-time monitoring of Shiraz municipality - Ghasr Dasht district.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Computer Vision</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2021</span>
-                                <a href="demo/Sabznegar.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2021</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="sabznegar">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/Sabznegar.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -912,17 +1185,53 @@
                             <img src="https://images.unsplash.com/photo-1629654291663-b91ad427698f?w=400&h=200&fit=crop" alt="AI Terminal" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-secondary/20 to-transparent"></div>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">AI-Enhanced Terminal</h3>
-                            <p class="mb-4">Execute Windows CMD commands with real-time AI analysis.</p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
-                                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full-Stack Programming</span>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">AI-Enhanced Terminal</h3>
+                                <p class="mb-4">Execute Windows CMD commands with real-time AI analysis.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Artificial Intelligence</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Full-Stack Programming</span>
+                                </div>
                             </div>
-                            <br>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600 dark:text-gray-400">2025</span>
-                                <a href="demo/AI-Enhanced-Terminal.html" class="text-primary hover:underline">Demo (just UI)</a>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2025</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="ai-terminal">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="demo/AI-Enhanced-Terminal.html" class="text-primary hover:underline">Demo (just UI)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack ai">
+                        <div class="h-48 relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1629654291663-b91ad427698f?w=400&h=200&fit=crop" alt="HSM Simulator" class="portfolio-image">
+                            <div class="absolute inset-0 bg-gradient-to-t from-secondary/20 to-transparent"></div>
+                        </div>
+                        <div class="portfolio-content">
+                            <div class="portfolio-info">
+                                <h3 class="text-xl font-bold mb-2">HSM Simulator for POS</h3>
+                                <p class="mb-4">Hardware Security Module simulation for Point of Sale systems with advanced cryptographic functions.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Security</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Cryptography</span>
+                                </div>
+                            </div>
+                            <div class="portfolio-footer">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">2025</span>
+                                    <div class="flex gap-3">
+                                        <button class="company-btn text-purple-600 hover:underline" data-project="hsm-simulator">
+                                            <i class="fas fa-building mr-1"></i>Company
+                                        </button>
+                                        <a href="secure.html" class="text-primary hover:underline">Secure Access Required</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -937,7 +1246,166 @@
         </footer>
     </div>
 
+    <div class="company-modal" id="company-modal">
+        <div class="company-modal-content">
+            <button class="close-modal" onclick="closeCompanyModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="text-2xl font-bold mb-4">Project Companies</h3>
+            <div class="company-grid" id="company-grid">
+            </div>
+        </div>
+    </div>
+
     <script>
+        const companyData = {
+            'face-recognition': [{
+                name: 'SYNTECH Technology Center',
+                logo: 'https://via.placeholder.com/60x60/FFD166/FFFFFF?text=ST',
+                description: 'Innovation & Technology Development Hub',
+                supervisor: 'Dr. Sarah Johnson',
+                website: 'https://syntech.com'
+            }, {
+                name: 'MRL Humanoid',
+                logo: 'https://via.placeholder.com/60x60/06D6A0/FFFFFF?text=MRL',
+                description: 'Mechatronics Research Laboratory',
+                supervisor: 'Prof. Michael Chen',
+                website: 'https://mrl-humanoid.com'
+            }],
+            'medical-appointment': [{
+                name: 'TOSAN TECHNO',
+                logo: 'https://via.placeholder.com/60x60/5D5CDE/FFFFFF?text=TT',
+                description: 'Financial Technology Solutions Provider',
+                supervisor: 'Ahmad Rezaei',
+                website: 'https://tosan.com'
+            }],
+            'synaptic-symphony': [{
+                name: 'TOSAN TECHNO',
+                logo: 'https://via.placeholder.com/60x60/5D5CDE/FFFFFF?text=TT',
+                description: 'Financial Technology Solutions Provider',
+                supervisor: 'Ahmad Rezaei',
+                website: 'https://tosan.com'
+            }],
+            'sdaps': [{
+                name: 'Mammut World Group',
+                logo: 'https://via.placeholder.com/60x60/FF6B6B/FFFFFF?text=MWG',
+                description: 'Advanced Automotive Systems & ADAS Solutions',
+                supervisor: 'Elena Rodriguez',
+                website: 'https://mammut.com'
+            }, {
+                name: 'SYNTECH Technology Center',
+                logo: 'https://via.placeholder.com/60x60/FFD166/FFFFFF?text=ST',
+                description: 'Innovation & Technology Development Hub',
+                supervisor: 'Dr. Sarah Johnson',
+                website: 'https://syntech.com'
+            }],
+            'github-manager': [{
+                name: 'BeeHouse Foundation',
+                logo: 'https://via.placeholder.com/60x60/9333EA/FFFFFF?text=BH',
+                description: 'Software Development & Innovation Foundation',
+                supervisor: 'James Wilson',
+                website: 'https://beehouse.org'
+            }],
+            'license-plate': [{
+                name: 'Mammut World Group',
+                logo: 'https://via.placeholder.com/60x60/FF6B6B/FFFFFF?text=MWG',
+                description: 'Advanced Automotive Systems & ADAS Solutions',
+                supervisor: 'Elena Rodriguez',
+                website: 'https://mammut.com'
+            }],
+            'system-info': [{
+                name: 'Telecommunication Company of Iran',
+                logo: 'https://via.placeholder.com/60x60/4ECDC4/FFFFFF?text=TCI',
+                description: 'Leading Telecommunications Infrastructure',
+                supervisor: 'Hassan Mohammadi',
+                website: 'https://tci.ir'
+            }],
+            'face-guard': [{
+                name: 'SYNTECH Technology Center',
+                logo: 'https://via.placeholder.com/60x60/FFD166/FFFFFF?text=ST',
+                description: 'Innovation & Technology Development Hub',
+                supervisor: 'Dr. Sarah Johnson',
+                website: 'https://syntech.com'
+            }],
+            'coral-reef': [{
+                name: 'Marine Research Institute',
+                logo: 'https://via.placeholder.com/60x60/17A2B8/FFFFFF?text=MRI',
+                description: 'Ocean Conservation & Marine Biology Research',
+                supervisor: 'Dr. Marine Foster',
+                website: 'https://marine-research.org'
+            }],
+            'farsco': [{
+                name: 'Farsco Aircraft Repair',
+                logo: 'https://via.placeholder.com/60x60/E11D48/FFFFFF?text=FAR',
+                description: 'Aviation Maintenance & Engineering Services',
+                supervisor: 'Captain Ali Mansouri',
+                website: 'https://farsco.ir'
+            }],
+            'sabznegar': [{
+                name: 'Shiraz Municipality',
+                logo: 'https://via.placeholder.com/60x60/10B981/FFFFFF?text=SM',
+                description: 'Smart City Solutions & Urban Management',
+                supervisor: 'Eng. Reza Karimi',
+                website: 'https://shiraz.ir'
+            }],
+            'ai-terminal': [{
+                name: 'TOSAN TECHNO',
+                logo: 'https://via.placeholder.com/60x60/5D5CDE/FFFFFF?text=TT',
+                description: 'Financial Technology Solutions Provider',
+                supervisor: 'Ahmad Rezaei',
+                website: 'https://tosan.com'
+            }],
+            'hsm-simulator': [{
+                name: 'TOSAN TECHNO',
+                logo: 'https://via.placeholder.com/60x60/5D5CDE/FFFFFF?text=TT',
+                description: 'Financial Technology Solutions Provider',
+                supervisor: 'Ahmad Rezaei',
+                website: 'https://tosan.com'
+            }]
+        };
+
+        function showCompanyModal(projectId) {
+            const modal = document.getElementById('company-modal');
+            const grid = document.getElementById('company-grid');
+            const companies = companyData[projectId] || [];
+
+            grid.innerHTML = '';
+
+            companies.forEach(company => {
+                const companyCard = document.createElement('div');
+                companyCard.className = 'company-card';
+                companyCard.innerHTML = `
+                    <div class="company-header">
+                        <img src="${company.logo}" alt="${company.name}" class="company-logo">
+                        <div class="company-info">
+                            <h4>${company.name}</h4>
+                            <p>${company.description}</p>
+                        </div>
+                    </div>
+                    <div class="company-details">
+                        <div class="detail-row">
+                            <span><strong>Project Supervisor:</strong></span>
+                            <span>${company.supervisor}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span><strong>Website:</strong></span>
+                            <a href="${company.website}" target="_blank" class="company-website">${company.website}</a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(companyCard);
+            });
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCompanyModal() {
+            const modal = document.getElementById('company-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
         function setupTheme() {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.documentElement.classList.add('dark');
@@ -1078,12 +1546,12 @@
                     const filter = btn.getAttribute('data-filter');
 
                     portfolioItems.forEach(item => {
-                        const categories = item.getAttribute('data-category').split(' ');
+                        const categories = item.getAttribute('data-category');
 
-                        if (filter === 'all' || categories.includes(filter)) {
+                        if (filter === 'all' || (categories && categories.split(' ').includes(filter))) {
                             item.classList.remove('hidden');
                             setTimeout(() => {
-                                item.style.display = 'block';
+                                item.style.display = 'flex';
                             }, 300);
                         } else {
                             item.classList.add('hidden');
@@ -1093,6 +1561,21 @@
                         }
                     });
                 });
+            });
+        }
+
+        function setupCompanyButtons() {
+            document.querySelectorAll('.company-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const projectId = btn.getAttribute('data-project');
+                    showCompanyModal(projectId);
+                });
+            });
+
+            document.getElementById('company-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    closeCompanyModal();
+                }
             });
         }
 
@@ -1141,43 +1624,45 @@
             const portfolioItems = document.querySelectorAll('.portfolio-item');
             let currentImageIndex = 0;
 
-            uploadArea.addEventListener('click', () => imageUpload.click());
+            if (uploadArea && imageUpload) {
+                uploadArea.addEventListener('click', () => imageUpload.click());
 
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
-            });
-
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                handleFiles(files);
-            });
-
-            imageUpload.addEventListener('change', (e) => {
-                handleFiles(e.target.files);
-            });
-
-            function handleFiles(files) {
-                Array.from(files).forEach((file, index) => {
-                    if (file.type.startsWith('image/') && currentImageIndex < portfolioItems.length) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const portfolioItem = portfolioItems[currentImageIndex];
-                            const imgElement = portfolioItem.querySelector('.portfolio-image');
-                            if (imgElement) {
-                                imgElement.src = e.target.result;
-                            }
-                            currentImageIndex++;
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
                 });
+
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    handleFiles(files);
+                });
+
+                imageUpload.addEventListener('change', (e) => {
+                    handleFiles(e.target.files);
+                });
+
+                function handleFiles(files) {
+                    Array.from(files).forEach((file, index) => {
+                        if (file.type.startsWith('image/') && currentImageIndex < portfolioItems.length) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const portfolioItem = portfolioItems[currentImageIndex];
+                                const imgElement = portfolioItem.querySelector('.portfolio-image');
+                                if (imgElement) {
+                                    imgElement.src = e.target.result;
+                                }
+                                currentImageIndex++;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
             }
         }
 
@@ -1188,6 +1673,7 @@
             setupAnimations();
             setupMagicCursor();
             setupPortfolioFilters();
+            setupCompanyButtons();
             setupTypewriter();
             setupImageUpload();
 
