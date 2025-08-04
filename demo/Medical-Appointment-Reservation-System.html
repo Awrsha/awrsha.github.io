@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم نوبت‌دهی پزشکی</title>
+    <title>Medical Appointment Reservation System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #5D5CDE;
@@ -40,7 +40,7 @@
         }
 
         body {
-            font-family: 'Vazirmatn', system-ui, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
@@ -234,7 +234,6 @@
             }
         }
 
-        /* Responsive Calendar */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -272,11 +271,10 @@
 
     <div class="container mx-auto px-4 py-8 max-w-5xl">
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-l from-blue-600 to-purple-600">سیستم جامع نوبت‌دهی پزشکی</h1>
-            <p class="text-lg opacity-75">با چند کلیک ساده، نوبت پزشک خود را رزرو کنید</p>
+            <h1 class="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Medical Appointment System</h1>
+            <p class="text-lg opacity-75">Book your doctor's appointment with just a few simple clicks</p>
         </header>
 
-        <!-- Progress Steps -->
         <div class="flex justify-between mb-12 relative">
             <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 z-0"></div>
             <div class="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 -translate-y-1/2 z-0 transition-all duration-500" id="progress-bar" style="width: 0%;"></div>
@@ -300,11 +298,10 @@
 
         <div class="glass-effect rounded-2xl p-6 md:p-10 shadow-xl">
             <form id="appointment-form">
-                <!-- Step 1: Specialty Selection -->
                 <div class="form-step active" id="step-1">
                     <h2 class="text-2xl font-bold mb-6 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-primary text-white text-sm">1</span>
-                        انتخاب تخصص پزشکی
+                        Select Medical Specialty
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -312,244 +309,237 @@
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-heartbeat"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">قلب و عروق</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان بیماری‌های قلبی و عروقی</p>
+                            <h3 class="text-xl font-semibold mb-2">Cardiology</h3>
+                            <p class="text-sm opacity-75">Specialists in heart and cardiovascular diseases</p>
                         </div>
                         
                         <div class="specialty-card rounded-xl p-6 text-center shadow-md" data-specialty="neurology">
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-brain"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">مغز و اعصاب</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان اختلالات سیستم عصبی</p>
+                            <h3 class="text-xl font-semibold mb-2">Neurology</h3>
+                            <p class="text-sm opacity-75">Specialists in nervous system disorders</p>
                         </div>
                         
                         <div class="specialty-card rounded-xl p-6 text-center shadow-md" data-specialty="orthopedics">
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-bone"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">ارتوپدی</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان مشکلات استخوان و مفاصل</p>
+                            <h3 class="text-xl font-semibold mb-2">Orthopedics</h3>
+                            <p class="text-sm opacity-75">Specialists in bone and joint problems</p>
                         </div>
                         
                         <div class="specialty-card rounded-xl p-6 text-center shadow-md" data-specialty="dentistry">
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-tooth"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">دندانپزشکی</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان مشکلات دندان و لثه</p>
+                            <h3 class="text-xl font-semibold mb-2">Dentistry</h3>
+                            <p class="text-sm opacity-75">Specialists in dental and gum problems</p>
                         </div>
                         
                         <div class="specialty-card rounded-xl p-6 text-center shadow-md" data-specialty="ophthalmology">
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-eye"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">چشم پزشکی</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان بیماری‌های چشم</p>
+                            <h3 class="text-xl font-semibold mb-2">Ophthalmology</h3>
+                            <p class="text-sm opacity-75">Specialists in eye diseases</p>
                         </div>
                         
                         <div class="specialty-card rounded-xl p-6 text-center shadow-md" data-specialty="dermatology">
                             <div class="text-primary text-4xl mb-4">
                                 <i class="fas fa-allergies"></i>
                             </div>
-                            <h3 class="text-xl font-semibold mb-2">پوست و مو</h3>
-                            <p class="text-sm opacity-75">متخصصین درمان بیماری‌های پوستی</p>
+                            <h3 class="text-xl font-semibold mb-2">Dermatology</h3>
+                            <p class="text-sm opacity-75">Specialists in skin diseases</p>
                         </div>
                     </div>
                     
                     <div class="mt-10 flex justify-end">
                         <button type="button" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center next-step" data-next="2" disabled>
-                            مرحله بعد
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            Next Step
+                            <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 2: Doctor Selection -->
                 <div class="form-step" id="step-2">
                     <h2 class="text-2xl font-bold mb-6 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-primary text-white text-sm">2</span>
-                        انتخاب پزشک
+                        Select Doctor
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="doctors-container">
-                        <!-- Doctors will be loaded dynamically based on specialty -->
                     </div>
                     
                     <div class="mt-10 flex justify-between">
                         <button type="button" class="px-6 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 font-medium flex items-center prev-step" data-prev="1">
-                            <i class="fas fa-arrow-right ml-2"></i>
-                            مرحله قبل
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Previous Step
                         </button>
                         <button type="button" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center next-step" data-next="3" disabled>
-                            مرحله بعد
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            Next Step
+                            <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 3: Date and Time Selection -->
                 <div class="form-step" id="step-3">
                     <h2 class="text-2xl font-bold mb-6 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-primary text-white text-sm">3</span>
-                        انتخاب زمان نوبت
+                        Select Appointment Time
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <h3 class="text-lg font-semibold mb-4">تاریخ نوبت</h3>
+                            <h3 class="text-lg font-semibold mb-4">Appointment Date</h3>
                             <div class="mb-4">
                                 <div class="flex justify-between items-center mb-4">
                                     <button type="button" id="prev-month" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <i class="fas fa-chevron-right"></i>
+                                        <i class="fas fa-chevron-left"></i>
                                     </button>
                                     <div id="current-month" class="text-lg font-medium"></div>
                                     <button type="button" id="next-month" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <i class="fas fa-chevron-left"></i>
+                                        <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
                                 <div class="calendar-grid mb-2">
-                                    <div class="text-center text-sm font-medium p-2">ش</div>
-                                    <div class="text-center text-sm font-medium p-2">ی</div>
-                                    <div class="text-center text-sm font-medium p-2">د</div>
-                                    <div class="text-center text-sm font-medium p-2">س</div>
-                                    <div class="text-center text-sm font-medium p-2">چ</div>
-                                    <div class="text-center text-sm font-medium p-2">پ</div>
-                                    <div class="text-center text-sm font-medium p-2">ج</div>
+                                    <div class="text-center text-sm font-medium p-2">Sun</div>
+                                    <div class="text-center text-sm font-medium p-2">Mon</div>
+                                    <div class="text-center text-sm font-medium p-2">Tue</div>
+                                    <div class="text-center text-sm font-medium p-2">Wed</div>
+                                    <div class="text-center text-sm font-medium p-2">Thu</div>
+                                    <div class="text-center text-sm font-medium p-2">Fri</div>
+                                    <div class="text-center text-sm font-medium p-2">Sat</div>
                                 </div>
                                 <div id="calendar-days" class="calendar-grid">
-                                    <!-- Calendar days will be generated with JS -->
                                 </div>
                             </div>
                         </div>
                         
                         <div>
-                            <h3 class="text-lg font-semibold mb-4">ساعت نوبت</h3>
+                            <h3 class="text-lg font-semibold mb-4">Appointment Time</h3>
                             <div class="grid grid-cols-3 gap-3" id="time-slots">
-                                <!-- Time slots will be generated with JS -->
                             </div>
                         </div>
                     </div>
                     
                     <div class="mt-10 flex justify-between">
                         <button type="button" class="px-6 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 font-medium flex items-center prev-step" data-prev="2">
-                            <i class="fas fa-arrow-right ml-2"></i>
-                            مرحله قبل
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Previous Step
                         </button>
                         <button type="button" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center next-step" data-next="4" disabled>
-                            مرحله بعد
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            Next Step
+                            <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 4: Personal Information -->
                 <div class="form-step" id="step-4">
                     <h2 class="text-2xl font-bold mb-6 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-primary text-white text-sm">4</span>
-                        اطلاعات شخصی
+                        Personal Information
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label for="patient-name" class="block text-sm font-medium mb-2">نام و نام خانوادگی</label>
+                            <label for="patient-name" class="block text-sm font-medium mb-2">Full Name</label>
                             <input type="text" id="patient-name" name="patient_name" class="w-full px-4 py-3 rounded-lg text-base" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="national-id" class="block text-sm font-medium mb-2">کد ملی</label>
+                            <label for="national-id" class="block text-sm font-medium mb-2">National ID</label>
                             <input type="text" id="national-id" name="national_id" class="w-full px-4 py-3 rounded-lg text-base" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="phone-number" class="block text-sm font-medium mb-2">شماره موبایل</label>
+                            <label for="phone-number" class="block text-sm font-medium mb-2">Phone Number</label>
                             <input type="tel" id="phone-number" name="phone_number" class="w-full px-4 py-3 rounded-lg text-base" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="email" class="block text-sm font-medium mb-2">ایمیل</label>
+                            <label for="email" class="block text-sm font-medium mb-2">Email</label>
                             <input type="email" id="email" name="email" class="w-full px-4 py-3 rounded-lg text-base" required>
                         </div>
                         
                         <div class="form-group">
-                            <label class="block text-sm font-medium mb-2">جنسیت</label>
-                            <div class="flex space-x-4 space-x-reverse">
+                            <label class="block text-sm font-medium mb-2">Gender</label>
+                            <div class="flex space-x-4">
                                 <label class="inline-flex items-center">
                                     <input type="radio" name="gender" value="male" class="form-radio h-5 w-5 text-primary" required>
-                                    <span class="mr-2">مرد</span>
+                                    <span class="ml-2">Male</span>
                                 </label>
                                 <label class="inline-flex items-center">
                                     <input type="radio" name="gender" value="female" class="form-radio h-5 w-5 text-primary">
-                                    <span class="mr-2">زن</span>
+                                    <span class="ml-2">Female</span>
                                 </label>
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="insurance-type" class="block text-sm font-medium mb-2">نوع بیمه</label>
+                            <label for="insurance-type" class="block text-sm font-medium mb-2">Insurance Type</label>
                             <select id="insurance-type" name="insurance_type" class="w-full px-4 py-3 rounded-lg text-base" required>
-                                <option value="" disabled selected>انتخاب کنید</option>
-                                <option value="social">تأمین اجتماعی</option>
-                                <option value="health">سلامت</option>
-                                <option value="military">نیروهای مسلح</option>
-                                <option value="other">سایر</option>
+                                <option value="" disabled selected>Select Insurance</option>
+                                <option value="social">Social Security</option>
+                                <option value="health">Health Insurance</option>
+                                <option value="military">Military</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
                         
                         <div class="form-group md:col-span-2">
-                            <label for="medical-history" class="block text-sm font-medium mb-2">سابقه پزشکی (اختیاری)</label>
+                            <label for="medical-history" class="block text-sm font-medium mb-2">Medical History (Optional)</label>
                             <textarea id="medical-history" name="medical_history" rows="4" class="w-full px-4 py-3 rounded-lg text-base"></textarea>
                         </div>
                     </div>
                     
                     <div class="mt-10 flex justify-between">
                         <button type="button" class="px-6 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 font-medium flex items-center prev-step" data-prev="3">
-                            <i class="fas fa-arrow-right ml-2"></i>
-                            مرحله قبل
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Previous Step
                         </button>
                         <button type="button" class="btn-primary px-6 py-3 rounded-lg text-white font-medium flex items-center next-step" data-next="5">
-                            مرحله بعد
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            Next Step
+                            <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Step 5: Final Confirmation -->
                 <div class="form-step" id="step-5">
                     <h2 class="text-2xl font-bold mb-6 flex items-center">
                         <span class="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-primary text-white text-sm">5</span>
-                        تأیید نهایی
+                        Final Confirmation
                     </h2>
                     
                     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4">
                             <div>
-                                <p class="text-sm opacity-75">تخصص پزشکی</p>
+                                <p class="text-sm opacity-75">Medical Specialty</p>
                                 <p class="font-semibold" id="summary-specialty"></p>
                             </div>
                             
                             <div>
-                                <p class="text-sm opacity-75">پزشک</p>
+                                <p class="text-sm opacity-75">Doctor</p>
                                 <p class="font-semibold" id="summary-doctor"></p>
                             </div>
                             
                             <div>
-                                <p class="text-sm opacity-75">تاریخ و زمان</p>
+                                <p class="text-sm opacity-75">Date & Time</p>
                                 <p class="font-semibold" id="summary-datetime"></p>
                             </div>
                             
                             <div>
-                                <p class="text-sm opacity-75">بیمار</p>
+                                <p class="text-sm opacity-75">Patient</p>
                                 <p class="font-semibold" id="summary-patient"></p>
                             </div>
                             
                             <div>
-                                <p class="text-sm opacity-75">شماره تماس</p>
+                                <p class="text-sm opacity-75">Phone Number</p>
                                 <p class="font-semibold" id="summary-phone"></p>
                             </div>
                             
                             <div>
-                                <p class="text-sm opacity-75">بیمه</p>
+                                <p class="text-sm opacity-75">Insurance</p>
                                 <p class="font-semibold" id="summary-insurance"></p>
                             </div>
                         </div>
@@ -557,26 +547,25 @@
                     
                     <div class="mt-10 flex justify-between">
                         <button type="button" class="px-6 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 font-medium flex items-center prev-step" data-prev="4">
-                            <i class="fas fa-arrow-right ml-2"></i>
-                            مرحله قبل
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Previous Step
                         </button>
                         <button type="submit" id="submit-appointment" class="btn-primary px-8 py-3 rounded-lg text-white font-medium flex items-center">
-                            <i class="fas fa-check ml-2"></i>
-                            تأیید و ثبت نوبت
+                            <i class="fas fa-check mr-2"></i>
+                            Confirm & Book Appointment
                         </button>
                     </div>
                 </div>
 
-                <!-- Success Message -->
                 <div class="form-step" id="success-step">
                     <div class="text-center py-10">
                         <div class="success-checkmark mb-6">
                             <div class="check-icon"></div>
                         </div>
-                        <h2 class="text-3xl font-bold mb-4">ثبت نوبت موفق</h2>
-                        <p class="text-lg mb-8">درخواست شما با موفقیت ثبت گردید.</p>
+                        <h2 class="text-3xl font-bold mb-4">Appointment Booked Successfully</h2>
+                        <p class="text-lg mb-8">Your appointment has been successfully registered.</p>
                         <button type="button" id="new-appointment" class="btn-primary px-8 py-3 rounded-lg text-white font-bold">
-                            تایید
+                            Confirm
                         </button>
                     </div>
                 </div>
@@ -584,13 +573,10 @@
         </div>
     </div>
 
-    <!-- Notification Container -->
     <div id="notification-container" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center space-y-2 pointer-events-none">
-        <!-- Notifications will be added here dynamically -->
     </div>
 
     <script>
-        // Check for dark mode preference
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
         }
@@ -603,15 +589,12 @@
             }
         });
         
-        // Show notification function
         function showNotification(message, type = 'info') {
             const notificationContainer = document.getElementById('notification-container');
             
-            // Create notification element
             const notification = document.createElement('div');
             notification.className = 'py-2 px-4 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 translate-y-2 max-w-md text-center pointer-events-auto';
             
-            // Set notification style based on type
             switch(type) {
                 case 'success':
                     notification.classList.add('bg-green-500', 'text-white');
@@ -627,18 +610,14 @@
                     notification.classList.add('bg-blue-500', 'text-white');
             }
             
-            // Set notification content
             notification.textContent = message;
             
-            // Add notification to container
             notificationContainer.appendChild(notification);
             
-            // Animate in
             setTimeout(() => {
                 notification.classList.remove('opacity-0', 'translate-y-2');
             }, 10);
             
-            // Animate out and remove after timeout
             setTimeout(() => {
                 notification.classList.add('opacity-0', 'translate-y-2');
                 
@@ -648,35 +627,33 @@
             }, 4000);
         }
 
-        // Data for doctors by specialty
         const doctorsBySpecialty = {
             cardiology: [
-                { id: 1, name: "دکتر محمد حسینی", expertise: "متخصص قلب", image: "https://i.imgur.com/zVGddRs.jpg" },
-                { id: 2, name: "دکتر سارا کریمی", expertise: "فوق تخصص آریتمی قلب", image: "https://i.imgur.com/zURjRt5.jpg" }
+                { id: 1, name: "Dr. Michael Johnson", expertise: "Cardiologist", image: "https://i.imgur.com/zVGddRs.jpg" },
+                { id: 2, name: "Dr. Sarah Williams", expertise: "Cardiac Arrhythmia Specialist", image: "https://i.imgur.com/zURjRt5.jpg" }
             ],
             neurology: [
-                { id: 3, name: "دکتر علی رضایی", expertise: "متخصص مغز و اعصاب", image: "https://i.imgur.com/yJeNlLI.jpg" },
-                { id: 4, name: "دکتر فاطمه موسوی", expertise: "فوق تخصص جراحی مغز", image: "https://i.imgur.com/Y1xoVqD.jpg" }
+                { id: 3, name: "Dr. David Brown", expertise: "Neurologist", image: "https://i.imgur.com/yJeNlLI.jpg" },
+                { id: 4, name: "Dr. Emily Davis", expertise: "Neurosurgeon", image: "https://i.imgur.com/Y1xoVqD.jpg" }
             ],
             orthopedics: [
-                { id: 5, name: "دکتر امیر احمدی", expertise: "متخصص ارتوپدی", image: "https://i.imgur.com/yDqP4V6.jpg" },
-                { id: 6, name: "دکتر مینا نادری", expertise: "فوق تخصص جراحی زانو", image: "https://i.imgur.com/3TLn1hd.jpg" }
+                { id: 5, name: "Dr. James Wilson", expertise: "Orthopedic Surgeon", image: "https://i.imgur.com/yDqP4V6.jpg" },
+                { id: 6, name: "Dr. Lisa Miller", expertise: "Knee Surgery Specialist", image: "https://i.imgur.com/3TLn1hd.jpg" }
             ],
             dentistry: [
-                { id: 7, name: "دکتر رضا محمدی", expertise: "دندانپزشک عمومی", image: "https://i.imgur.com/RfvFFBl.jpg" },
-                { id: 8, name: "دکتر نیلوفر صادقی", expertise: "متخصص ارتودنسی", image: "https://i.imgur.com/BVtlxvT.jpg" }
+                { id: 7, name: "Dr. Robert Garcia", expertise: "General Dentist", image: "https://i.imgur.com/RfvFFBl.jpg" },
+                { id: 8, name: "Dr. Jennifer Martinez", expertise: "Orthodontist", image: "https://i.imgur.com/BVtlxvT.jpg" }
             ],
             ophthalmology: [
-                { id: 9, name: "دکتر ناصر جعفری", expertise: "متخصص چشم", image: "https://i.imgur.com/3ZCHrWH.jpg" },
-                { id: 10, name: "دکتر زهرا حبیبی", expertise: "فوق تخصص قرنیه", image: "https://i.imgur.com/1EQNPQW.jpg" }
+                { id: 9, name: "Dr. Christopher Lee", expertise: "Ophthalmologist", image: "https://i.imgur.com/3ZCHrWH.jpg" },
+                { id: 10, name: "Dr. Amanda Taylor", expertise: "Cornea Specialist", image: "https://i.imgur.com/1EQNPQW.jpg" }
             ],
             dermatology: [
-                { id: 11, name: "دکتر مهدی تهرانی", expertise: "متخصص پوست و مو", image: "https://i.imgur.com/T1G9Rch.jpg" },
-                { id: 12, name: "دکتر لیلا کاظمی", expertise: "متخصص زیبایی پوست", image: "https://i.imgur.com/YFFA9sQ.jpg" }
+                { id: 11, name: "Dr. Matthew Anderson", expertise: "Dermatologist", image: "https://i.imgur.com/T1G9Rch.jpg" },
+                { id: 12, name: "Dr. Nicole Thomas", expertise: "Cosmetic Dermatologist", image: "https://i.imgur.com/YFFA9sQ.jpg" }
             ]
         };
 
-        // Form data object
         let formData = {
             specialty: null,
             specialtyName: null,
@@ -693,34 +670,27 @@
             medical_history: null
         };
 
-        // Insurance type mapping
         const insuranceTypeMap = {
-            "social": "تأمین اجتماعی",
-            "health": "سلامت",
-            "military": "نیروهای مسلح",
-            "other": "سایر"
+            "social": "Social Security",
+            "health": "Health Insurance",
+            "military": "Military",
+            "other": "Other"
         };
 
-        // Persian month names
-        const persianMonths = [
-            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
         ];
 
-        // Current date for the calendar
         let currentDate = new Date();
         
-        // Available times
         const availableTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", 
                                "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
         
-        // Booked times (will be fetched from the server)
         let bookedTimes = [];
 
-        // Current step
         let currentStep = 1;
 
-        // DOM Elements
         const form = document.getElementById('appointment-form');
         const progressBar = document.getElementById('progress-bar');
         const stepIndicators = document.querySelectorAll('.step-indicator');
@@ -736,19 +706,15 @@
         const submitButton = document.getElementById('submit-appointment');
         const newAppointmentButton = document.getElementById('new-appointment');
 
-        // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the form
             initForm();
             
-            // Specialty card selection
             specialtyCards.forEach(card => {
                 card.addEventListener('click', () => {
                     selectSpecialty(card);
                 });
             });
             
-            // Next/Previous buttons
             nextButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const nextStep = parseInt(button.dataset.next);
@@ -765,7 +731,6 @@
                 });
             });
             
-            // Calendar navigation
             prevMonthButton.addEventListener('click', () => {
                 navigateMonth(-1);
             });
@@ -774,27 +739,21 @@
                 navigateMonth(1);
             });
             
-            // Form submission
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 submitAppointment();
             });
             
-            // New appointment button
             newAppointmentButton.addEventListener('click', () => {
                 resetForm();
             });
             
-            // Initialize the calendar
             updateCalendar();
         });
 
-        // Initialize the form
         function initForm() {
-            // Set the progress bar
             updateProgressBar();
             
-            // Add input event listeners for personal info fields
             document.getElementById('patient-name').addEventListener('input', () => {
                 formData.patient_name = document.getElementById('patient-name').value;
             });
@@ -826,29 +785,22 @@
             });
         }
 
-        // Select a specialty
         function selectSpecialty(selectedCard) {
-            // Remove selection from all cards
             specialtyCards.forEach(card => {
                 card.classList.remove('selected');
             });
             
-            // Add selection to the clicked card
             selectedCard.classList.add('selected');
             
-            // Update form data
             formData.specialty = selectedCard.dataset.specialty;
             formData.specialtyName = selectedCard.querySelector('h3').textContent;
             
-            // Enable the next button
             nextButtons[0].disabled = false;
             
-            // Load doctors for this specialty
             const doctors = doctorsBySpecialty[formData.specialty];
             loadDoctors(doctors);
         }
 
-        // Load doctors based on specialty
         function loadDoctors(doctors) {
             doctorsContainer.innerHTML = '';
             
@@ -877,42 +829,31 @@
             });
         }
 
-        // Select a doctor
         function selectDoctor(selectedCard, doctor) {
-            // Remove selection from all cards
             document.querySelectorAll('.doctor-card').forEach(card => {
                 card.classList.remove('selected');
             });
             
-            // Add selection to the clicked card
             selectedCard.classList.add('selected');
             
-            // Update form data
             formData.doctor_id = doctor.id;
             formData.doctorName = doctor.name;
             
-            // Enable the next button
             nextButtons[1].disabled = false;
             
-            // Reset appointment date and time
             formData.appointment_date = null;
             formData.appointment_time = null;
             
-            // Reset time slots
-            timeSlots.innerHTML = '<p class="text-center col-span-3">لطفا ابتدا یک تاریخ انتخاب کنید</p>';
+            timeSlots.innerHTML = '<p class="text-center col-span-3">Please select a date first</p>';
         }
 
-        // Navigate to a specific step
         function goToStep(step) {
-            // Hide all steps
             document.querySelectorAll('.form-step').forEach(stepElement => {
                 stepElement.classList.remove('active');
             });
             
-            // Show the specified step
             document.getElementById(`step-${step}`).classList.add('active');
             
-            // Update step indicators
             stepIndicators.forEach(indicator => {
                 const indicatorStep = parseInt(indicator.dataset.step);
                 indicator.classList.remove('active', 'completed');
@@ -924,13 +865,10 @@
                 }
             });
             
-            // Update current step
             currentStep = step;
             
-            // Update the progress bar
             updateProgressBar();
             
-            // Additional actions for specific steps
             if (step === 3) {
                 updateCalendar();
             } else if (step === 5) {
@@ -938,13 +876,11 @@
             }
         }
 
-        // Update the progress bar
         function updateProgressBar() {
             const progress = ((currentStep - 1) / 4) * 100;
             progressBar.style.width = `${progress}%`;
         }
 
-        // Validate the current step
         function validateStep(step) {
             switch(step) {
                 case 1:
@@ -954,7 +890,6 @@
                 case 3:
                     return formData.appointment_date !== null && formData.appointment_time !== null;
                 case 4:
-                    // Check all required fields
                     const requiredFields = ['patient_name', 'national_id', 'phone_number', 'email', 'gender', 'insurance_type'];
                     return requiredFields.every(field => formData[field] && formData[field].trim() !== '');
                 default:
@@ -962,32 +897,23 @@
             }
         }
 
-        // Update the calendar
         function updateCalendar() {
-            // Set the current month header
-            const persianMonth = persianMonths[currentDate.getMonth()];
+            const month = monthNames[currentDate.getMonth()];
             const year = currentDate.getFullYear();
-            currentMonthElement.textContent = `${persianMonth} ${year}`;
+            currentMonthElement.textContent = `${month} ${year}`;
             
-            // Clear the calendar
             calendarDays.innerHTML = '';
             
-            // Get the first day of the month
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             
-            // Adjust for RTL calendar (Saturday is 6)
-            let startDay = firstDay.getDay();
-            if (startDay === 0) startDay = 6; // Sunday becomes 6 in RTL
-            else startDay--;
+            const startDay = firstDay.getDay();
             
-            // Add empty days for the start of the month
             for (let i = 0; i < startDay; i++) {
                 const emptyDay = document.createElement('div');
                 calendarDays.appendChild(emptyDay);
             }
             
-            // Add days of the month
             const today = new Date();
             
             for (let i = 1; i <= lastDay.getDate(); i++) {
@@ -997,11 +923,9 @@
                 
                 const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
                 
-                // Format the date as YYYY-MM-DD
                 const formattedDate = formatDate(dayDate);
                 dayElement.dataset.date = formattedDate;
                 
-                // Disable past dates
                 if (dayDate < today && !(dayDate.getDate() === today.getDate() && 
                                       dayDate.getMonth() === today.getMonth() && 
                                       dayDate.getFullYear() === today.getFullYear())) {
@@ -1009,18 +933,14 @@
                 } else {
                     dayElement.addEventListener('click', () => {
                         if (!dayElement.classList.contains('disabled')) {
-                            // Remove selection from all days
                             document.querySelectorAll('.calendar-day').forEach(day => {
                                 day.classList.remove('selected');
                             });
                             
-                            // Add selection to the clicked day
                             dayElement.classList.add('selected');
                             
-                            // Update form data
                             formData.appointment_date = formattedDate;
                             
-                            // Check availability for this doctor and date
                             checkAvailability(formData.doctor_id, formattedDate);
                         }
                     });
@@ -1030,7 +950,6 @@
             }
         }
 
-        // Format a date as YYYY-MM-DD
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -1038,26 +957,20 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Navigate to previous/next month
         function navigateMonth(direction) {
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + direction, 1);
             updateCalendar();
         }
 
-        // Check availability for a doctor on a specific date
         function checkAvailability(doctorId, date) {
-            // Show loading state
-            timeSlots.innerHTML = '<div class="col-span-3 text-center py-4"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">در حال بررسی زمان‌های موجود...</p></div>';
+            timeSlots.innerHTML = '<div class="col-span-3 text-center py-4"><i class="fas fa-spinner fa-spin text-2xl"></i><p class="mt-2">Checking available times...</p></div>';
             
-            // Set a timeout to handle slow connections
             const timeoutId = setTimeout(() => {
-                // Use offline data as fallback
                 console.log("Request timed out, using offline data");
                 bookedTimes = getOfflineBookedTimes(doctorId);
                 displayTimeSlots();
-            }, 3000); // 3 second timeout
+            }, 3000);
             
-            // API call to check availability
             fetch(`/check-availability?doctor_id=${doctorId}&date=${date}`)
                 .then(response => {
                     clearTimeout(timeoutId);
@@ -1073,18 +986,14 @@
                 .catch(error => {
                     clearTimeout(timeoutId);
                     console.error('Error checking availability:', error);
-                    // Fallback with offline data
                     bookedTimes = getOfflineBookedTimes(doctorId);
                     displayTimeSlots();
                     
-                    // Show brief error notification
-                    showNotification('خطا در اتصال به سرور. از اطلاعات آفلاین استفاده می‌شود.', 'warning');
+                    showNotification('Server connection error. Using offline data.', 'warning');
                 });
         }
         
-        // Get offline booked times based on doctor ID
         function getOfflineBookedTimes(doctorId) {
-            // Simulate different booked times for different doctors
             const offlineData = {
                 1: ["09:00", "11:00", "15:00"],
                 2: ["09:30", "14:00", "16:30"],
@@ -1103,7 +1012,6 @@
             return offlineData[doctorId] || ["10:00", "14:30", "15:30"];
         }
 
-        // Display available time slots
         function displayTimeSlots() {
             timeSlots.innerHTML = '';
             
@@ -1116,18 +1024,14 @@
                     timeSlot.classList.add('disabled');
                 } else {
                     timeSlot.addEventListener('click', () => {
-                        // Remove selection from all time slots
                         document.querySelectorAll('.time-slot').forEach(slot => {
                             slot.classList.remove('selected');
                         });
                         
-                        // Add selection to the clicked time slot
                         timeSlot.classList.add('selected');
                         
-                        // Update form data
                         formData.appointment_time = time;
                         
-                        // Enable the next button
                         nextButtons[2].disabled = false;
                     });
                 }
@@ -1136,7 +1040,6 @@
             });
         }
 
-        // Update the summary information
         function updateSummary() {
             document.getElementById('summary-specialty').textContent = formData.specialtyName;
             document.getElementById('summary-doctor').textContent = formData.doctorName;
@@ -1144,18 +1047,14 @@
             document.getElementById('summary-patient').textContent = formData.patient_name;
             document.getElementById('summary-phone').textContent = formData.phone_number;
             
-            // Map insurance type to Persian text
             const insuranceText = insuranceTypeMap[formData.insurance_type] || formData.insurance_type;
             document.getElementById('summary-insurance').textContent = insuranceText;
         }
 
-        // Submit the appointment
         function submitAppointment() {
-            // Show loading state
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> در حال ثبت...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
             
-            // Prepare data for submission
             const appointmentData = {
                 specialty: formData.specialty,
                 doctor_id: formData.doctor_id,
@@ -1170,13 +1069,11 @@
                 medical_history: formData.medical_history || ''
             };
             
-            // Set timeout for slow connections
             const timeoutId = setTimeout(() => {
                 console.log("Submission timed out, showing success anyway");
                 showSuccessStep();
             }, 3000);
             
-            // API call to submit appointment
             fetch('/submit-appointment', {
                 method: 'POST',
                 headers: {
@@ -1198,15 +1095,12 @@
                 clearTimeout(timeoutId);
                 console.error('Error submitting appointment:', error);
                 
-                // For demo purposes, show success anyway
                 showSuccessStep();
                 
-                // Show notification about offline mode
-                showNotification('ارتباط با سرور برقرار نشد، اما نوبت شما ذخیره شده و در اولین فرصت همگام‌سازی خواهد شد.', 'info');
+                showNotification('Server connection failed, but your appointment has been saved and will be synchronized when possible.', 'info');
             });
         }
         
-        // Show success step
         function showSuccessStep() {
             document.querySelectorAll('.form-step').forEach(step => {
                 step.classList.remove('active');
@@ -1214,9 +1108,7 @@
             document.getElementById('success-step').classList.add('active');
         }
 
-        // Reset the form to the first step
         function resetForm() {
-            // Reset form data
             formData = {
                 specialty: null,
                 specialtyName: null,
@@ -1233,20 +1125,16 @@
                 medical_history: null
             };
             
-            // Reset selections
             document.querySelectorAll('.specialty-card').forEach(card => {
                 card.classList.remove('selected');
             });
             
-            // Reset form inputs
             form.reset();
             
-            // Disable next buttons
             nextButtons.forEach(button => {
                 button.disabled = true;
             });
             
-            // Go to first step
             goToStep(1);
         }
     </script>
