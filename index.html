@@ -5,8 +5,9 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amir Mohammad Parvizi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Amir Parvizi — R&D Specialist | AI & Computer Vision</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -45,67 +46,67 @@
         html {
             scroll-behavior: smooth;
         }
-        
+
         .parallax-bg {
             transform: translateZ(-1px) scale(2);
             z-index: -1;
         }
-        
+
         .parallax-wrapper {
             height: 100vh;
             overflow-x: hidden;
             overflow-y: auto;
             perspective: 2px;
         }
-        
+
         .parallax-content {
             transform: translateZ(0);
         }
-        
+
         .section-transition {
             position: relative;
             transition: all 0.4s ease-out;
         }
-        
+
         .hover-lift {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .hover-lift:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         }
-        
+
         .dark .text-light-text {
             color: theme('colors.dark.text');
         }
-        
+
         .dark .bg-light-card {
             background-color: theme('colors.dark.card');
         }
-        
+
         .apple-blur {
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
-        
-         ::-webkit-scrollbar {
+
+        ::-webkit-scrollbar {
             width: 8px;
         }
-        
-         ::-webkit-scrollbar-track {
+
+        ::-webkit-scrollbar-track {
             background: transparent;
         }
-        
-         ::-webkit-scrollbar-thumb {
+
+        ::-webkit-scrollbar-thumb {
             background: rgba(93, 92, 222, 0.5);
             border-radius: 10px;
         }
-        
-         ::-webkit-scrollbar-thumb:hover {
+
+        ::-webkit-scrollbar-thumb:hover {
             background: rgba(93, 92, 222, 0.8);
         }
-        
+
         .magic-cursor {
             position: fixed;
             width: 30px;
@@ -118,37 +119,37 @@
             transition: transform 0.1s ease;
             opacity: 0;
         }
-        
+
         @media (pointer: fine) {
             .magic-cursor {
                 opacity: 1;
             }
         }
-        
+
         .portfolio-item {
             transition: all 0.5s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
         }
-        
+
         .portfolio-item .portfolio-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             padding: 1.5rem;
         }
-        
+
         .portfolio-item .portfolio-info {
             flex: 1;
             margin-bottom: 1rem;
         }
-        
+
         .portfolio-item .portfolio-footer {
             margin-top: auto;
             padding-top: 1rem;
         }
-        
+
         .portfolio-item.hidden {
             opacity: 0;
             transform: scale(0.8);
@@ -157,17 +158,17 @@
             padding: 0;
             overflow: hidden;
         }
-        
+
         .filter-btn.active {
             background-color: var(--active-color, #5D5CDE);
             color: white;
         }
-        
+
         .typewriter-cursor {
             display: inline-block;
             animation: blink 1s infinite;
         }
-        
+
         @keyframes blink {
             0%,
             50% {
@@ -178,24 +179,24 @@
                 opacity: 0;
             }
         }
-        
+
         .skill-card {
             background: linear-gradient(135deg, rgba(93, 92, 222, 0.1) 0%, rgba(255, 107, 107, 0.1) 100%);
             border: 1px solid rgba(93, 92, 222, 0.2);
             transition: all 0.3s ease;
         }
-        
+
         .skill-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(93, 92, 222, 0.15);
             border-color: rgba(93, 92, 222, 0.4);
         }
-        
+
         .skill-progress {
             background: linear-gradient(90deg, #5D5CDE 0%, #FF6B6B 50%, #4ECDC4 100%);
             animation: skillGlow 2s ease-in-out infinite alternate;
         }
-        
+
         @keyframes skillGlow {
             0% {
                 box-shadow: 0 0 5px rgba(93, 92, 222, 0.3);
@@ -204,18 +205,18 @@
                 box-shadow: 0 0 20px rgba(93, 92, 222, 0.6);
             }
         }
-        
+
         .portfolio-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
         }
-        
+
         .portfolio-item:hover .portfolio-image {
             transform: scale(1.1);
         }
-        
+
         .upload-area {
             border: 2px dashed #5D5CDE;
             border-radius: 12px;
@@ -224,17 +225,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .upload-area:hover {
             border-color: #FF6B6B;
             background-color: rgba(93, 92, 222, 0.05);
         }
-        
+
         .upload-area.dragover {
             border-color: #4ECDC4;
             background-color: rgba(78, 205, 196, 0.1);
         }
-        
+
         .company-modal {
             display: none;
             position: fixed;
@@ -246,13 +247,13 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
         }
-        
+
         .company-modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         .company-modal-content {
             background: white;
             border-radius: 1.5rem;
@@ -263,19 +264,19 @@
             position: relative;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         }
-        
+
         .dark .company-modal-content {
             background: #232323;
             color: #E0E0E0;
         }
-        
+
         .company-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
-        
+
         .company-card {
             background: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -283,19 +284,19 @@
             padding: 1.5rem;
             transition: all 0.3s ease;
         }
-        
+
         .company-card:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
-        
+
         .company-header {
             display: flex;
             align-items: center;
             gap: 1rem;
             margin-bottom: 1rem;
         }
-        
+
         .company-logo {
             width: 60px;
             height: 60px;
@@ -305,24 +306,24 @@
             padding: 8px;
             border: 1px solid #e5e7eb;
         }
-        
+
         .company-info h4 {
             font-weight: 600;
             font-size: 1.1rem;
             margin: 0 0 0.25rem 0;
             color: #1f2937;
         }
-        
+
         .company-info p {
             font-size: 0.875rem;
             color: #6b7280;
             margin: 0;
         }
-        
+
         .company-details {
             margin-top: 1rem;
         }
-        
+
         .company-details .detail-row {
             display: flex;
             justify-content: space-between;
@@ -330,21 +331,21 @@
             padding: 0.5rem 0;
             border-bottom: 1px solid #f3f4f6;
         }
-        
+
         .company-details .detail-row:last-child {
             border-bottom: none;
         }
-        
+
         .company-website {
             color: #5D5CDE;
             text-decoration: none;
             font-weight: 500;
         }
-        
+
         .company-website:hover {
             text-decoration: underline;
         }
-        
+
         .close-modal {
             position: absolute;
             top: 1rem;
@@ -362,43 +363,43 @@
             border-radius: 50%;
             transition: all 0.3s ease;
         }
-        
+
         .close-modal:hover {
             background: #f3f4f6;
             color: #1f2937;
         }
-        
+
         .dark .company-card {
             background: #374151;
             border-color: #4b5563;
         }
-        
+
         .dark .company-info h4 {
             color: #f9fafb;
         }
-        
+
         .dark .company-info p {
             color: #d1d5db;
         }
-        
+
         .dark .company-logo {
             background: #4b5563;
             border-color: #6b7280;
         }
-        
+
         .dark .company-details .detail-row {
             border-color: #4b5563;
         }
-        
+
         .dark .close-modal {
             color: #d1d5db;
         }
-        
+
         .dark .close-modal:hover {
             background: #4b5563;
             color: #f9fafb;
         }
-        
+
         .about-card {
             background: white;
             border-radius: 1.5rem;
@@ -406,11 +407,11 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-        
+
         .dark .about-card {
             background: #232323;
         }
-        
+
         .about-image {
             width: 200px;
             height: 200px;
@@ -419,25 +420,25 @@
             border: 3px solid #f1f5f9;
             transition: all 0.3s ease;
         }
-        
+
         .dark .about-image {
             border-color: #334155;
         }
-        
+
         .about-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
             margin: 1.5rem 0;
         }
-        
+
         .about-info-item {
             padding: 0.75rem;
             background: #f8fafc;
             border-radius: 0.75rem;
             border-left: 4px solid #5D5CDE;
         }
-        
+
         .dark .about-info-item {
             background: #1e293b;
         }
@@ -449,7 +450,7 @@
 
     <nav class="fixed w-full z-50 apple-blur bg-white/80 dark:bg-dark-bg/80 transition-all duration-300">
         <div class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="index.html" class="text-xl font-bold text-primary">Amir M. Parvizi</a>
+            <a href="index.html" class="text-xl font-bold text-primary">Amir Parvizi</a>
 
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="index.html" class="nav-link font-medium text-primary transition-colors">Home</a>
@@ -505,13 +506,13 @@
             <div class="container mx-auto px-6 z-10 parallax-content">
                 <div class="md:w-2/3 space-y-6">
                     <h1 class="text-4xl md:text-6xl font-bold">
-                        <span class="block">Amir M. Parvizi</span>
+                        <span class="block">Amir Parvizi</span>
                         <span class="text-primary min-h-[1.2em] block">
                             <span id="typewriter-text"></span>
-                        <span class="typewriter-cursor">|</span>
+                            <span class="typewriter-cursor">|</span>
                         </span>
                     </h1>
-                    <p class="text-xl md:text-2xl">Tehran, Tehran Province, Iran Country</p>
+                    <p class="text-xl md:text-2xl">Tehran, Tehran Province, Iran</p>
                     <div class="pt-6 flex space-x-4">
                         <a href="#about" class="px-6 py-3 bg-primary text-white rounded-oneui hover:bg-secondary transition-colors shadow-lg">
                             About Me
@@ -549,16 +550,17 @@
                             </div>
 
                             <div class="flex-1">
-                                <h3 class="text-xl font-bold mb-3 text-primary">R&D Specialist | Software Engineer | AI Programmer</h3>
+                                <h3 class="text-xl font-bold mb-3 text-primary">Senior R&D Specialist | AI & Intelligent Systems | Computer Vision</h3>
                                 <p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-                                    AI researcher and software developer with expertise in computer vision, embedded systems, and machine learning. Bachelor's in Software Engineering from QIAU. Specialized in brain tumor detection using multi-modality MRI data, Multiple Instance Learning,
-                                    and LSTMs. Experienced in full-stack development, neural network optimization, and edge deployment.
+                                    Senior R&D Specialist in Artificial Intelligence and Intelligent Systems, focused on transforming advanced research into scalable, real-world technologies across fintech, autonomous systems, and secure embedded platforms. My work sits at the intersection
+                                    of AI innovation, operating systems, and mission-critical infrastructure, bridging deep technical research with production-grade deployment. I hold a Master's degree in Artificial Intelligence and maintain active expertise
+                                    in Python, TensorFlow, PyTorch, and embedded AI, with a focus on AI system design, secure software, and cross-platform engineering.
                                 </p>
 
                                 <div class="about-info-grid">
                                     <div class="about-info-item">
                                         <strong class="text-primary">Name:</strong>
-                                        <span class="text-sm">Amir Mohammad (Arsha for foreigners)</span>
+                                        <span class="text-sm">Amir Parvizi (Arsha for foreigners)</span>
                                     </div>
                                     <div class="about-info-item">
                                         <strong class="text-primary">Experience:</strong>
@@ -566,11 +568,19 @@
                                     </div>
                                     <div class="about-info-item">
                                         <strong class="text-primary">Speciality:</strong>
-                                        <span class="text-sm">R&D Specialist</span>
+                                        <span class="text-sm">R&D Specialist — AI & Computer Vision</span>
+                                    </div>
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Languages:</strong>
+                                        <span class="text-sm">Persian (Native), English (Limited Working)</span>
                                     </div>
                                     <div class="about-info-item">
                                         <strong class="text-primary">Available:</strong>
                                         <span class="text-sm">Remote Jobs with Sponsorship Visa</span>
+                                    </div>
+                                    <div class="about-info-item">
+                                        <strong class="text-primary">Top Skills:</strong>
+                                        <span class="text-sm">R&D, Artificial Intelligence, Deep Neural Networks</span>
                                     </div>
                                 </div>
 
@@ -598,6 +608,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Education Column -->
                     <div class="section-transition">
                         <h3 class="text-2xl font-bold mb-6 flex items-center">
                             <i class="fas fa-graduation-cap text-tertiary mr-3"></i> Education
@@ -612,7 +623,7 @@
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <h4 class="text-xl font-bold">Bachelor's degree, Computer Software Engineering</h4>
-                                <p class="text-tertiary mb-2">Oct 2020 - Jan 2024</p>
+                                <p class="text-tertiary mb-2">Oct 2020 - Feb 2024</p>
                                 <p>Qazvin Azad University (QIAU)</p>
                             </div>
 
@@ -624,6 +635,7 @@
                         </div>
                     </div>
 
+                    <!-- Experience Column -->
                     <div class="section-transition">
                         <h3 class="text-2xl font-bold mb-6 flex items-center">
                             <i class="fas fa-briefcase text-accent1 mr-3"></i> Experience
@@ -631,37 +643,44 @@
 
                         <div class="space-y-6">
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Research And Development Specialist</h4>
-                                <p class="text-accent1 mb-2">Jun 2025 - Present | Tehran Province, Iran · On-Site</p>
-                                <p>TOSAN TECHNO</p>
+                                <h4 class="text-xl font-bold">AI Engineer — Vision & LLM/VLM</h4>
+                                <p class="text-accent1 mb-2">Jan 2026 - Present | Qazvin</p>
+                                <p>Leading applied AI research and development focused on deploying Vision Models, LLMs, and VLMs in real-world fintech and payment infrastructure environments.</p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Research And Development Specialist</h4>
-                                <p class="text-accent1 mb-2">Jun 2024 - Feb 2025 | Karaj, Alborz Province, Iran · Remote</p>
-                                <p>Mammut World Group</p>
+                                <h4 class="text-xl font-bold">Senior R&D Engineer — Payment Systems & Secure Banking Infrastructure</h4>
+                                <p class="text-accent1 mb-2">Jun 2025 - Present | Tehran, Iran · On-Site</p>
+                                <p>TOSAN TECHNO — Leading end-to-end R&D for payment terminals, ATMs, and banking devices; specialized in Security Platform architecture, OS validation, and multi-OS certification.</p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Deep Learning Enthusiast | Computer Vision Specialist</h4>
-                                <p class="text-accent1 mb-2">Jan 2022 - Dec 2024 | Qazvin Province, Iran · Remote</p>
-                                <p>MRL (Mechatronics Research Laboratory) Humanoid</p>
+                                <h4 class="text-xl font-bold">Neuromatch Academy Researcher — Computational Neuroscience & Decision-Making Systems</h4>
+                                <p class="text-accent1 mb-2">Jul 2025 - Apr 2026 | Los Angeles, CA · Remote</p>
+                                <p>Selected for intensive lab-style research program integrating deep learning, Bayesian inference, and large-scale neural data analysis to study decision-making under uncertainty.</p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Deep Learning Enthusiast | Computer Vision Specialist</h4>
-                                <p class="text-accent1 mb-2">Jan 2021 - Dec 2024 | Qazvin Province, Iran · Remote</p>
-                                <p>SYNTECH Technology and Innovation Center</p>
+                                <h4 class="text-xl font-bold">R&D Engineer — ADAS & Autonomous Control Systems</h4>
+                                <p class="text-accent1 mb-2">Jan 2025 - Jun 2025 | Suzhou, China</p>
+                                <p>SoftwareMotion Co., Ltd — Developed and validated AI-driven control systems for autonomous vehicles and intelligent transportation platforms.</p>
                             </div>
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
-                                <h4 class="text-xl font-bold">Full Stack Developer</h4>
-                                <p class="text-accent1 mb-2">Jun 2023 - Jan 2024 | Qazvin Province, Iran · Remote</p>
-                                <p>Telecommunication Company of Iran - TCI</p>
+                                <h4 class="text-xl font-bold">AI Engineer — Automotive AI & Safety Systems</h4>
+                                <p class="text-accent1 mb-2">Jan 2024 - Dec 2024 | Karaj, Alborz Province, Iran</p>
+                                <p>Mammut Group — Designed AI-driven safety and driver-assistance systems for heavy-duty trucks and commercial vehicles; developed ECU firmware under real-time constraints.</p>
+                            </div>
+
+                            <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
+                                <h4 class="text-xl font-bold">AI Engineer — Humanoid Autonomous Systems</h4>
+                                <p class="text-accent1 mb-2">Jan 2022 - Dec 2022 | Qazvin Province, Iran · Remote</p>
+                                <p>MRL Humanoid — Core contributor to the Mechatronics Research Laboratory Humanoid Soccer Team; multiple international RoboCup championships across Australia, Canada, Thailand, Russia, and Japan.</p>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Skills Section (Full Width) -->
                     <div class="md:col-span-2 mt-12 section-transition">
                         <h3 class="text-2xl font-bold mb-8 flex items-center">
                             <i class="fas fa-code text-accent2 mr-3"></i> Skills & Technologies
@@ -675,7 +694,7 @@
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex justify-between text-sm">
-                                        <span>ML, DL, NLP, LLM</span>
+                                        <span>ML, DL, NLP, LLM, VLM</span>
                                         <span class="text-primary font-medium">85%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -723,7 +742,7 @@
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex justify-between text-sm">
-                                        <span>Python, C++, JavaScript, R</span>
+                                        <span>Python, Java, C++, JavaScript, R</span>
                                         <span class="text-accent1 font-medium">82%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -734,12 +753,12 @@
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <div class="flex items-center mb-4">
-                                    <i class="fas fa-server text-2xl text-accent2 mr-3"></i>
-                                    <h4 class="font-bold text-lg">Backend Development</h4>
+                                    <i class="fas fa-shield-alt text-2xl text-accent2 mr-3"></i>
+                                    <h4 class="font-bold text-lg">Security & Embedded Systems</h4>
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex justify-between text-sm">
-                                        <span>Django, Flask, FastAPI, Docker</span>
+                                        <span>SP Architecture, ECU, Cryptography</span>
                                         <span class="text-accent2 font-medium">80%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -750,16 +769,16 @@
 
                             <div class="p-6 bg-white dark:bg-dark-bg rounded-oneui shadow-lg hover-lift">
                                 <div class="flex items-center mb-4">
-                                    <i class="fas fa-paint-brush text-2xl text-primary mr-3"></i>
-                                    <h4 class="font-bold text-lg">Frontend Development</h4>
+                                    <i class="fas fa-server text-2xl text-primary mr-3"></i>
+                                    <h4 class="font-bold text-lg">Backend & DevOps</h4>
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex justify-between text-sm">
-                                        <span>HTML5, CSS3, Bootstrap, Tailwind</span>
-                                        <span class="text-primary font-medium">85%</span>
+                                        <span>Django, Flask, FastAPI, Docker</span>
+                                        <span class="text-primary font-medium">80%</span>
                                     </div>
                                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                        <div class="bg-primary h-2 rounded-full" style="width: 85%"></div>
+                                        <div class="bg-primary h-2 rounded-full" style="width: 80%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -863,6 +882,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 portfolio-grid">
+                    <!-- Portfolio Item: Face Verification -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Face Recognition" class="portfolio-image">
@@ -891,6 +911,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: Medical Appointment -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Medical Appointment" class="portfolio-image">
@@ -899,7 +920,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Medical Appointment Reservation System</h3>
-                                <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era</p>
+                                <p class="mb-4">An intelligent healthcare appointment scheduling platform built for the modern era.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
                                     <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
@@ -919,15 +940,16 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: Synaptic Symphony -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai">
                         <div class="h-48 relative overflow-hidden">
-                            <img src="assets/ico/header.08c7a6f0.png" alt="Medical Appointment" class="portfolio-image">
+                            <img src="assets/ico/header.08c7a6f0.png" alt="Synaptic Symphony" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-accent1/20 to-transparent"></div>
                         </div>
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Advanced Synaptic Symphony Platform</h3>
-                                <p class="mb-4">Real-time analysis of neural activity modulation by prior expectations</p>
+                                <p class="mb-4">Real-time analysis of neural activity modulation by prior expectations.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Database</span>
                                     <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Full Stack Programming</span>
@@ -947,6 +969,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: SDAPS -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Dermatological Analysis" class="portfolio-image">
@@ -955,7 +978,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Smart Dermatological Analysis & Prescription System (SDAPS)</h3>
-                                <p class="mb-4">Advanced AI-powered Dermatological Analysis Platform</p>
+                                <p class="mb-4">Advanced AI-powered Dermatological Analysis Platform.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Computer Vision</span>
                                     <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Artificial Intelligence</span>
@@ -975,6 +998,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: GitHub Manager -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="GitHub Manager" class="portfolio-image">
@@ -1003,6 +1027,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: License Plate -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="License Plate Recognition" class="portfolio-image">
@@ -1011,7 +1036,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Persian Car License Plate Recognition</h3>
-                                <p class="mb-4">The project is focused on the detection and registration of vehicle license plates, along with the identification of the vehicle's make, color, and direction, while tracking entry and exit times.</p>
+                                <p class="mb-4">Detection and registration of vehicle license plates, along with identification of vehicle make, color, and direction.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-sm rounded-full">Computer Vision</span>
                                     <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Deep Learning</span>
@@ -1031,6 +1056,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: System Information -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="System Information" class="portfolio-image">
@@ -1039,9 +1065,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Advanced System Information Checker</h3>
-                                <p class="mb-4">It provides detailed information about the system, CPU, memory, disk, and network. It utilizes the psutil library to gather system information and platform, datetime, cpuinfo, socket, and uuid modules for additional system
-                                    details.
-                                </p>
+                                <p class="mb-4">Provides detailed information about system, CPU, memory, disk, and network using the psutil library.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Full Stack Programming</span>
                                     <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CI/CD</span>
@@ -1061,6 +1085,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: FaceGuard -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Face Recognition Security" class="portfolio-image">
@@ -1069,7 +1094,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Secure your PC with Face Recognition Technology</h3>
-                                <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial recognition security that's both powerful and easy to use.</p>
+                                <p class="mb-4">FaceGuard uses advanced AI to protect your programs and system with facial recognition security.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-accent1/10 text-accent1 text-sm rounded-full">Computer Vision</span>
                                     <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Artificial Intelligence</span>
@@ -1089,6 +1114,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: Coral Reef -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Coral Reef Segmentation" class="portfolio-image">
@@ -1117,6 +1143,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: Farsco -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="full-stack">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Aircraft Repair" class="portfolio-image">
@@ -1125,7 +1152,7 @@
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">Farsco Aircraft Repair Engineering Company</h3>
-                                <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance services with more than two decades of experience in the aviation industry.</p>
+                                <p class="mb-4">Farsco, a leader in providing specialized aircraft repair and maintenance services with more than two decades of experience.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-accent2/10 text-accent2 text-sm rounded-full">Data Science</span>
                                     <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Time Series</span>
@@ -1145,6 +1172,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: Sabznegar -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="computer-vision">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="Surveillance Dashboard" class="portfolio-image">
@@ -1173,6 +1201,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: AI Terminal -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="ai">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="AI Terminal" class="portfolio-image">
@@ -1201,6 +1230,7 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: HSM Simulator -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="banking">
                         <div class="h-48 relative overflow-hidden">
                             <img src="assets/ico/header.08c7a6f0.png" alt="HSM Simulator" class="portfolio-image">
@@ -1229,18 +1259,19 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Item: OS Management Dashboard -->
                     <div class="portfolio-item bg-white dark:bg-dark-bg rounded-oneui overflow-hidden shadow-lg hover-lift section-transition" data-category="banking">
                         <div class="h-48 relative overflow-hidden">
-                            <img src="assets/ico/header.08c7a6f0.png" alt="HSM Simulator" class="portfolio-image">
+                            <img src="assets/ico/header.08c7a6f0.png" alt="OS Management Dashboard" class="portfolio-image">
                             <div class="absolute inset-0 bg-gradient-to-t from-secondary/20 to-transparent"></div>
                         </div>
                         <div class="portfolio-content">
                             <div class="portfolio-info">
                                 <h3 class="text-xl font-bold mb-2">OS Management Dashboard</h3>
-                                <p class="mb-4">Hardware Security Module simulation for Point of Sale systems with advanced cryptographic functions.</p>
+                                <p class="mb-4">Comprehensive operating system management interface for payment terminal and ATM ecosystems.</p>
                                 <div class="flex flex-wrap gap-2">
                                     <span class="px-3 py-1 bg-secondary/10 text-secondary text-sm rounded-full">Security</span>
-                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Cryptography</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Embedded Systems</span>
                                 </div>
                             </div>
                             <div class="portfolio-footer">
@@ -1262,11 +1293,12 @@
 
         <footer class="py-8 bg-light-card dark:bg-dark-card text-center">
             <div class="container mx-auto px-6">
-                <p class="mb-4">© Copyright 2025.<span class="text-primary"> Amir M. Parvizi</span>. All Rights Reserved.</p>
+                <p class="mb-4">© Copyright 2026.<span class="text-primary"> Amir Parvizi</span>. All Rights Reserved.</p>
             </div>
         </footer>
     </div>
 
+    <!-- Company Modal -->
     <div class="company-modal" id="company-modal">
         <div class="company-modal-content">
             <button class="close-modal" onclick="closeCompanyModal()">
@@ -1281,18 +1313,20 @@
     <script>
         const companyData = {
             'face-recognition': [{
-                name: 'SYNTECH Technology & Innovation Center',
-                logo: 'assets/ico/SYNTECH.jpg',
-                description: 'Innovation & Technology Development Hub',
-                supervisor: 'Personal',
-                website: 'https://www.syntechcenter.ir/'
-            }, {
-                name: 'MRL Humanoid',
-                logo: 'assets/ico/MRL.jpg',
-                description: 'Mechatronics Research Laboratory',
-                supervisor: 'Soheil Khatibi',
-                website: 'https://mrl-humanoid.com'
-            }],
+                    name: 'SYNTECH Technology & Innovation Center',
+                    logo: 'assets/ico/SYNTECH.jpg',
+                    description: 'Innovation & Technology Development Hub',
+                    supervisor: 'Personal',
+                    website: 'https://www.syntechcenter.ir/'
+                },
+                {
+                    name: 'MRL Humanoid',
+                    logo: 'assets/ico/MRL.jpg',
+                    description: 'Mechatronics Research Laboratory',
+                    supervisor: 'Soheil Khatibi',
+                    website: 'https://mrl-humanoid.com'
+                }
+            ],
             'medical-appointment': [{
                 name: 'SYNTECH Technology & Innovation Center',
                 logo: 'assets/ico/SYNTECH.jpg',
@@ -1303,24 +1337,25 @@
             'synaptic-symphony': [{
                 name: 'NeuroMatch Academy',
                 logo: 'assets/ico/NMA.jpg',
-                description: 'Financial Technology Solutions Provider',
-                supervisor: 'Amir Reza Bahramani',
-                supervisor: 'Negar Judi',
+                description: 'Computational Neuroscience Research',
+                supervisor: 'Amir Reza Bahramani / Negar Judi',
                 website: 'https://www.neuromatch.com/'
             }],
             'sdaps': [{
-                name: 'Mammut World Group',
-                logo: 'assets/ico/Mammut.jpg',
-                description: 'Advanced Automotive Systems & ADAS Solutions',
-                supervisor: 'Eng. Chavoshi',
-                website: 'https://mammut.com'
-            }, {
-                name: 'SYNTECH Technology & Innovation Center',
-                logo: 'assets/ico/SYNTECH.jpg',
-                description: 'Innovation & Technology Development Hub',
-                supervisor: 'Personal',
-                website: 'https://www.syntechcenter.ir/'
-            }],
+                    name: 'Mammut Group',
+                    logo: 'assets/ico/Mammut.jpg',
+                    description: 'Advanced Automotive Systems & ADAS Solutions',
+                    supervisor: 'Eng. Chavoshi',
+                    website: 'https://mammut.com'
+                },
+                {
+                    name: 'SYNTECH Technology & Innovation Center',
+                    logo: 'assets/ico/SYNTECH.jpg',
+                    description: 'Innovation & Technology Development Hub',
+                    supervisor: 'Personal',
+                    website: 'https://www.syntechcenter.ir/'
+                }
+            ],
             'github-manager': [{
                 name: 'SYNTECH Technology & Innovation Center',
                 logo: 'assets/ico/SYNTECH.jpg',
@@ -1329,7 +1364,7 @@
                 website: 'https://www.syntechcenter.ir/'
             }],
             'license-plate': [{
-                name: 'Mammut World Group',
+                name: 'Mammut Group',
                 logo: 'assets/ico/Mammut.jpg',
                 description: 'Advanced Automotive Systems & ADAS Solutions',
                 supervisor: 'Eng. Chavoshi',
@@ -1411,7 +1446,7 @@
                         </div>
                         <div class="detail-row">
                             <span><strong>Website:</strong></span>
-                            <a href="${company.website}" target="_blank" class="company-website">${company.website}</a>
+                            <a href="${company.website}" target="_blank" rel="noopener" class="company-website">${company.website}</a>
                         </div>
                     </div>
                 `;
@@ -1554,11 +1589,11 @@
 
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    filterBtns.forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.classList.remove('bg-primary');
-                        btn.classList.add('bg-white', 'dark:bg-dark-bg');
-                        btn.classList.remove('text-white');
+                    filterBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.remove('bg-primary');
+                        b.classList.add('bg-white', 'dark:bg-dark-bg');
+                        b.classList.remove('text-white');
                     });
 
                     btn.classList.add('active');
@@ -1570,7 +1605,8 @@
                     portfolioItems.forEach(item => {
                         const categories = item.getAttribute('data-category');
 
-                        if (filter === 'all' || (categories && categories.split(' ').includes(filter))) {
+                        if (filter === 'all' || (categories && categories.split(' ').includes(
+                                filter))) {
                             item.classList.remove('hidden');
                             setTimeout(() => {
                                 item.style.display = 'flex';
@@ -1605,8 +1641,8 @@
             const typewriterElement = document.getElementById('typewriter-text');
             const texts = [
                 'Research and Development Specialist',
-                'Artificial Intelligence Programmer',
-                'Computer Vision Developer'
+                'AI & Computer Vision Specialist',
+                'Payment Terminal Systems Developer'
             ];
             let textIndex = 0;
             let charIndex = 0;
@@ -1670,7 +1706,7 @@
                 });
 
                 function handleFiles(files) {
-                    Array.from(files).forEach((file, index) => {
+                    Array.from(files).forEach((file) => {
                         if (file.type.startsWith('image/') && currentImageIndex < portfolioItems.length) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
